@@ -1,0 +1,18 @@
+{
+  "supercar": {
+    "file": "supercar.glb",
+    "archetypes": [
+      "Supercar",
+      "Sports Car",
+      "Coupe"
+    ]
+  },
+  "toy_car": {
+    "file": "toy_car.glb",
+    "archetypes": [
+      "Compact",
+      "Hatchback",
+      "City"
+    ]
+  }
+}

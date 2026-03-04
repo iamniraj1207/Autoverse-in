@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %}Login — AutoVerse{% endblock %}
+
+{% block content %}
+<div class="auth-page container">
+    <div class="auth-card">
+        <div class="badge">◆ Member Access</div>
+        <h2>WELCOME<br><span>BACK</span></h2>
+        {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
+        <form method="POST" action="/login">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input id="username" type="text" name="username" placeholder="your_username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Login</button>
+        </form>
+        <p class="auth-switch">Don't have an account? <a href="/register">Join AutoVerse</a></p>
+    </div>
+</div>
+{% endblock %}

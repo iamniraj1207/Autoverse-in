@@ -1,0 +1,141 @@
+{% extends "layout.html" %}
+{% block title %}Records & Hall of Fame | AutoVerse{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/f1.css') }}">
+<style>
+    .record-hero {
+        background: linear-gradient(rgba(8, 10, 15, 0.7), rgba(8, 10, 15, 0.95)),
+            url('https://images.unsplash.com/photo-1541773079-82de5b9e4e4a?w=1200&q=80&fit=crop');
+        background-size: cover;
+        background-position: center;
+        padding: 100px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .hall-of-fame-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
+    }
+
+    .legend-card {
+        background: #0e1117;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .legend-card:hover {
+        background: #141820;
+        border-color: var(--accent);
+    }
+
+    .legend-card .bg-number {
+        position: absolute;
+        right: -10px;
+        bottom: -20px;
+        font-family: var(--bebas);
+        font-size: 120px;
+        opacity: 0.03;
+        line-height: 1;
+        pointer-events: none;
+    }
+
+    .record-table-wrap {
+        background: #0e1117;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="record-hero text-center" data-aos="zoom-out" data-aos-duration="1500">
+    <div class="container">
+        <h1 class="bebas display-1 mb-3">HALL OF FAME</h1>
+        <p class="lead muted text-uppercase letter-spacing-4">Celebrating the legends who defined the limit.</p>
+    </div>
+</section>
+
+<div class="container py-5 mt-n5">
+    <div class="row g-4 mb-5">
+        {% for driver in legends %}
+        <div class="col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+            <div class="legend-card h-100">
+                <div class="bg-number">{{ driver.championships }}</div>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <img src="{{ driver.image_url }}" alt="legend" class="rounded-circle border border-secondary"
+                        style="width: 80px; height: 80px; object-fit: cover;">
+                    <div>
+                        <h3 class="bebas h2 mb-0">{{ driver.name }}</h3>
+                        <span class="muted x-small text-uppercase">{{ driver.nationality }}</span>
+                    </div>
+                </div>
+                <p class="muted small mb-4" style="line-height: 1.6">{{ driver.bio }}</p>
+                <div class="row text-center g-2 border-top border-secondary pt-3">
+                    <div class="col-4">
+                        <span class="bebas h3 d-block mb-0">{{ driver.championships }}</span>
+                        <span class="muted x-small">Titles</span>
+                    </div>
+                    <div class="col-4 border-start border-end border-secondary">
+                        <span class="bebas h3 d-block mb-0">{{ driver.wins }}</span>
+                        <span class="muted x-small">Wins</span>
+                    </div>
+                    <div class="col-4">
+                        <span class="bebas h3 d-block mb-0">{{ driver.poles }}</span>
+                        <span class="muted x-small">Poles</span>
+                    </div>
+                </div>
+                <a href="/f1/driver/{{ driver.id }}"
+                    class="btn btn-ghost btn-sm w-100 mt-4 text-accent border border-secondary">FULL CAREER ARCHIVE
+                    →</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="section-header mb-4" data-aos="fade-right">
+        <h2 class="bebas display-4 mb-0">FASTEST LAP DATABASE</h2>
+        <p class="muted">The benchmark of raw speed.</p>
+    </div>
+
+    <div class="record-table-wrap mb-5" data-aos="fade-up">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead style="background: rgba(255,255,255,0.02)">
+                    <tr>
+                        <th class="ps-4">RANK</th>
+                        <th>DRIVER</th>
+                        <th>CIRCUIT</th>
+                        <th>YEAR</th>
+                        <th class="text-accent">TIME</th>
+                        <th class="pe-4 text-end">SPEED (KM/H)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lap in laps %}
+                    <tr>
+                        <td class="ps-4 muted">#{{ loop.index }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="{{ lap.driver_img }}" width="32" height="32" class="rounded-circle" alt="dr">
+                                <span class="fw-bold">{{ lap.driver_name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ lap.circuit }}</td>
+                        <td>{{ lap.year }}</td>
+                        <td class="text-accent font-mono">{{ lap.lap_time }}</td>
+                        <td class="pe-4 text-end font-mono">{{ lap.speed_kmh }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

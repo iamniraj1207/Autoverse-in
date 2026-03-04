@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}Register — AutoVerse{% endblock %}
+
+{% block content %}
+<div class="auth-page container">
+    <div class="auth-card">
+        <div class="badge">◆ Create Account</div>
+        <h2>JOIN THE<br><span>AUTOVERSE</span></h2>
+        {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
+        <form method="POST" action="/register">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input id="username" type="text" name="username" placeholder="your_username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" placeholder="Min. 8 characters" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm">Confirm Password</label>
+                <input id="confirm" type="password" name="confirm" placeholder="Repeat password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Create Account</button>
+        </form>
+        <p class="auth-switch">Already a member? <a href="/login">Login</a></p>
+    </div>
+</div>
+{% endblock %}

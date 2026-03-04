@@ -1,0 +1,704 @@
+/* ═══════════════════════════════════════════════════════════
+   cinematic_hero.css — AutoVerse Pagani-Reveal Hero
+   All animations use transform/opacity only for 60fps GPU perf
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── LAYER 0 — THE HERO CONTAINER ─── */
+.av-hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 700px;
+    background: #000000;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    will-change: auto;
+}
+
+/* ─── LAYER 1 — THE VOID ─── pure black stage */
+/* (background: #000 on .av-hero handles this) */
+
+/* ─── LAYER 2 — GROUND SURFACE LINE ─── */
+.ground-line {
+    position: absolute;
+    bottom: 28%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right,
+            transparent 0%,
+            rgba(255, 180, 60, 0.0) 10%,
+            rgba(255, 200, 80, 0.6) 35%,
+            rgba(255, 220, 120, 1.0) 50%,
+            rgba(255, 200, 80, 0.6) 65%,
+            rgba(255, 180, 60, 0.0) 90%,
+            transparent 100%);
+    filter: blur(0.5px);
+    z-index: 2;
+    animation: groundPulse 4s ease-in-out infinite;
+}
+
+@keyframes groundPulse {
+
+    0%,
+    100% {
+        opacity: 0.7;
+        transform: scaleX(0.95);
+    }
+
+    50% {
+        opacity: 1.0;
+        transform: scaleX(1.05);
+    }
+}
+
+/* ─── LAYER 3 — GROUND POOL (underbody light) ─── */
+.ground-pool {
+    position: absolute;
+    bottom: 24%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 80px;
+    background: radial-gradient(ellipse at center,
+            rgba(232, 58, 58, 0.18) 0%,
+            rgba(200, 40, 20, 0.08) 40%,
+            transparent 70%);
+    filter: blur(8px);
+    z-index: 3;
+    animation: poolBreath 3s ease-in-out infinite;
+}
+
+@keyframes poolBreath {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: translateX(-50%) scaleX(0.9);
+    }
+
+    50% {
+        opacity: 1.0;
+        transform: translateX(-50%) scaleX(1.1);
+    }
+}
+
+/* ─── LAYER 4 — ATMOSPHERIC FOG ─── */
+.fog-scene {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 4;
+}
+
+.fog {
+    position: absolute;
+    width: 200%;
+    left: -50%;
+    border-radius: 50%;
+}
+
+.f-back {
+    bottom: 20%;
+    height: 300px;
+    background: radial-gradient(ellipse at center,
+            rgba(30, 20, 10, 0.5) 0%,
+            rgba(20, 10, 5, 0.3) 40%,
+            transparent 70%);
+    animation: fogDrift 20s ease-in-out infinite;
+    filter: blur(20px);
+}
+
+.f-mid {
+    bottom: 22%;
+    height: 200px;
+    background: radial-gradient(ellipse at 40% center,
+            rgba(40, 15, 5, 0.4) 0%,
+            rgba(20, 8, 3, 0.2) 50%,
+            transparent 70%);
+    animation: fogDrift 14s ease-in-out infinite reverse;
+    filter: blur(12px);
+}
+
+.f-front {
+    bottom: 25%;
+    height: 120px;
+    background: radial-gradient(ellipse at 60% center,
+            rgba(15, 8, 3, 0.6) 0%,
+            transparent 60%);
+    animation: fogDrift 9s ease-in-out infinite;
+    filter: blur(6px);
+}
+
+@keyframes fogDrift {
+    0% {
+        transform: translateX(0%) scaleX(1);
+    }
+
+    33% {
+        transform: translateX(3%) scaleX(1.04);
+    }
+
+    66% {
+        transform: translateX(-2%) scaleX(0.97);
+    }
+
+    100% {
+        transform: translateX(0%) scaleX(1);
+    }
+}
+
+/* ─── LAYER 5 — THE CAR IMAGE ─── */
+.car-stage {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(90vw, 1100px);
+    z-index: 10;
+    will-change: filter, opacity, transform;
+
+    /* REVEAL SEQUENCE */
+    filter: brightness(0) blur(4px);
+    opacity: 0;
+    animation: masterReveal 3.5s cubic-bezier(0.4, 0, 0.2, 1) 0.8s forwards;
+}
+
+.hero-car-img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.8));
+    display: block;
+}
+
+@keyframes masterReveal {
+    0% {
+        filter: brightness(0) blur(8px);
+        opacity: 0;
+        transform: translateX(-50%) scale(0.92) translateY(30px);
+    }
+
+    30% {
+        filter: brightness(0.12) blur(4px);
+        opacity: 0.5;
+    }
+
+    60% {
+        filter: brightness(0.6) blur(1px);
+        opacity: 0.9;
+    }
+
+    100% {
+        filter: brightness(1) blur(0);
+        opacity: 1;
+        transform: translateX(-50%) scale(1) translateY(0);
+    }
+}
+
+/* DRL ignition */
+.drl-bar {
+    opacity: 0;
+    animation: drlIgnite 0.3s ease-out 3.8s forwards;
+}
+
+@keyframes drlIgnite {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
+    }
+
+    100% {
+        opacity: 0.85;
+        filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.7));
+    }
+}
+
+/* Headlight core */
+.headlight-core {
+    opacity: 0;
+    animation: coreIgnite 0.5s ease-out 4s forwards;
+}
+
+@keyframes coreIgnite {
+    0% {
+        opacity: 0;
+    }
+
+    60% {
+        opacity: 1;
+        filter: drop-shadow(0 0 20px white) drop-shadow(0 0 40px rgba(200, 220, 255, 0.8));
+    }
+
+    100% {
+        opacity: 0.9;
+        filter: drop-shadow(0 0 12px white) drop-shadow(0 0 25px rgba(200, 220, 255, 0.5));
+    }
+}
+
+/* Headlight lens */
+.headlight-lens {
+    opacity: 0;
+    animation: lensGlow 0.4s ease-out 3.9s forwards;
+}
+
+@keyframes lensGlow {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Taillight ignition */
+.tail-bar {
+    opacity: 0;
+    animation: tailIgnite 0.4s ease-out 3.6s forwards;
+}
+
+@keyframes tailIgnite {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+        filter: drop-shadow(0 0 15px rgba(232, 58, 58, 1)) drop-shadow(-20px 0 30px rgba(232, 58, 58, 0.4));
+    }
+
+    100% {
+        opacity: 0.9;
+        filter: drop-shadow(0 0 8px rgba(232, 58, 58, 0.8)) drop-shadow(-12px 0 20px rgba(232, 58, 58, 0.25));
+    }
+}
+
+/* Body crease light catch */
+.body-crease {
+    opacity: 0;
+    animation: creaseReveal 1s ease-out 3s forwards;
+}
+
+@keyframes creaseReveal {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Brake caliper cooling glow */
+.brake-caliper {
+    animation: brakeHeat 4s ease-out 2.5s both;
+}
+
+@keyframes brakeHeat {
+    0% {
+        fill: rgba(255, 80, 0, 0.95);
+        filter: drop-shadow(0 0 8px rgba(255, 100, 0, 0.8));
+    }
+
+    40% {
+        fill: rgba(232, 58, 58, 0.85);
+        filter: drop-shadow(0 0 5px rgba(232, 58, 58, 0.5));
+    }
+
+    100% {
+        fill: rgba(232, 58, 58, 0.5);
+        filter: none;
+    }
+}
+
+/* Disc heat glow */
+.disc-glow {
+    animation: discCool 6s ease-out 2.5s both;
+}
+
+@keyframes discCool {
+    0% {
+        stroke: rgba(255, 120, 30, 0.4);
+    }
+
+    100% {
+        stroke: rgba(232, 58, 58, 0.06);
+    }
+}
+
+/* Persistent idle animations post-reveal */
+.windshield {
+    animation: windshieldShimmer 8s ease-in-out infinite 5s;
+}
+
+@keyframes windshieldShimmer {
+
+    0%,
+    85%,
+    100% {
+        fill: rgba(15, 25, 50, 0.85);
+    }
+
+    90% {
+        fill: rgba(20, 35, 70, 0.9);
+    }
+}
+
+.glass-reflection {
+    animation: reflectionMove 8s ease-in-out infinite 5s;
+}
+
+@keyframes reflectionMove {
+
+    0%,
+    100% {
+        opacity: 0.06;
+    }
+
+    50% {
+        opacity: 0.12;
+    }
+}
+
+/* Wheel hub pulse */
+.wheel-centre {
+    animation: hubPulse 3s ease-in-out infinite 5s;
+}
+
+@keyframes hubPulse {
+
+    0%,
+    100% {
+        fill: #e83a3a;
+    }
+
+    50% {
+        fill: #ff6b35;
+        filter: drop-shadow(0 0 3px rgba(255, 107, 53, 0.5));
+    }
+}
+
+/* ─── LAYER 6 — BACKLIGHT SYSTEM ─── */
+.backlight-system {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    pointer-events: none;
+}
+
+.backlight-halo {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 500px;
+    background: radial-gradient(ellipse at 50% 70%,
+            rgba(255, 160, 40, 0.10) 0%,
+            rgba(255, 100, 20, 0.06) 20%,
+            rgba(200, 50, 10, 0.03) 40%,
+            transparent 65%);
+    filter: blur(2px);
+    animation: haloBreath 5s ease-in-out infinite;
+}
+
+@keyframes haloBreath {
+
+    0%,
+    100% {
+        opacity: 0.7;
+        transform: translateX(-50%) scaleY(0.95);
+    }
+
+    50% {
+        opacity: 1.0;
+        transform: translateX(-50%) scaleY(1.05);
+    }
+}
+
+.backlight-rim-left {
+    position: absolute;
+    bottom: 25%;
+    left: 50%;
+    margin-left: -300px;
+    width: 200px;
+    height: 400px;
+    background: linear-gradient(to right, transparent, rgba(255, 150, 50, 0.04));
+    transform: rotate(-15deg);
+    transform-origin: bottom right;
+    filter: blur(4px);
+}
+
+.backlight-rim-right {
+    position: absolute;
+    bottom: 25%;
+    left: 50%;
+    margin-left: 100px;
+    width: 200px;
+    height: 400px;
+    background: linear-gradient(to left, transparent, rgba(255, 150, 50, 0.04));
+    transform: rotate(15deg);
+    transform-origin: bottom left;
+    filter: blur(4px);
+}
+
+.spotlight-cone {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 80%;
+    background: linear-gradient(to bottom,
+            rgba(255, 240, 200, 0.04) 0%,
+            rgba(255, 200, 100, 0.02) 40%,
+            transparent 80%);
+    clip-path: polygon(35% 0%, 65% 0%, 80% 100%, 20% 100%);
+    animation: spotBreath 7s ease-in-out infinite;
+}
+
+@keyframes spotBreath {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1.0;
+    }
+}
+
+/* ─── LAYER 7 — HEADLIGHT BEAMS ─── */
+.headlight-beams {
+    position: absolute;
+    bottom: 28%;
+    left: calc(50% - 600px + 90px);
+    pointer-events: none;
+    z-index: 9;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+
+.headlight-beams.ignited {
+    opacity: 1;
+}
+
+.beam-main {
+    position: absolute;
+    bottom: 0;
+    width: 500px;
+    height: 160px;
+    background: linear-gradient(to right,
+            rgba(255, 255, 255, 0.10) 0%,
+            rgba(255, 255, 255, 0.04) 40%,
+            rgba(255, 255, 255, 0.01) 70%,
+            transparent 100%);
+    clip-path: polygon(0 100%, 0 60%, 100% 0%, 100% 100%);
+    filter: blur(1px);
+}
+
+.beam-floor {
+    position: absolute;
+    bottom: 0;
+    width: 600px;
+    height: 30px;
+    background: linear-gradient(to right,
+            rgba(255, 255, 240, 0.15),
+            rgba(255, 255, 220, 0.04),
+            transparent);
+    filter: blur(2px);
+}
+
+.beam-scatter {
+    position: absolute;
+    bottom: 28px;
+    left: -20px;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, rgba(255, 255, 200, 0.2), transparent 70%);
+    filter: blur(3px);
+}
+
+/* ─── HERO TEXT LAYER ─── */
+.hero-text-content {
+    position: relative;
+    z-index: 20;
+    text-align: center;
+    padding-bottom: min(420px, 38vh);
+    opacity: 0;
+    animation: textIn 1s ease-out 4.5s forwards;
+    pointer-events: none;
+}
+
+@keyframes textIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: all;
+    }
+}
+
+.hero-text-content {
+    pointer-events: all;
+}
+
+.htc-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 7px;
+    color: rgba(232, 58, 58, 0.8);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.htc-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 14vw, 170px);
+    line-height: 0.88;
+    color: #ffffff;
+    letter-spacing: 5px;
+    text-shadow: 0 0 80px rgba(232, 58, 58, 0.2);
+    margin-bottom: 16px;
+}
+
+.htc-title .red {
+    color: #e83a3a;
+    text-shadow: 0 0 40px rgba(232, 58, 58, 0.9), 0 0 80px rgba(232, 58, 58, 0.4);
+}
+
+.htc-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.32);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 44px;
+}
+
+.htc-ctas {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.htc-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 38px;
+    background: #e83a3a;
+    color: #fff !important;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-decoration: none;
+    border: 1px solid #e83a3a;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.htc-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 30px rgba(232, 58, 58, 0.5);
+    color: #fff !important;
+}
+
+.htc-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    padding: 14px 26px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.5) !important;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.htc-btn-ghost:hover {
+    border-color: rgba(232, 58, 58, 0.5);
+    color: #fff !important;
+    transform: translateY(-2px);
+}
+
+/* Rev dot blink */
+.rev-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #fff;
+    animation: revBlink 0.45s ease-in-out infinite alternate;
+}
+
+@keyframes revBlink {
+    from {
+        opacity: 0.5;
+        transform: scale(0.7);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1.3);
+    }
+}
+
+/* Particles canvas */
+#hero-particles-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 6;
+    pointer-events: none;
+}
+
+/* ─── MOBILE FALLBACK ─── */
+@media (max-width: 768px) {
+
+    .fog-scene,
+    .backlight-system,
+    .headlight-beams {
+        display: none;
+    }
+
+    .car-stage {
+        animation-duration: 2s;
+        filter: none;
+        opacity: 1;
+        transform: translateX(-50%) scale(0.82);
+        bottom: 0;
+    }
+
+    .ground-line {
+        display: none;
+    }
+
+    .ground-pool {
+        display: none;
+    }
+
+    .hero-text-content {
+        padding-bottom: 260px;
+        animation-delay: 2.2s;
+    }
+
+    .htc-title {
+        font-size: 64px;
+    }
+}

@@ -1,0 +1,169 @@
+{% extends 'layout.html' %}
+{% block title %}Car Comparison | AutoVerse{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/compare.css') }}">
+<style>
+    .compare-page {
+        padding: 60px 0;
+        background: #05070a;
+        min-height: 100vh;
+    }
+
+    .compare-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .compare-header h1 {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 80px;
+        letter-spacing: 4px;
+        border-bottom: 2px solid #e83a3a;
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+
+    .compare-header p {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        color: #5a6070;
+        letter-spacing: 3px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="compare-page">
+    <div class="container">
+        <div class="compare-header" data-aos="fade-down">
+            <h1>HEAD TO HEAD</h1>
+            <p>{{ cars|length }} MACHINES · SIDE BY SIDE COMPARISON</p>
+        </div>
+
+        <style>
+            .compare-slot-empty {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                border: 2px dashed rgba(232, 58, 58, 0.3);
+                border-radius: 12px;
+                padding: 40px 20px;
+                text-align: center;
+                transition: 0.3s;
+                height: 100%;
+                min-height: 400px;
+            }
+
+            .compare-slot-empty:hover {
+                background: rgba(232, 58, 58, 0.05);
+                border-color: #e83a3a;
+                transform: translateY(-5px);
+            }
+
+            .cse-icon {
+                font-size: 48px;
+                color: #e83a3a;
+                margin-bottom: 20px;
+            }
+
+            .cse-text {
+                font-family: 'Bebas Neue', sans-serif;
+                font-size: 24px;
+                color: #fff;
+                letter-spacing: 2px;
+            }
+
+            .cc-row {
+                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            .cc-row:hover {
+                background: rgba(232, 58, 58, 0.08);
+                transform: translateX(5px);
+            }
+        </style>
+        <div class="compare-grid" style="--cols: 4">
+            <!-- Labels col -->
+            <div class="compare-labels" data-aos="fade-right">
+                <div class="cl-header">SPECIFICATION</div>
+                <div class="cl-row">Brand</div>
+                <div class="cl-row">Model</div>
+                <div class="cl-row">Year</div>
+                <div class="cl-row highlight">Horsepower</div>
+                <div class="cl-row highlight">Torque</div>
+                <div class="cl-row highlight">0–100 km/h</div>
+                <div class="cl-row">Top Speed</div>
+                <div class="cl-row">Engine</div>
+                <div class="cl-row">Fuel Type</div>
+                <div class="cl-row">Drivetrain</div>
+                <div class="cl-row">Weight</div>
+                <div class="cl-row highlight">Price</div>
+            </div>
+
+            {% for car in cars %}
+            <div class="compare-car-col" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+                <div class="compare-car-header">
+                    <div class="cch-img-wrap">
+                        <img src="{{ car.image_exterior or car.image_url }}" alt="{{ car.brand }} {{ car.model }}"
+                            onerror="this.src='/static/img/car_placeholder.svg'">
+                    </div>
+                    <div class="cch-name">{{ car.brand }} {{ car.model }}</div>
+                    <div class="cch-year">{{ car.year }}</div>
+                    <button class="cch-remove" onclick="removeFromCompare({{ car.id }})">Remove</button>
+                </div>
+
+                <div class="cc-row">{{ car.brand }}</div>
+                <div class="cc-row">{{ car.model }}</div>
+                <div class="cc-row">{{ car.year }}</div>
+
+                <div class="cc-row cc-highlight">
+                    <span class="ccr-val">{{ car.horsepower }}</span>
+                    <span class="ccr-unit">HP</span>
+                    <div class="ccr-bar">
+                        <div class="ccr-fill" style="--w: {{ [car.horsepower/15, 100]|min }}%"></div>
+                    </div>
+                </div>
+                <div class="cc-row cc-highlight">
+                    <span class="ccr-val">{{ car.torque }}</span>
+                    <span class="ccr-unit">Nm</span>
+                    <div class="ccr-bar">
+                        <div class="ccr-fill" style="--w: {{ [car.torque/10, 100]|min }}%"></div>
+                    </div>
+                </div>
+                <div class="cc-row cc-highlight">
+                    <span class="ccr-val">{{ "%.1f"|format(car.acceleration) }}</span>
+                    <span class="ccr-unit">s</span>
+                    <div class="ccr-bar">
+                        <div class="ccr-fill ccr-fill-inv" style="--w: {{ [(10-car.acceleration)/10*100, 100]|min }}%">
+                        </div>
+                    </div>
+                </div>
+                <div class="cc-row">{{ car.top_speed or '--' }} km/h</div>
+                <div class="cc-row">{{ car.engine or '--' }}</div>
+                <div class="cc-row">{{ car.fuel_type or '--' }}</div>
+                <div class="cc-row">{{ car.drivetrain or '--' }}</div>
+                <div class="cc-row">{{ car.weight_kg or '--' }} kg</div>
+                <div class="cc-row cc-highlight">${{ "{:,.0f}".format(car.price_usd) if car.price_usd else '--' }}</div>
+            </div>
+            {% endfor %}
+
+            {% if cars|length < 4 %} {% for i in range(4 - cars|length) %} <div class="compare-car-col"
+                data-aos="zoom-in-up" data-aos-delay="{{ (cars|length + loop.index0) * 100 }}">
+                <a href="/cars" style="text-decoration: none;">
+                    <div class="compare-slot-empty">
+                        <div class="cse-icon">+</div>
+                        <div class="cse-text">ADD VEHICLE</div>
+                        <p
+                            style="font-family: 'DM Mono', monospace; font-size: 11px; color: #5a6070; margin-top: 10px;">
+                            Select from gallery</p>
+                    </div>
+                </a>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+</div>
+{% endblock %}

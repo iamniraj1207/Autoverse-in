@@ -1,0 +1,213 @@
+{% extends 'layout.html' %}
+{% block title %}{{ team.name }} | F1 2026 Grid{% endblock %}
+
+{% block head %}
+<style>
+    .team-hero-v3 {
+        height: 70vh;
+        background: #05070a;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .team-color-glow {
+        position: absolute;
+        width: 150%;
+        height: 150%;
+
+        background: radial-gradient(circle at 70% 50%, {
+                {
+                team.primary_color
+            }
+        }
+
+        33, transparent 60%);
+    z-index: 1;
+    animation: pulsate 10s infinite alternate;
+    }
+
+    @keyframes pulsate {
+        from {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+
+        to {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+    }
+
+    .team-hero-content {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+    }
+
+    .team-chassis-3d {
+        position: absolute;
+        top: 20%;
+        right: -5%;
+        width: 60%;
+
+        filter: drop-shadow(0 0 50px {
+                    {
+                    team.primary_color
+                }
+            }
+
+            66);
+        z-index: 5;
+    }
+
+    .spec-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .spec-card h4 {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 32px;
+        color: var(--text);
+        margin-bottom: 5px;
+    }
+
+    .spec-card p {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 1px;
+        color: var(--muted2);
+        text-transform: uppercase;
+    }
+
+    .team-logo-main {
+        height: 80px;
+        margin-bottom: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="team-hero-v3">
+    <div class="team-color-glow"></div>
+    <div class="container team-hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <img src="{{ team.logo_url }}" class="team-logo-main" alt="{{ team.name }} Logo">
+                <h1 class="bebas" style="font-size: 100px; line-height: 0.85; margin-bottom: 20px;">
+                    {{ team.name.split(' ')[0] }}<br>
+                    <span style="color: {{ team.primary_color }}">{{ team.name.split(' ')[1] if ' ' in team.name else ''
+                        }}</span>
+                </h1>
+                <div class="d-flex gap-4 mb-4">
+                    <div class="lineup-avatars d-flex" style="margin-left: 10px;">
+                        {% for driver in drivers %}
+                        <img src="{{ driver.image_url }}"
+                            style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid {{ team.primary_color }}; margin-left: -15px; position:relative; z-index: {{ 10 - loop.index0 }}">
+                        {% endfor %}
+                    </div>
+                    <div>
+                        <div class="bebas">{{ team.full_name }}</div>
+                        <div class="muted small text-uppercase">{{ team.base }} · {{ team.nationality }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="/static/img/cars/f1_2026_base.png" class="team-chassis-3d" data-aos="fade-left">
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <!-- 2026 Car Specs Row -->
+    <div class="row g-4 mb-5" data-aos="fade-up">
+        <div class="col-md-3">
+            <div class="spec-card">
+                <p>Engine Unit</p>
+                <h4>{{ team.power_unit }} V6</h4>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="spec-card">
+                <p>Estimated HP</p>
+                <h4>1000+ HP</h4>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="spec-card">
+                <p>Championships</p>
+                <h4>{{ team.championships }} WCC</h4>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="spec-card">
+                <p>Top Speed</p>
+                <h4>360 km/h</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline & Lineup Section -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="glass-card p-5 mb-5">
+                <h2 class="bebas mb-5" style="font-size: 40px;">LEGACY <span>TIMELINE</span></h2>
+                <div id="team-timeline" class="timeline-v2"></div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="glass-card p-4">
+                <h3 class="bebas mb-4">2026 DRIVERS</h3>
+                <div class="lineup-list">
+                    {% for driver in drivers %}
+                    <a href="/f1/driver/{{ driver.id }}" class="d-flex align-items-center gap-3 mb-3 p-3 rounded"
+                        style="background: rgba(255,255,255,0.03); transition: 0.3s;">
+                        <img src="{{ driver.image_url }}"
+                            style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                        <div>
+                            <div class="bebas" style="font-size: 20px;">{{ driver.name }}</div>
+                            <div class="muted small">WINNER OF {{ driver.wins }} GP</div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <hr class="opacity-10 my-4">
+                <h4 class="bebas opacity-30 mt-4">TEAM STRENGTH</h4>
+                <div class="strength-meter mb-3">
+                    <div class="d-flex justify-content-between small mb-1"><span>AERO</span><span>92%</span></div>
+                    <div class="xp-bar-bg" style="height: 4px;">
+                        <div class="xp-bar-fill" style="width: 92%; background: {{ team.primary_color }}"></div>
+                    </div>
+                </div>
+                <div class="strength-meter">
+                    <div class="d-flex justify-content-between small mb-1"><span>POWER</span><span>88%</span></div>
+                    <div class="xp-bar-bg" style="height: 4px;">
+                        <div class="xp-bar-fill" style="width: 88%; background: {{ team.primary_color }}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/f1_timeline.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof F1Timeline !== 'undefined') {
+            new F1Timeline(
+                'team-timeline',
+                '/api/timeline/team/{{ team.id }}',
+                '{{ team.primary_color }}'
+            );
+        }
+    });
+</script>
+{% endblock %}

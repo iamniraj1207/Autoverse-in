@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block title %}{{ brand_name }} — AutoVerse{% endblock %}
+
+{% block content %}
+<div class="container page-section">
+
+    <a href="/cars" class="back-link">← Back to Cars</a>
+
+    <div class="page-header">
+        <div class="badge">◆ Brand History</div>
+        <h2>{{ brand_name }}</h2>
+        <p class="page-sub">{{ cars|length }} model{{ 's' if cars|length != 1 }} in our database</p>
+    </div>
+
+    <!-- Brand Cars -->
+    <section>
+        <h3 class="section-title">Models</h3>
+        <div class="car-grid">
+            {% for car in cars %}
+            <a href="/cars/{{ car.id }}" class="car-card">
+                <div class="car-img-wrap">
+                    {% if car.image_url %}
+                    <img src="{{ car.image_url }}" alt="{{ car.model }}" loading="lazy">
+                    {% else %}
+                    <div class="car-img-placeholder">🚗</div>
+                    {% endif %}
+                </div>
+                <div class="car-card-body">
+                    <div class="car-meta">{{ car.year }}</div>
+                    <h3>{{ car.model }}</h3>
+                    <div class="car-stats">
+                        {% if car.horsepower %}<span>{{ car.horsepower }} HP</span>{% endif %}
+                        {% if car.fuel_type %}<span>{{ car.fuel_type }}</span>{% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Brand Timeline (loaded by JS) -->
+    <section class="timeline-section">
+        <h3 class="section-title">Brand Timeline</h3>
+        <div id="timeline-container" data-entity-type="brand" data-entity-id="{{ cars[0].id if cars else 0 }}">
+            <div class="loading">Loading timeline…</div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/timeline.js') }}"></script>
+{% endblock %}

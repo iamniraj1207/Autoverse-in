@@ -1,0 +1,560 @@
+{% extends "layout.html" %}
+{% block title %}{{ car.brand }} {{ car.model }} — AutoVerse Performance{% endblock %}
+
+{% block head %}
+<style>
+    /* ── Car Detail Hero ── */
+    .car-detail-hero {
+        height: 100vh;
+        min-height: 680px;
+        position: relative;
+        background: #05070a;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+    }
+
+    /* ── Car Photo View ── */
+    .car-hero-img-wrap {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        background: radial-gradient(circle at center, #0a0d14 0%, #05070a 100%);
+    }
+
+    .car-main-photo {
+        max-width: 90%;
+        max-height: 80%;
+        object-fit: contain;
+        filter: drop-shadow(0 0 50px rgba(0, 0, 0, 0.8));
+    }
+
+    /* ── Corner HUD overlays ── */
+    .car-hud-corner {
+        position: absolute;
+        z-index: 20;
+        pointer-events: none;
+    }
+
+    .car-hud-tl {
+        top: 24px;
+        left: 28px;
+    }
+
+    .car-hud-tr {
+        top: 24px;
+        right: 28px;
+        text-align: right;
+    }
+
+    .car-hud-bl {
+        bottom: 80px;
+        left: 28px;
+    }
+
+    .car-hud-br {
+        bottom: 80px;
+        right: 28px;
+        text-align: right;
+    }
+
+    .hud-eyebrow {
+        font-family: 'DM Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 3px;
+        color: rgba(232, 58, 58, 0.8);
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .hud-name {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 72px;
+        line-height: 0.9;
+        color: #fff;
+        text-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .hud-name span {
+        color: #e83a3a;
+    }
+
+    .hud-year {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 6px;
+    }
+
+    /* Scan lines (HUD feel) */
+    .hud-scanline {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.03) 3px, rgba(0, 0, 0, 0.03) 4px);
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    /* Corner bracket decorations */
+    .hud-bracket {
+        width: 40px;
+        height: 40px;
+        position: absolute;
+    }
+
+    .hud-tl-bracket {
+        top: 14px;
+        left: 14px;
+        border-top: 2px solid rgba(232, 58, 58, 0.5);
+        border-left: 2px solid rgba(232, 58, 58, 0.5);
+    }
+
+    .hud-tr-bracket {
+        top: 14px;
+        right: 14px;
+        border-top: 2px solid rgba(232, 58, 58, 0.5);
+        border-right: 2px solid rgba(232, 58, 58, 0.5);
+    }
+
+    .hud-bl-bracket {
+        bottom: 70px;
+        left: 14px;
+        border-bottom: 2px solid rgba(232, 58, 58, 0.5);
+        border-left: 2px solid rgba(232, 58, 58, 0.5);
+    }
+
+    .hud-br-bracket {
+        bottom: 70px;
+        right: 14px;
+        border-bottom: 2px solid rgba(232, 58, 58, 0.5);
+        border-right: 2px solid rgba(232, 58, 58, 0.5);
+    }
+
+    /* 360 Hint */
+    #car-360-hint {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 25;
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.4);
+        letter-spacing: 3px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: hintPulse 2s ease-in-out infinite;
+        transition: opacity 0.5s;
+    }
+
+    @keyframes hintPulse {
+
+        0%,
+        100% {
+            opacity: 0.4;
+        }
+
+        50% {
+            opacity: 0.9;
+        }
+    }
+
+    .hint-icon {
+        font-size: 18px;
+        animation: hintSpin 3s linear infinite;
+    }
+
+    @keyframes hintSpin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Performance meter strip on bottom */
+    .detail-perf-strip {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 66px;
+        background: rgba(5, 7, 10, 0.9);
+        border-top: 1px solid rgba(232, 58, 58, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        z-index: 20;
+        backdrop-filter: blur(10px);
+    }
+
+    .dps-item {
+        flex: 1;
+        text-align: center;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 10px 0;
+    }
+
+    .dps-item:last-child {
+        border-right: none;
+    }
+
+    .dps-val {
+        display: block;
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 28px;
+        color: #e8eaf0;
+        line-height: 1;
+    }
+
+    .dps-val.accent {
+        color: #e83a3a;
+    }
+
+    .dps-key {
+        font-family: 'DM Mono', monospace;
+        font-size: 7px;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* ── Spec section below hero ── */
+    .spec-section {
+        padding: 60px 0 40px;
+    }
+
+    .spec-grid-premium {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px;
+    }
+
+    .spec-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        padding: 24px 16px;
+        text-align: center;
+        transition: border-color 0.3s, transform 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .spec-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(to right, #e83a3a, #ff6b35);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+    }
+
+    .spec-card:hover {
+        border-color: rgba(232, 58, 58, 0.3);
+        transform: translateY(-4px);
+    }
+
+    .spec-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .spec-card.highlight {
+        border-color: rgba(232, 58, 58, 0.2);
+    }
+
+    .spec-icon {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .spec-val {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 32px;
+        color: #e8eaf0;
+    }
+
+    .spec-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, 0.3);
+        margin-top: 4px;
+    }
+
+    /* Description */
+    .description-section {
+        padding: 40px 0;
+    }
+
+    .desc-content h2 {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 48px;
+        margin-bottom: 20px;
+    }
+
+    .premium-text {
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.9;
+        max-width: 700px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    /* Similar cars */
+    .similar-cars {
+        padding: 60px 0;
+    }
+
+    .similar-cars h3 {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 40px;
+        margin-bottom: 30px;
+    }
+
+    .similar-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+    }
+
+    .similar-card {
+        display: block;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    .similar-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(232, 58, 58, 0.3);
+    }
+
+    .similar-card img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .similar-info {
+        padding: 12px 16px;
+    }
+
+    .similar-info h4 {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 20px;
+        color: #e8eaf0;
+        margin-bottom: 4px;
+    }
+
+    .similar-info span {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        color: #e83a3a;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- expose car data for Three.js 3D viewer -->
+<script>
+    window.CAR_IMAGE_EXTERIOR = "{{ car.image_exterior or car.image_url or '' }}";
+    window.CAR_BRAND = "{{ car.brand }}";
+    window.CAR_MODEL = "{{ car.model }}";
+    window.CAR_CATEGORY = "{{ car.category or '' }}";
+</script>
+
+<!-- ═══════════════════════════════════
+     INTERACTIVE 360° HERO
+═══════════════════════════════════ -->
+<!-- Car Photo View -->
+<div class="car-hero-img-wrap">
+    <img src="{{ car.image_exterior or car.image_url }}" alt="{{ car.brand }} {{ car.model }}" class="car-main-photo"
+        data-aos="zoom-in" data-aos-duration="1500">
+</div>
+
+<!-- HUD scanlines -->
+<div class="hud-scanline"></div>
+
+<!-- Corner brackets -->
+<div class="hud-bracket hud-tl-bracket"></div>
+<div class="hud-bracket hud-tr-bracket"></div>
+<div class="hud-bracket hud-bl-bracket"></div>
+<div class="hud-bracket hud-br-bracket"></div>
+
+<!-- Top-left: car identity -->
+<div class="car-hud-corner car-hud-tl" data-aos="fade-right" data-aos-delay="200">
+    <div class="hud-eyebrow">{{ car.category or 'Supercar' }}</div>
+    <div class="hud-name">{{ car.brand }}<br><span>{{ car.model }}</span></div>
+    <div class="hud-year">{{ car.year }}</div>
+</div>
+
+<!-- Bottom performance strip -->
+<div class="detail-perf-strip" data-aos="fade-up" data-aos-delay="300">
+    <div class="dps-item">
+        <span class="dps-val accent" id="hp-counter">{{ car.horsepower or 0 }}</span>
+        <span class="dps-key">HORSEPOWER</span>
+    </div>
+    <div class="dps-item">
+        <span class="dps-val">{{ car.torque or '—' }}</span>
+        <span class="dps-key">TORQUE (Nm)</span>
+    </div>
+    <div class="dps-item">
+        <span class="dps-val">{{ "%.1f"|format(car.acceleration) if car.acceleration else '—' }}s</span>
+        <span class="dps-key">0-100 KM/H</span>
+    </div>
+    <div class="dps-item">
+        <span class="dps-val">{{ car.top_speed or '—' }}</span>
+        <span class="dps-key">TOP SPEED KM/H</span>
+    </div>
+    <div class="dps-item">
+        <span class="dps-val">${{ "{:,.0f}".format(car.price_usd) if car.price_usd else 'POA' }}</span>
+        <span class="dps-key">MSRP USD</span>
+    </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SPEC GRID
+═══════════════════════════════════ -->
+<section class="spec-section container" data-aos="fade-up">
+    <style>
+        .spec-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        }
+
+        .spec-card:hover {
+            transform: translateY(-10px) scale(1.05) !important;
+            box-shadow: 0 15px 30px rgba(232, 58, 58, 0.2) !important;
+            border-color: #e83a3a !important;
+        }
+    </style>
+    <div class="spec-grid-premium">
+        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="0">
+            <div class="spec-icon">⚡</div>
+            <div class="spec-val" style="font-size:32px; font-weight:bold; color:#fff;">{{ car.horsepower or '—' }}
+            </div>
+            <div class="spec-label">HORSEPOWER</div>
+        </div>
+        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="100">
+            <div class="spec-icon">🔄</div>
+            <div class="spec-val" style="font-size:32px; font-weight:bold; color:#fff;">{{ car.torque or '—' }}</div>
+            <div class="spec-label">TORQUE Nm</div>
+        </div>
+        <div class="spec-card highlight" data-aos="zoom-in-up" data-aos-delay="200">
+            <div class="spec-icon">🏁</div>
+            <div class="spec-val" style="font-size:32px; font-weight:bold; color:#fff;">{{
+                "%.1f"|format(car.acceleration) if car.acceleration else '—' }}s</div>
+            <div class="spec-label">0–100 KM/H</div>
+        </div>
+        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="300">
+            <div class="spec-icon">🔝</div>
+            <div class="spec-val" style="font-size:32px; font-weight:bold; color:#fff;">{{ car.top_speed or '—' }}</div>
+            <div class="spec-label">TOP SPEED KM/H</div>
+        </div>
+        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="400">
+            <div class="spec-icon">⚙️</div>
+            <div class="spec-val" style="font-size:20px; font-weight:bold; color:#fff;">{{ car.engine or '—' }}</div>
+            <div class="spec-label">ENGINE</div>
+        </div>
+        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="500">
+            <div class="spec-icon">⛽</div>
+            <div class="spec-val" style="font-size:20px; font-weight:bold; color:#fff;">{{ car.fuel_type or '—' }}</div>
+            <div class="spec-label">FUEL</div>
+        </div>
+        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="600">
+            <div class="spec-icon">🚗</div>
+            <div class="spec-val" style="font-size:18px;">{{ car.drivetrain or '—' }}</div>
+            <div class="spec-label">DRIVETRAIN</div>
+        </div>
+        <div class="spec-card highlight" data-aos="zoom-in-up" data-aos-delay="700">
+            <div class="spec-icon">💰</div>
+            <div class="spec-val"
+                style="font-size:{{ '18px' if car.price_usd and car.price_usd > 999999 else '24px' }}">${{
+                "{:,}".format(car.price_usd) if car.price_usd else 'POA' }}</div>
+            <div class="spec-label">MSRP USD</div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     STORY + ACTIONS
+═══════════════════════════════════ -->
+<section class="description-section container" data-aos="fade-up">
+    <div class="desc-content">
+        <h2>THE <span class="accent">STORY</span></h2>
+        <p class="premium-text">
+            {{ car.description or ("Experience the pinnacle of automotive excellence with the " ~ car.brand ~ " " ~
+            car.model ~ ". Every component has been engineered for maximum performance, and every curve sculpted for
+            aesthetic perfection. This is not just a car — it is a statement.") }}
+        </p>
+    </div>
+    <div class="action-buttons" data-aos="fade-up" data-aos-delay="200">
+        <button class="btn btn-primary garage-btn" onclick="addToGarage({{ car.id }})" data-car-id="{{ car.id }}">+ ADD
+            TO GARAGE</button>
+        <button class="btn btn-ghost" id="detail-compare-btn" data-id="{{ car.id }}" data-model="{{ car.model }}"
+            data-brand="{{ car.brand }}" data-hp="{{ car.horsepower or 0 }}" data-acc="{{ car.acceleration or 0 }}"
+            data-img="{{ car.image_exterior or car.image_url or '' }}">+ ADD TO COMPARE</button>
+    </div>
+</section>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const cb = document.getElementById('detail-compare-btn');
+        if (cb) {
+            cb.addEventListener('click', () => {
+                addToCompare(cb.dataset.id, cb.dataset.model, cb.dataset.brand, cb.dataset.hp, cb.dataset.acc, cb.dataset.img);
+            });
+        }
+    });
+</script>
+
+<!-- ═══════════════════════════════════
+     SIMILAR MODELS
+═══════════════════════════════════ -->
+<section class="similar-cars container" data-aos="fade-up">
+    <h3>SIMILAR <span class="accent">MODELS</span></h3>
+    <div class="similar-grid">
+        {% for s in similar %}
+        <a href="/cars/{{ s.id }}" class="similar-card" data-aos="fade-up"
+            data-aos-delay="{{ [loop.index0 * 100, 800] | min }}">
+            <img src="{{ s.image_exterior or s.image_url }}" alt="{{ s.brand }} {{ s.model }}"
+                onerror="this.src='/static/img/car_placeholder.svg'">
+            <div class="similar-info">
+                <h4>{{ s.brand }} {{ s.model }}</h4>
+                <span>{{ s.horsepower }} HP</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- GLTFLoader for real 3D models -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="{{ url_for('static', filename='js/car3d_viewer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/garage.js') }}"></script>
+{% endblock %}

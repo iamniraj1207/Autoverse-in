@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoVerse — Architecture Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080a0f;
+    --surface: #0e1117;
+    --surface2: #141820;
+    --border: #1e2535;
+    --accent: #e83a3a;
+    --accent2: #ff6b35;
+    --gold: #f0a500;
+    --teal: #00d4aa;
+    --blue: #3a7bd5;
+    --text: #e8eaf0;
+    --muted: #5a6070;
+    --muted2: #8892a4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 48px 0 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: 'AUTOVERSE';
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 160px;
+    color: rgba(255,255,255,0.018);
+    letter-spacing: 8px;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(232,58,58,0.12);
+    border: 1px solid rgba(232,58,58,0.3);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .badge::before { content: '◆'; font-size: 8px; }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    line-height: 0.95;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted2);
+    font-size: 15px;
+    font-weight: 300;
+    max-width: 480px;
+  }
+
+  /* SECTION */
+  section { padding: 56px 0; border-bottom: 1px solid var(--border); }
+  section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  /* STACK CARDS */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 32px;
+    border: 1px solid var(--border);
+  }
+
+  .stack-card {
+    background: var(--surface);
+    padding: 28px 24px;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .stack-card:hover { background: var(--surface2); }
+
+  .stack-card .layer-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+  }
+
+  .stack-card h3 { font-size: 16px; margin-bottom: 6px; }
+
+  .stack-card .tech {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+
+  .stack-card p { color: var(--muted2); font-size: 13px; line-height: 1.5; }
+
+  .stack-arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    color: var(--muted);
+    font-size: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-bottom: none;
+  }
+
+  /* FOLDER STRUCTURE */
+  .folder-tree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 32px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 2;
+    margin-top: 28px;
+    position: relative;
+  }
+
+  .folder-tree::before {
+    content: 'PROJECT STRUCTURE';
+    position: absolute;
+    top: -1px;
+    right: 24px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 0 8px;
+    transform: translateY(-50%);
+  }
+
+  .f-dir { color: var(--gold); }
+  .f-py { color: var(--teal); }
+  .f-html { color: var(--accent2); }
+  .f-css { color: var(--blue); }
+  .f-js { color: #f7df1e; }
+  .f-db { color: var(--accent); }
+  .f-comment { color: var(--muted); font-size: 11px; }
+  .indent1 { padding-left: 20px; }
+  .indent2 { padding-left: 40px; }
+  .indent3 { padding-left: 60px; }
+
+  /* ROUTE TABLE */
+  .route-section { margin-top: 32px; }
+
+  .route-group { margin-bottom: 32px; }
+
+  .route-group-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted2);
+    padding: 8px 16px;
+    background: var(--surface2);
+    border-left: 3px solid var(--gold);
+    margin-bottom: 2px;
+  }
+
+  .route-row {
+    display: grid;
+    grid-template-columns: 80px 220px 1fr 100px;
+    gap: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .route-row:hover { background: var(--surface2); }
+
+  .route-row > div {
+    padding: 12px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+  }
+
+  .route-row > div:last-child { border-right: none; font-family: 'DM Sans', sans-serif; color: var(--muted2); font-size: 12px; }
+
+  .method { font-weight: 500; }
+  .method.GET { color: var(--teal); }
+  .method.POST { color: var(--gold); }
+  .method.DELETE { color: var(--accent); }
+
+  .route-path { color: var(--text); }
+  .route-type { color: var(--muted2); font-size: 10px; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+  .tag.jinja { background: rgba(240,165,0,0.15); color: var(--gold); }
+  .tag.api { background: rgba(0,212,170,0.15); color: var(--teal); }
+
+  /* DATABASE SCHEMA */
+  .schema-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .schema-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .schema-table .table-header {
+    padding: 10px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .schema-table .table-header .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  .schema-table .field {
+    padding: 7px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11.5px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted2);
+  }
+
+  .schema-table .field .fname { color: var(--text); }
+  .schema-table .field .ftype { color: var(--muted); font-size: 10px; }
+  .schema-table .field .pk { color: var(--gold); font-size: 10px; }
+  .schema-table .field .fk { color: var(--blue); font-size: 10px; }
+
+  .t-users .table-header { background: rgba(232,58,58,0.1); color: var(--accent); }
+  .t-users .dot { background: var(--accent); }
+  .t-cars .table-header { background: rgba(255,107,53,0.1); color: var(--accent2); }
+  .t-cars .dot { background: var(--accent2); }
+  .t-garage .table-header { background: rgba(0,212,170,0.1); color: var(--teal); }
+  .t-garage .dot { background: var(--teal); }
+  .t-drivers .table-header { background: rgba(58,123,213,0.1); color: var(--blue); }
+  .t-drivers .dot { background: var(--blue); }
+  .t-teams .table-header { background: rgba(240,165,0,0.1); color: var(--gold); }
+  .t-teams .dot { background: var(--gold); }
+  .t-timeline .table-header { background: rgba(138,43,226,0.1); color: #b06aff; }
+  .t-timeline .dot { background: #b06aff; }
+
+  /* PHASE TIMELINE */
+  .phases { margin-top: 32px; }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 0;
+    margin-bottom: 2px;
+  }
+
+  .phase-num {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .phase-num span {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  .phase-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: none;
+    padding: 20px 28px;
+  }
+
+  .phase-content h3 { font-size: 14px; margin-bottom: 8px; color: var(--text); }
+
+  .phase-tasks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .task-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted2);
+    border-radius: 2px;
+  }
+
+  .phase:nth-child(1) .phase-num { color: var(--accent); border-color: rgba(232,58,58,0.3); }
+  .phase:nth-child(2) .phase-num { color: var(--accent2); border-color: rgba(255,107,53,0.3); }
+  .phase:nth-child(3) .phase-num { color: var(--gold); border-color: rgba(240,165,0,0.3); }
+  .phase:nth-child(4) .phase-num { color: var(--teal); border-color: rgba(0,212,170,0.3); }
+  .phase:nth-child(5) .phase-num { color: var(--blue); border-color: rgba(58,123,213,0.3); }
+  .phase:nth-child(6) .phase-num { color: #b06aff; border-color: rgba(138,43,226,0.3); }
+
+  /* DATA FLOW */
+  .flow {
+    margin-top: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 32px;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2px;
+  }
+
+  .flow-box {
+    flex: 1;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .flow-arrow {
+    padding: 0 8px;
+    color: var(--muted);
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .flow-box.highlight { border-color: rgba(232,58,58,0.4); color: var(--accent); }
+  .flow-box.green { border-color: rgba(0,212,170,0.4); color: var(--teal); }
+  .flow-box.blue { border-color: rgba(58,123,213,0.4); color: var(--blue); }
+  .flow-box.gold { border-color: rgba(240,165,0,0.4); color: var(--gold); }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(232,58,58,0.06);
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--muted2);
+  }
+
+  .callout strong { color: var(--text); }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 0;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 768px) {
+    h1 { font-size: 42px; }
+    .stack-grid { grid-template-columns: 1fr; }
+    .schema-grid { grid-template-columns: 1fr 1fr; }
+    .route-row { grid-template-columns: 70px 1fr; }
+    .route-row > div:nth-child(3), .route-row > div:nth-child(4) { display: none; }
+    .phase { grid-template-columns: 80px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="badge">Architecture Blueprint v1.0</div>
+    <h1>AUTO<span>VERSE</span><br>SYSTEM DESIGN</h1>
+    <p class="subtitle">Complete technical architecture for the Automotive & F1 Enthusiast Platform — Flask + SQLite + Hybrid API</p>
+  </header>
+
+  <!-- TECH STACK -->
+  <section>
+    <div class="section-label">01 — Technology Stack</div>
+    <h2>Three-Layer Architecture</h2>
+    <p style="color:var(--muted2)">AutoVerse uses a classic but powerful three-tier architecture. Each layer has a single responsibility.</p>
+
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="layer-num">LAYER 01</div>
+        <h3>Frontend</h3>
+        <div class="tech">HTML · CSS · Vanilla JS</div>
+        <p>Jinja2 templates handle page renders. Vanilla JS handles dynamic interactions — comparison engine, garage add/remove, timeline rendering.</p>
+      </div>
+      <div class="stack-card">
+        <div class="layer-num">LAYER 02</div>
+        <h3>Backend</h3>
+        <div class="tech">Python · Flask · Jinja2</div>
+        <p>Flask serves both HTML pages (Jinja routes) and JSON data (API routes). Session management handles auth state across requests.</p>
+      </div>
+      <div class="stack-card">
+        <div class="layer-num">LAYER 03</div>
+        <h3>Database</h3>
+        <div class="tech">SQLite · cs50 library</div>
+        <p>Lightweight relational database. Six core tables. Use the CS50 library's <code style="color:var(--teal)">db.execute()</code> for all queries — clean and CS50-familiar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECT STRUCTURE -->
+  <section>
+    <div class="section-label">02 — Project Structure</div>
+    <h2>Folder Layout</h2>
+    <p style="color:var(--muted2)">Keep it clean. Flask convention is strict — templates go in <code style="color:var(--gold)">templates/</code>, static assets in <code style="color:var(--gold)">static/</code>.</p>
+
+    <div class="folder-tree">
+<span class="f-dir">autoverse/</span><br>
+<span class="indent1 f-py">├── app.py</span>              <span class="f-comment">← Flask app, all routes live here</span><br>
+<span class="indent1 f-db">├── autoverse.db</span>       <span class="f-comment">← SQLite database</span><br>
+<span class="indent1 f-py">├── schema.sql</span>         <span class="f-comment">← Table creation SQL (run once)</span><br>
+<span class="indent1 f-py">├── seed.py</span>            <span class="f-comment">← Populates DB with sample data</span><br>
+<span class="indent1 f-py">├── helpers.py</span>         <span class="f-comment">← login_required decorator, utils</span><br>
+<span class="indent1"><br></span>
+<span class="indent1 f-dir">├── templates/</span><br>
+<span class="indent2 f-html">│   ├── layout.html</span>    <span class="f-comment">← Base template (nav, footer)</span><br>
+<span class="indent2 f-html">│   ├── index.html</span>     <span class="f-comment">← Landing page</span><br>
+<span class="indent2 f-html">│   ├── login.html</span><br>
+<span class="indent2 f-html">│   ├── register.html</span><br>
+<span class="indent2 f-html">│   ├── cars.html</span>      <span class="f-comment">← Car explorer (browse all)</span><br>
+<span class="indent2 f-html">│   ├── car.html</span>       <span class="f-comment">← Single car detail page</span><br>
+<span class="indent2 f-html">│   ├── garage.html</span>    <span class="f-comment">← User's personal garage</span><br>
+<span class="indent2 f-html">│   ├── compare.html</span>   <span class="f-comment">← Comparison engine page</span><br>
+<span class="indent2 f-html">│   ├── f1.html</span>        <span class="f-comment">← F1 hub landing</span><br>
+<span class="indent2 f-html">│   ├── driver.html</span>    <span class="f-comment">← Driver profile + timeline</span><br>
+<span class="indent2 f-html">│   └── brand.html</span>     <span class="f-comment">← Brand history + timeline</span><br>
+<span class="indent1"><br></span>
+<span class="indent1 f-dir">├── static/</span><br>
+<span class="indent2 f-dir">│   ├── css/</span><br>
+<span class="indent3 f-css">│   │   └── style.css</span>  <span class="f-comment">← Global styles + dark theme</span><br>
+<span class="indent2 f-dir">│   ├── js/</span><br>
+<span class="indent3 f-js">│   │   ├── compare.js</span> <span class="f-comment">← Comparison engine logic</span><br>
+<span class="indent3 f-js">│   │   ├── garage.js</span>  <span class="f-comment">← Add/remove from garage</span><br>
+<span class="indent3 f-js">│   │   └── timeline.js</span><span class="f-comment">← Timeline rendering</span><br>
+<span class="indent2 f-dir">│   └── img/</span>           <span class="f-comment">← Car images, logos</span>
+    </div>
+  </section>
+
+  <!-- DATABASE SCHEMA -->
+  <section>
+    <div class="section-label">03 — Database Schema</div>
+    <h2>Six Core Tables</h2>
+    <p style="color:var(--muted2)">All relationships flow through foreign keys. Garage is the junction table between users and cars.</p>
+
+    <div class="schema-grid">
+      <div class="schema-table t-users">
+        <div class="table-header"><div class="dot"></div>users</div>
+        <div class="field"><span class="fname">id</span><span class="pk">PK · INT</span></div>
+        <div class="field"><span class="fname">username</span><span class="ftype">TEXT UNIQUE</span></div>
+        <div class="field"><span class="fname">hash</span><span class="ftype">TEXT</span></div>
+        <div class="field"><span class="fname">created_at</span><span class="ftype">TIMESTAMP</span></div>
+      </div>
+
+      <div class="schema-table t-cars">
+        <div class="table-header"><div class="dot"></div>cars</div>
+        <div class="field"><span class="fname">id</span><span class="pk">PK · INT</span></div>
+        <div class="field"><span class="fname">brand</span><span class="ftype">TEXT</span></div>
+        <div class="field"><span class="fname">model</span><span class="ftype">TEXT</span></div>
+        <div class="field"><span class="fname">year</span><span class="ftype">INT</span></div>
+        <div class="field"><span class="fname">engine</span><span class="ftype">TEXT</span></div>
+        <div class="field"><span class="fname">horsepower</span><span class="ftype">INT</span></div>
+        <div class="field"><span class="fname">torque</span><span class="ftype">INT</span></div>
+        <div class="field"><span class="fname">fuel_type</span><span class="ftype">TEXT</span></div>
+        <div class="field"><span class="fname">acceleration</span><span class="ftype">REAL</span></div>
+        <div class="field"><span class="fname">image_url</span><span class="ftype">TEXT</span></div>
+      </div>
+
+      <div class="schema-table t-garage">
+        <div class="table-header"><div class="dot"></div>garage</div>
+        <div class="field"><span class="fname">id</span><span class="pk">PK · INT</span></div>
+        <div class="field"><span class="fname">user_id</span><span class="fk">FK → users</span></div>
+        <div class="field"><span class="fname">car_id</span><span class="fk">FK → cars</span></div>
+        <div class="field"><span class="fname">added_at</span><span class="ftype">TIMESTAMP</span></div>
+        <div class="field" style="color:var(--muted);font-size:10px;font-style:italic"><span>UNIQUE(user_id, car_id)</span></div>
+      </div>
+
+      <div class="schema-table t-drivers">
+        <div class="table-header"><div class="dot"></div>drivers</div>
+        <div class="field"><span class="fname">id</span><span class="pk">PK · INT</span></div>
+        <div class="field"><span class="fname">name</span><span class="ftype">TEXT</span></div>
+        <div class="field"><span class="fname">nationality</span><span class="ftype">TEXT</span></div>
+        <div class="field"><span class="fname">team_id</span><span class="fk">FK → teams</span></div>
+        <div class="field"><span class="fname">championships</span><span class="ftype">INT</span></div>
+        <div class="field"><span class="fname">wins</span><span class="ftype">INT</span></div>
+        <div class="field"><span class="fname">debut_year</span><span class="ftype">INT</span></div>
+      </div>
+
+      <div class="schema-table t-teams">
+        <div class="table-header"><div class="dot"></div>teams</div>
+        <div class="field"><span class="fname">id</span><span class="pk">PK · INT</span></div>
+        <div class="field"><span class="fname">name</span><span class="ftype">TEXT</span></div>
+        <div class="field"><span class="fname">base</span><span class="ftype">TEXT</span></div>
+        <div class="field"><span class="fname">championships</span><span class="ftype">INT</span></div>
+        <div class="field"><span class="fname">founded</span><span class="ftype">INT</span></div>
+      </div>
+
+      <div class="schema-table t-timeline">
+        <div class="table-header"><div class="dot"></div>timeline</div>
+        <div class="field"><span class="fname">id</span><span class="pk">PK · INT</span></div>
+        <div class="field"><span class="fname">entity_type</span><span class="ftype">'driver'|'brand'</span></div>
+        <div class="field"><span class="fname">entity_id</span><span class="ftype">INT</span></div>
+        <div class="field"><span class="fname">year</span><span class="ftype">INT</span></div>
+        <div class="field"><span class="fname">title</span><span class="ftype">TEXT</span></div>
+        <div class="field"><span class="fname">description</span><span class="ftype">TEXT</span></div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Key design decision:</strong> The <code style="color:var(--teal)">timeline</code> table uses <code style="color:var(--teal)">entity_type</code> + <code style="color:var(--teal)">entity_id</code> so one table handles both driver careers and brand histories. Query like: <code style="color:var(--teal)">WHERE entity_type='driver' AND entity_id=1 ORDER BY year</code>
+    </div>
+  </section>
+
+  <!-- ROUTES -->
+  <section>
+    <div class="section-label">04 — Routes & API Design</div>
+    <h2>Hybrid Route Structure</h2>
+    <p style="color:var(--muted2)">Page routes use Jinja. Action routes return JSON. This is the cleanest pattern for Flask projects.</p>
+
+    <div class="route-section">
+
+      <div class="route-group">
+        <div class="route-group-title">AUTH — No login required</div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/</div>
+          <div>Landing page</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/register</div>
+          <div>Registration form</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method POST">POST</span></div>
+          <div class="route-path">/register</div>
+          <div>Create user, hash password, redirect</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/login</div>
+          <div>Login form</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method POST">POST</span></div>
+          <div class="route-path">/login</div>
+          <div>Validate credentials, set session</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/logout</div>
+          <div>Clear session, redirect home</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+      </div>
+
+      <div class="route-group">
+        <div class="route-group-title">CAR EXPLORER — Public pages</div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/cars</div>
+          <div>Browse all cars (supports ?brand= ?fuel= filters)</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/cars/&lt;id&gt;</div>
+          <div>Single car detail page</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/compare</div>
+          <div>Comparison page shell</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/api/cars</div>
+          <div>Returns all cars as JSON (for compare dropdown)</div>
+          <div><span class="tag api">API</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method POST">POST</span></div>
+          <div class="route-path">/api/compare</div>
+          <div>POST {ids: [1,2,3]} → returns car specs JSON</div>
+          <div><span class="tag api">API</span></div>
+        </div>
+      </div>
+
+      <div class="route-group">
+        <div class="route-group-title">GARAGE — Login required</div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/garage</div>
+          <div>User's garage page</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method POST">POST</span></div>
+          <div class="route-path">/api/garage/add</div>
+          <div>POST {car_id} → adds to garage, returns {success}</div>
+          <div><span class="tag api">API</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method DELETE">DEL</span></div>
+          <div class="route-path">/api/garage/remove</div>
+          <div>DELETE {car_id} → removes from garage</div>
+          <div><span class="tag api">API</span></div>
+        </div>
+      </div>
+
+      <div class="route-group">
+        <div class="route-group-title">F1 HUB — Public pages</div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/f1</div>
+          <div>F1 hub landing — drivers + teams overview</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/f1/driver/&lt;id&gt;</div>
+          <div>Driver profile page</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/f1/team/&lt;id&gt;</div>
+          <div>Team profile page</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/api/timeline/&lt;type&gt;/&lt;id&gt;</div>
+          <div>Returns timeline events as JSON for JS rendering</div>
+          <div><span class="tag api">API</span></div>
+        </div>
+        <div class="route-row">
+          <div><span class="method GET">GET</span></div>
+          <div class="route-path">/brand/&lt;name&gt;</div>
+          <div>Brand history + timeline page</div>
+          <div><span class="tag jinja">JINJA</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DATA FLOW -->
+  <section>
+    <div class="section-label">05 — Data Flow</div>
+    <h2>Request Lifecycle</h2>
+    <p style="color:var(--muted2)">Two flows exist — one for page loads, one for dynamic actions.</p>
+
+    <div class="flow">
+      <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:20px;">FLOW A — PAGE LOAD (Jinja)</p>
+      <div class="flow-row">
+        <div class="flow-box highlight">Browser Request</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">Flask Route</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">db.execute() query</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box green">render_template(data)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box blue">HTML page</div>
+      </div>
+
+      <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin:28px 0 20px;">FLOW B — DYNAMIC ACTION (API + JS)</p>
+      <div class="flow-row">
+        <div class="flow-box highlight">User Action (JS)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">fetch('/api/...')</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">Flask API route</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box green">jsonify(data)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box gold">JS renders UI</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:16px;">
+      <strong>Comparison engine example:</strong> User checks 3 cars → JS collects IDs → <code style="color:var(--teal)">fetch('/api/compare', {method:'POST', body: JSON.stringify({ids:[1,3,7]})})</code> → Flask queries DB → returns JSON → JS builds side-by-side table dynamically. No page reload.
+    </div>
+  </section>
+
+  <!-- PHASES -->
+  <section>
+    <div class="section-label">06 — Build Phases</div>
+    <h2>Development Sequence</h2>
+    <p style="color:var(--muted2)">Build in this exact order. Each phase depends on the previous. Don't skip ahead.</p>
+
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-num">01<span>WEEK 1</span></div>
+        <div class="phase-content">
+          <h3>Foundation — DB + Auth</h3>
+          <p style="color:var(--muted2);font-size:12px;margin-bottom:10px">Set up everything first. Nothing works without this.</p>
+          <div class="phase-tasks">
+            <div class="task-chip">schema.sql</div>
+            <div class="task-chip">seed.py</div>
+            <div class="task-chip">app.py skeleton</div>
+            <div class="task-chip">/register route</div>
+            <div class="task-chip">/login route</div>
+            <div class="task-chip">session management</div>
+            <div class="task-chip">login_required helper</div>
+            <div class="task-chip">layout.html base template</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-num">02<span>WEEK 1</span></div>
+        <div class="phase-content">
+          <h3>Car Explorer — Browse & Detail</h3>
+          <p style="color:var(--muted2);font-size:12px;margin-bottom:10px">Get cars loading dynamically from DB. Add at least 20 cars in seed data.</p>
+          <div class="phase-tasks">
+            <div class="task-chip">/cars Jinja route</div>
+            <div class="task-chip">/cars/&lt;id&gt; detail route</div>
+            <div class="task-chip">cars.html template</div>
+            <div class="task-chip">car.html template</div>
+            <div class="task-chip">filter by brand/fuel</div>
+            <div class="task-chip">car cards layout</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-num">03<span>WEEK 2</span></div>
+        <div class="phase-content">
+          <h3>My Garage — Personalized Collection</h3>
+          <p style="color:var(--muted2);font-size:12px;margin-bottom:10px">First API endpoints. Garage add/remove via fetch().</p>
+          <div class="phase-tasks">
+            <div class="task-chip">/garage Jinja route</div>
+            <div class="task-chip">/api/garage/add POST</div>
+            <div class="task-chip">/api/garage/remove DELETE</div>
+            <div class="task-chip">garage.js fetch logic</div>
+            <div class="task-chip">garage.html template</div>
+            <div class="task-chip">add button on car pages</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-num">04<span>WEEK 2</span></div>
+        <div class="phase-content">
+          <h3>Comparison Engine ⭐</h3>
+          <p style="color:var(--muted2);font-size:12px;margin-bottom:10px">The showpiece feature. Fully JS-driven after initial page load.</p>
+          <div class="phase-tasks">
+            <div class="task-chip">/api/cars GET</div>
+            <div class="task-chip">/api/compare POST</div>
+            <div class="task-chip">compare.html shell</div>
+            <div class="task-chip">car selector UI</div>
+            <div class="task-chip">compare.js engine</div>
+            <div class="task-chip">side-by-side table render</div>
+            <div class="task-chip">stat bar charts</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-num">05<span>WEEK 3</span></div>
+        <div class="phase-content">
+          <h3>F1 Hub + Timeline ⭐</h3>
+          <p style="color:var(--muted2);font-size:12px;margin-bottom:10px">Motorsport section. Timeline rendered by JS from API data.</p>
+          <div class="phase-tasks">
+            <div class="task-chip">/f1 hub page</div>
+            <div class="task-chip">/f1/driver/&lt;id&gt;</div>
+            <div class="task-chip">/f1/team/&lt;id&gt;</div>
+            <div class="task-chip">/api/timeline/&lt;type&gt;/&lt;id&gt;</div>
+            <div class="task-chip">timeline.js renderer</div>
+            <div class="task-chip">vertical timeline CSS</div>
+            <div class="task-chip">seed 10+ drivers & teams</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-num">06<span>WEEK 3</span></div>
+        <div class="phase-content">
+          <h3>UI Polish + Final QA</h3>
+          <p style="color:var(--muted2);font-size:12px;margin-bottom:10px">Make it look automotive. Test all flows end-to-end.</p>
+          <div class="phase-tasks">
+            <div class="task-chip">dark theme CSS</div>
+            <div class="task-chip">responsive nav</div>
+            <div class="task-chip">error pages (404)</div>
+            <div class="task-chip">flash messages</div>
+            <div class="task-chip">empty state handling</div>
+            <div class="task-chip">test all routes</div>
+            <div class="task-chip">README.md</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY DECISIONS -->
+  <section>
+    <div class="section-label">07 — Critical Implementation Notes</div>
+    <h2>Things That Will Save You</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px;">
+
+      <div style="background:var(--surface);border:1px solid var(--border);padding:24px;">
+        <h3 style="color:var(--teal);margin-bottom:10px;">✓ Seed data first</h3>
+        <p style="color:var(--muted2);font-size:13px;">Write <code style="color:var(--gold)">seed.py</code> before building any templates. You need real data to see if things work. Aim for 25 cars, 12 drivers, 6 teams, 30+ timeline events.</p>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);padding:24px;">
+        <h3 style="color:var(--teal);margin-bottom:10px;">✓ Use the CS50 library</h3>
+        <p style="color:var(--muted2);font-size:13px;"><code style="color:var(--gold)">from cs50 import SQL</code> — use <code style="color:var(--gold)">db.execute()</code> for all queries. It returns lists of dicts, which Jinja and JSON both handle perfectly.</p>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);padding:24px;">
+        <h3 style="color:var(--gold);margin-bottom:10px;">⚠ Always check session</h3>
+        <p style="color:var(--muted2);font-size:13px;">Every API endpoint that touches the garage must check <code style="color:var(--gold)">session.get("user_id")</code>. Return 401 if not logged in. Use the <code style="color:var(--gold)">@login_required</code> decorator.</p>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);padding:24px;">
+        <h3 style="color:var(--gold);margin-bottom:10px;">⚠ UNIQUE constraint on garage</h3>
+        <p style="color:var(--muted2);font-size:13px;">Add <code style="color:var(--gold)">UNIQUE(user_id, car_id)</code> to the garage table. Use <code style="color:var(--gold)">INSERT OR IGNORE</code> so double-adding doesn't crash the app.</p>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);padding:24px;">
+        <h3 style="color:var(--accent2);margin-bottom:10px;">→ Comparison UX pattern</h3>
+        <p style="color:var(--muted2);font-size:13px;">On the cars page, add a checkbox to each card. A sticky bottom bar shows "Compare (2 selected)" and a button triggers the comparison. Don't use a form — use JS to collect IDs.</p>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);padding:24px;">
+        <h3 style="color:var(--accent2);margin-bottom:10px;">→ Timeline JS pattern</h3>
+        <p style="color:var(--muted2);font-size:13px;">On driver/brand pages, call <code style="color:var(--gold)">fetch('/api/timeline/driver/1')</code> on page load. Render the returned events as a vertical timeline in the DOM. Sorted by year ascending.</p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  AUTOVERSE ARCHITECTURE BLUEPRINT — CS50 FINAL PROJECT — 2025
+</footer>
+
+</body>
+</html>

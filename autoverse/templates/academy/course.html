@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+{% block title %}{{ course.title }} — AutoVerse Academy{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/academy.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container page-section">
+    <a href="/academy" class="back-link">← BACK TO ACADEMY</a>
+
+    <div class="course-header" data-aos="fade-up">
+        <div class="course-icon-large">{{ course.icon }}</div>
+        <h1>{{ course.title }}</h1>
+        <p>{{ course.description }}</p>
+    </div>
+
+    <div class="lesson-list">
+        {% for lesson in lessons %}
+        <div class="lesson-item {% if lesson.completed %}completed{% endif %}" data-aos="fade-up"
+            data-aos-delay="{{ loop.index0 * 50 }}">
+            <div class="lesson-num">{{ loop.index }}</div>
+            <div class="lesson-info">
+                <h4>{{ lesson.title }}</h4>
+                <div class="lesson-meta">
+                    <span class="type-tag">{{ lesson.lesson_type | upper }}</span>
+                    <span class="xp-tag">+{{ lesson.xp_reward }} XP</span>
+                </div>
+            </div>
+            <div class="lesson-action">
+                {% if lesson.completed %}
+                <a href="/academy/lesson/{{ lesson.id }}" class="btn btn-ghost btn-sm">RETRY</a>
+                <span class="check-mark">✓</span>
+                {% else %}
+                <a href="/academy/lesson/{{ lesson.id }}" class="btn btn-primary btn-sm">START</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .lesson-list {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+
+    .lesson-item {
+        display: flex;
+        align-items: center;
+        background: #0e1117;
+        border: 1px solid #1e2535;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.2s;
+    }
+
+    .lesson-item.completed {
+        border-color: rgba(46, 204, 113, 0.3);
+    }
+
+    .lesson-num {
+        width: 40px;
+        height: 40px;
+        background: #1e2535;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        font-weight: bold;
+    }
+
+    .lesson-info {
+        flex: 1;
+    }
+
+    .lesson-info h4 {
+        margin: 0 0 5px 0;
+    }
+
+    .type-tag {
+        font-size: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-right: 10px;
+    }
+
+    .check-mark {
+        color: #2ecc71;
+        font-size: 24px;
+        margin-left: 15px;
+    }
+</style>
+{% endblock %}

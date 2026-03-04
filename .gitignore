@@ -1,0 +1,14 @@
+.tmp/
+.env
+credentials.json
+token.json
+.venv/
+__pycache__/
+*.pyc
+autoverse/autoverse.db
+*.log
+.gemini/
+.agent/
+.agents/
+_agent/
+_agents/

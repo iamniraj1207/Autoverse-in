@@ -1,0 +1,206 @@
+{% extends "layout.html" %}
+{% block title %}AutoVerse — Where Car Culture Lives{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     CINEMATIC HERO — Pagani-Inspired Reveal
+     Using Real Car Photos from imagin.studio
+════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════
+     CINEMATIC HERO — Autoverse Technical Animation
+════════════════════════════════════════════════════════════ -->
+<section class="av-hero" id="av-hero" style="position: relative; overflow: hidden; height: 100vh; z-index: 1;">
+    <!-- NATIVE HTML5 VIDEO BACKGROUND -->
+    <video class="hero-video-bg" autoplay muted loop playsinline
+        src="{{ url_for('static', filename='video/hero_bg.mp4') }}"
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transform: translateZ(0);"></video>
+
+    <!-- CINEMATIC OVERLAY -->
+    <div class="hero-video-overlay"
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.4)); pointer-events: none;">
+    </div>
+
+    <!-- LAYER 8 — HERO TEXT OVERLAY -->
+    <div class="hero-text-content" style="position: relative; z-index: 1;">
+        <div class="htc-eyebrow">THE EVOLUTION OF SPEED</div>
+        <h1 class="htc-title">AUTO<span class="red">VERSE</span></h1>
+        <div class="htc-sub">AUTHENTIC CAR CULTURE • 2026 F1 GRID • PERFORMANCE DATA</div>
+
+        <div class="htc-ctas">
+            <a href="/cars" class="htc-btn-primary">
+                EXPLORE CARS <div class="rev-dot"></div>
+            </a>
+            <a href="/f1" class="htc-btn-ghost">F1 HUB 2026</a>
+        </div>
+
+        <!-- SCROLL INDICATOR -->
+        <div class="hero-scroll-indicator"
+            style="position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%); text-align: center; color: rgba(255,255,255,0.5); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; animation: bounce 2s infinite;">
+            SCROLL TO DISCOVER
+            <div style="margin-top: 10px; font-size: 16px;">↓</div>
+        </div>
+        <style>
+            @keyframes bounce {
+
+                0%,
+                20%,
+                50%,
+                80%,
+                100% {
+                    transform: translate(-50%, 0);
+                }
+
+                40% {
+                    transform: translate(-50%, -10px);
+                }
+
+                60% {
+                    transform: translate(-50%, -5px);
+                }
+            }
+        </style>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     STATS STRIP
+═══════════════════════════════════ -->
+<div class="stats-strip" data-aos="fade-up">
+    <div class="container stats-inner">
+        <div class="stat-item">
+            <span class="stat-num" data-target="1100">0</span>
+            <span class="stat-label">CARS</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-num" data-target="20">0</span>
+            <span class="stat-label">F1 DRIVERS</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-num" data-target="75">0</span>
+            <span class="stat-label">YEARS OF F1</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-num" data-target="5">0</span>
+            <span class="stat-label">COURSES</span>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     DAILY CAR FACTS ENGINE
+═══════════════════════════════════ -->
+<section class="daily-facts-section container" data-aos="fade-up">
+    <style>
+        .fact-card {
+            background: linear-gradient(145deg, rgba(20, 24, 32, 0.9), rgba(10, 13, 20, 0.95));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(232, 58, 58, 0.4);
+            border-bottom: 3px solid #e83a3a;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(232, 58, 58, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 40px;
+            border-radius: 16px;
+        }
+
+        .fact-card:hover {
+            transform: scale(1.03) translateY(-10px);
+            box-shadow: 0 25px 50px rgba(232, 58, 58, 0.25), inset 0 0 20px rgba(232, 58, 58, 0.1);
+            border-color: #e83a3a;
+        }
+    </style>
+    <h2 class="section-title" data-aos="fade-right">DAILY <span class="accent">AUTOMOTIVE INTEL</span></h2>
+    <div class="fact-card" id="daily-fact-card" data-aos="zoom-in-up" data-aos-delay="200">
+        <div class="fact-icon">⚙️</div>
+        <div class="fact-content">
+            <h3 id="fact-title">Firing up the knowledge cylinder...</h3>
+            <p id="fact-body"></p>
+        </div>
+        <div class="fact-meta" id="fact-category">F1 Technology</div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     ACADEMY TEASER
+═══════════════════════════════════ -->
+<section class="academy-teaser section-dark" data-aos="fade-up">
+    <div class="container teaser-split">
+        <div class="teaser-text" data-aos="fade-right">
+            <div class="label">LEARN</div>
+            <h2>AUTOVERSE <span class="accent">ACADEMY</span></h2>
+            <p>Master the engineering, history, and secrets of your favourite cars. Earn XP, level up your rank, and
+                dominate the global leaderboard.</p>
+            <ul class="feature-bullets">
+                <li>✓ 5 Comprehensive Courses</li>
+                <li>✓ 200+ Interactive Quizzes</li>
+                <li>✓ Earn Ranks &amp; Badges</li>
+            </ul>
+            <a href="/academy" class="btn btn-primary">START LEARNING FREE →</a>
+        </div>
+        <div class="teaser-visual" data-aos="fade-left">
+            <canvas id="academy-teaser-canvas"></canvas>
+            <div class="floating-badge academy-float">
+                <div class="lvl">LVL 5</div>
+                <div class="rank">TRACK ENTHUSIAST</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     F1 TEASER
+═══════════════════════════════════ -->
+<section class="f1-teaser container" data-aos="fade-up">
+    <div class="teaser-header" data-aos="fade-down" data-aos-delay="100">
+        <div class="label">Pinnacle of Racing</div>
+        <h2>THE <span class="accent">F1 HUB</span></h2>
+    </div>
+    <div class="f1-grid-preview">
+        <div class="f1-card team-preview" data-aos="flip-left">
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/5/50/Ferrari_Logo.svg/200px-Ferrari_Logo.svg.png"
+                alt="Ferrari">
+            <p>Explore the 2026 Grid</p>
+        </div>
+        <div class="f1-card driver-preview" data-aos="flip-right" data-aos-delay="200">
+            <div class="driver-silhouette"
+                style="background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Lewis_Hamilton_2 Malaysia 2016.jpg/200px-Lewis_Hamilton_2 Malaysia 2016.jpg') center/cover;">
+            </div>
+            <p>75 Years of History</p>
+        </div>
+    </div>
+    <div class="teaser-actions">
+        <a href="/f1" class="btn btn-ghost">EXPLORE F1 HUB →</a>
+        <a href="/f1/hall-of-fame" class="btn btn-ghost"
+            style="border-color:rgba(212,175,55,0.4);color:#d4af37 !important;">HALL OF FAME 🏆</a>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Stats Counter
+    const sObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            e.target.querySelectorAll('.stat-num').forEach(el => {
+                const target = +el.dataset.target, inc = target / 55;
+                let cur = 0;
+                const t = setInterval(() => {
+                    cur += inc;
+                    if (cur >= target) { el.innerText = target + '+'; clearInterval(t); }
+                    else el.innerText = Math.floor(cur);
+                }, 28);
+            });
+            sObs.unobserve(e.target);
+        });
+    }, { threshold: 0.5 });
+    const ss = document.querySelector('.stats-strip');
+    if (ss) sObs.observe(ss);
+
+</script>
+<script src="{{ url_for('static', filename='js/car_facts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/cinematic_hero.js') }}"></script>
+{% endblock %}

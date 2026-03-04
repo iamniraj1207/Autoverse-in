@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+{% block title %}Hall of Fame | F1 Hub{% endblock %}
+
+{% block content %}
+<section class="f1-legends-page" style="padding-top: 100px; background: #080a0f; min-height: 100vh;">
+    <div class="container">
+        <div class="f1-page-header text-center mb-5" data-aos="fade-up">
+            <div class="f1-eyebrow" style="color: #f0a500; letter-spacing: 4px;">HALL OF FAME</div>
+            <h1 class="bebas display-1">THE <span>LEGENDS</span></h1>
+            <p class="muted">Honoring the greatest drivers to ever grace the grid.</p>
+        </div>
+
+        <div class="row g-4">
+            {% for legend in legends %}
+            <div class="col-lg-3 col-md-4 col-sm-6" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
+                <div class="driver-card legend-card" onclick="window.location='/f1/driver/{{ legend.id }}'">
+                    <div class="driver-team-bar" style="background: #f0a500;"></div>
+                    <div class="driver-img-wrap" style="height: 300px;">
+                        <img src="" data-driver-name="{{ legend.name }}" data-type="driver" alt="{{ legend.name }}"
+                            class="driver-photo">
+                        <div class="driver-num-bg">{{ legend.championships }}</div>
+                    </div>
+                    <div class="driver-card-body">
+                        <div class="driver-card-name">{{ legend.name }}</div>
+                        <div class="muted small text-uppercase">{{ legend.nationality }}</div>
+                        <div class="mt-3 p-2 text-center"
+                            style="background: rgba(240,165,0,0.1); border: 1px solid rgba(240,165,0,0.3); border-radius: 4px;">
+                            <span class="bebas" style="color: #f0a500; font-size: 20px;">{{ legend.championships }}
+                                TITLES</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+    .legend-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .legend-card .driver-num-bg {
+        opacity: 0.2;
+        font-size: 100px;
+    }
+</style>
+{% endblock %}

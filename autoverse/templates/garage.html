@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block title %}My Garage | AutoVerse{% endblock %}
+
+{% block content %}
+<section class="page-header py-5">
+    <div class="container" data-aos="fade-right">
+        <h1 class="bebas display-4">MY GARAGE</h1>
+        <p class="muted">Your curated collection of precision engineering.</p>
+        <div class="speed-stripe"></div>
+    </div>
+</section>
+
+<div class="container pb-5">
+    {% if cars %}
+    <div class="dashboard-grid">
+        {% for car in cars %}
+        <div class="car-card" data-id="{{ car.id }}" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
+            <div class="card-image-wrap">
+                <img src="{{ car.image_url or 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800' }}"
+                    alt="{{ car.model }}" class="img-fluid">
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge badge-outline">{{ car.year }}</span>
+                    <span class="muted small">Added: {{ car.added_at[:10] if car.added_at else 'N/A' }}</span>
+                </div>
+                <h3>{{ car.make }} {{ car.model }}</h3>
+                <p class="muted small text-truncate">{{ car.engine }} | {{ car.hp }} HP | {{ car.top_speed }} km/h</p>
+
+                <div class="d-flex gap-2 mt-3">
+                    <a href="/cars/{{ car.id }}" class="btn btn-outline btn-sm flex-grow-1">DETAILS</a>
+                    <button onclick="removeFromGarage({{ car.id }})" class="btn btn-ghost btn-sm text-error">
+                        <i class="icon-trash">REMOVE</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state py-5 text-center" data-aos="zoom-in">
+        <div class="empty-icon mb-4">🏎️</div>
+        <h3>YOUR GARAGE IS EMPTY</h3>
+        <p class="muted">Start adding cars from the showroom to build your collection.</p>
+        <a href="/cars" class="btn btn-accent mt-3">EXPLORE CARS</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- garage.js handles removal automatically -->
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block title %}2026 F1 Hub — AutoVerse{% endblock %}
+
+{% block content %}
+<div class="container page-section">
+
+    <div class="page-header" data-aos="fade-up">
+        <div class="badge">◆ Formula 1 Hub</div>
+        <h2>THE 2026<br><span>GRID HUB</span></h2>
+    </div>
+
+    <!-- Teams / Constructors -->
+    <section class="f1-section" data-aos="fade-up">
+        <h3 class="section-title">Global Constructors</h3>
+        <div class="f1-team-grid">
+            {% for team in teams %}
+            <div class="f1-team-card glass-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+                <div class="team-banner">
+                    <img src="{{ team.car_image_url }}" alt="{{ team.name }} car" class="team-car-img" loading="lazy">
+                    <div class="team-logo-overlay">
+                        <img src="{{ team.logo_url }}" alt="{{ team.name }} logo">
+                    </div>
+                </div>
+                <div class="team-card-body">
+                    <div class="team-meta">
+                        <span class="team-founded">EST. {{ team.founded }}</span>
+                        <span class="team-titles">🏆 {{ team.championships }} TITLES</span>
+                    </div>
+                    <h4>{{ team.name }}</h4>
+                    <p class="team-desc-short">{{ team.description or "A powerhouse of engineering excellence competing
+                        at the pinnacle of motorsport." }}</p>
+                    <div class="team-location">📍 {{ team.base }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Drivers Section -->
+    <section class="f1-section" data-aos="fade-up" data-aos-delay="200">
+        <h3 class="section-title">Professional Roster</h3>
+        <div class="f1-driver-grid">
+            {% for driver in drivers %}
+            <div class="f1-driver-card" data-aos="zoom-in" data-aos-delay="{{ (loop.index0 % 10) * 50 }}">
+                <div class="driver-portrait-wrap">
+                    <img src="{{ driver.image_url }}" alt="{{ driver.name }}" class="driver-portrait" loading="lazy">
+                    <div class="driver-info-overlay">
+                        <span class="driver-wins">{{ driver.wins }} WINS</span>
+                    </div>
+                </div>
+                <div class="driver-details">
+                    <div class="driver-rank">
+                        <span class="driver-country">{{ driver.nationality }}</span>
+                        {% if driver.championships > 0 %}
+                        <span class="champ-badge">🏆 {{ driver.championships }}X</span>
+                        {% endif %}
+                    </div>
+                    <h5>{{ driver.name }}</h5>
+                    <p class="driver-desc-tiny">{{ driver.description }}</p>
+                    <div class="f1-team"
+                        style="margin-top: 10px; color: var(--gold); font-size: 10px; font-family: 'DM Mono', monospace;">
+                        {% for team in teams %}{% if team.id == driver.team_id %}{{ team.name }}{% endif %}{% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</div>
+{% endblock %}

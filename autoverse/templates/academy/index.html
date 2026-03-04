@@ -1,0 +1,158 @@
+{% extends 'layout.html' %}
+{% block title %}AutoVerse Academy — The Master Class{% endblock %}
+
+{% block head %}
+<style>
+    :root {
+        --academy-accent: #e83a3a;
+        --academy-glass: rgba(20, 24, 32, 0.7);
+    }
+
+    .academy-hero {
+        padding: 120px 0 80px;
+        background: radial-gradient(circle at 50% -20%, #2a0a0a, #080a0f);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+    }
+
+    .user-profile-strip {
+        background: var(--academy-glass);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 20px 40px;
+        border-radius: 100px;
+        display: inline-flex;
+        align-items: center;
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .level-shield {
+        width: 60px;
+        height: 60px;
+        background: var(--academy-accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 24px;
+        box-shadow: 0 0 20px rgba(232, 58, 58, 0.4);
+    }
+
+    .course-card-premium {
+        background: #0e1117;
+        border: 1px solid #1e2535;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.4s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .course-card-premium:hover {
+        transform: translateY(-10px);
+        border-color: var(--academy-accent);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .course-image {
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+
+    .course-level-tag {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 10px;
+        letter-spacing: 1px;
+    }
+
+    .course-body {
+        padding: 30px;
+        flex-grow: 1;
+    }
+
+    .course-prog-bar {
+        height: 4px;
+        background: #1e2535;
+        border-radius: 2px;
+        margin: 20px 0 10px;
+        overflow: hidden;
+    }
+
+    .course-prog-fill {
+        height: 100%;
+        background: var(--academy-accent);
+        transition: width 0.5s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="academy-hero">
+    <div class="container" data-aos="fade-up">
+        <div class="badge">◆ EDUCATIONAL PLATFORM</div>
+        <h1 class="bebas" style="font-size: 80px; margin-bottom: 0;">TECHNICAL <span class="accent-text">ACADEMY</span>
+        </h1>
+        <p class="muted2">Master the engineering, physics, and strategy of the automotive world.</p>
+
+        <div class="user-profile-strip" data-aos="zoom-in">
+            <div class="level-shield">{{ user_xp.level }}</div>
+            <div class="text-start">
+                <div class="small muted text-uppercase">Current Rank</div>
+                <div class="fw-bold" style="color:var(--text); font-size: 18px;">
+                    {% if user_xp.level <= 2 %}ENGINE APPRENTICE {% elif user_xp.level <=5 %}PERFORMANCE TUNER {% elif
+                        user_xp.level <=8 %}CHASSIS ENGINEER {% else %}AERODYNAMICS MASTER{% endif %} </div>
+                </div>
+                <div class="vr" style="background:rgba(255,255,255,0.1); width:1px; height:30px;"></div>
+                <div class="text-start">
+                    <div class="small muted text-uppercase">Total Knowledge</div>
+                    <div class="fw-bold" style="color:var(--academy-accent); font-size: 18px;">{{ user_xp.total_xp }} ⚡
+                        XP</div>
+                </div>
+                <div class="vr" style="background:rgba(255,255,255,0.1); width:1px; height:30px;"></div>
+                <div class="streak-pill"
+                    style="background:rgba(255,107,53,0.1); padding:5px 15px; border-radius:20px; color:#ff6b35; font-weight:700;">
+                    🔥 {{ user_xp.current_streak }} DAY STREAK
+                </div>
+            </div>
+        </div>
+</section>
+
+<div class="container py-5">
+    <div class="row g-4">
+        {% for course in courses %}
+        <div class="col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+            <div class="course-card-premium">
+                <div class="course-image" style="background-image: url('{{ course.image_url }}')">
+                    <div class="course-level-tag text-uppercase">{{ course.level }}</div>
+                </div>
+                <div class="course-body">
+                    <h3 class="bebas" style="font-size: 28px; letter-spacing: 1px;">{{ course.title }}</h3>
+                    <p class="small muted2 mb-4" style="height: 60px; overflow: hidden;">{{ course.description }}</p>
+
+                    <div class="course-prog-bar">
+                        <div class="course-prog-fill" style="width: {{ course.progress_percent }}%;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between small muted">
+                        <span>{{ course.completed_lessons }}/{{ course.total_lessons }} Lessons</span>
+                        <span>{{ course.progress_percent | int }}% Complete</span>
+                    </div>
+
+                    <a href="/academy/course/{{ course.slug }}" class="btn btn-primary w-full mt-4">CONTINUE
+                        LEARNING</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

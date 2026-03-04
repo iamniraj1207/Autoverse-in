@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AutoVerse{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cars.css') }}">
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/f1.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/academy.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cinematic_hero.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/compare_bar.css') }}">
+  {% block head %}{% endblock %}
+</head>
+
+<body class="dark-theme">
+
+  <!-- NAVIGATION -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">AUTO<span>VERSE</span></a>
+      <ul class="nav-links">
+        <li><a href="/cars" {% if request.path.startswith('/cars') %}class="active" {% endif %}>Cars</a></li>
+        <li><a href="/compare" {% if request.path=='/compare' %}class="active" {% endif %}>Compare</a></li>
+        <li><a href="/f1" {% if request.path.startswith('/f1') and 'hall-of-fame' not in request.path %}class="active"
+            {% endif %}>F1 Hub</a></li>
+        <li><a href="/f1/hall-of-fame" {% if 'hall-of-fame' in request.path %}class="active" {% endif %}>Hall of
+            Fame</a></li>
+        <li><a href="/academy" {% if request.path.startswith('/academy') %}class="active" {% endif %}>Academy</a></li>
+
+        {% if session.user_id %}
+        <li class="nav-user-stats">
+          <span title="Current Streak">🔥 {{ user_xp.current_streak if user_xp else 0 }}</span>
+          <span title="Total XP">⚡ {{ user_xp.total_xp if user_xp else 0 }} XP</span>
+        </li>
+        <li><a href="/garage" {% if request.path=='/garage' %}class="active" {% endif %}>My Garage</a></li>
+        <li><a href="/logout" class="nav-btn-ghost">Logout</a></li>
+        {% else %}
+        <li><a href="/login" class="nav-btn-ghost">Login</a></li>
+        <li><a href="/register" class="nav-btn">Join</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <!-- FLASH / ERROR -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-container">
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <!-- CONTENT -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Global Compare Bar -->
+  <div class="compare-bar" id="compare-bar">
+    <div class="compare-bar-inner">
+      <div class="compare-slots" id="compare-slots">
+        <!-- Filled dynamically -->
+      </div>
+      <div class="compare-bar-actions">
+        <span class="compare-count" id="compare-count">0/4 cars selected</span>
+        <button class="compare-go-btn" id="compare-go-btn" onclick="goToCompare()" disabled>
+          COMPARE NOW →
+        </button>
+        <button class="compare-clear-btn" onclick="clearCompare()">CLEAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-logo">AUTO<span>VERSE</span></span>
+      <p>Automotive &amp; F1 Enthusiast Platform</p>
+    </div>
+  </footer>
+
+
+
+  <!-- Global Scripts -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="{{ url_for('static', filename='js/garage.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/three_scenes.js') }}"></script>
+
+  {% block scripts %}{% endblock %}
+
+  <script>
+    (function () {
+      // PREMIUM IMAGE INTEGRITY SYSTEM
+      function handleImageError(img) {
+        const type = img.dataset.type;
+        const brand = img.dataset.brand || '';
+        const model = img.dataset.model || '';
+
+        if (img.dataset.tries === undefined) img.dataset.tries = '0';
+        const tries = parseInt(img.dataset.tries);
+        img.dataset.tries = tries + 1;
+
+        if (tries === 0 && img.dataset.fallback1) {
+          img.src = img.dataset.fallback1;
+        } else if (tries === 1 && img.dataset.fallback2) {
+          img.src = img.dataset.fallback2;
+        } else {
+          // Final: branded SVG placeholder
+          let svgContent = '';
+          if (type === 'car') {
+            svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500">
+              <rect width="800" height="500" fill="#0e1117"/>
+              <rect width="800" height="3" fill="#e83a3a"/>
+              <text x="400" y="255" font-family="monospace" font-size="13" fill="#2e3545" text-anchor="middle" letter-spacing="3">${brand} ${model}</text>
+              <text x="400" y="275" font-family="monospace" font-size="10" fill="#1e2535" text-anchor="middle">IMAGE UNAVAILABLE</text>
+            </svg>`;
+          } else {
+            svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
+              <rect width="400" height="400" fill="#0e1117"/>
+              <text x="200" y="200" font-family="monospace" font-size="12" fill="#2e3545" text-anchor="middle">IMAGE UNAVAILABLE</text>
+            </svg>`;
+          }
+          img.src = 'data:image/svg+xml;base64,' + btoa(svgContent);
+          img.onerror = null; // stop loop
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        AOS.init({ duration: 800, once: true });
+
+        document.querySelectorAll('img[data-type]').forEach(img => {
+          img.onerror = () => handleImageError(img);
+          if (!img.complete || img.naturalWidth === 0) {
+            handleImageError(img);
+          }
+        });
+      });
+    })();
+  </script>
+  <script src="{{ url_for('static', filename='js/driver_images.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/compare.js') }}"></script>
+</body>
+
+</html>
