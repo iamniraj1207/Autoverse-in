@@ -57,6 +57,21 @@ def inject_user_data():
         return {'user_xp': xp_data, 'username': session.get('username')}
     return {'user_xp': None, 'username': None}
 
+import threading
+import car_auto_update
+
+# --- Background Maintenance Engine ---
+def run_maintenance():
+    """Periodically updates the car library and safety systems."""
+    while True:
+        try:
+            car_auto_update.update_library()
+        except: pass
+        time.sleep(3600 * 24) # Run once every 24 hours
+
+maintenance_thread = threading.Thread(target=run_maintenance, daemon=True)
+maintenance_thread.start()
+
 @app.before_request
 def enforce_login():
     """Global Security Gate: Enforce login for all high-value content."""

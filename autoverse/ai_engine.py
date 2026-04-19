@@ -28,7 +28,7 @@ If asked about 2026, you know the grid and the new sustainable fuel/MGU-K biased
 # ─────────────────────────────────────────────────────────────────────────────
 # SUPREME KNOWLEDGE CORPUS
 # ─────────────────────────────────────────────────────────────────────────────
-KB = {
+KNOWLEDGE_BASE = {
     # Engineering Standards (SAE/FSAE)
     "sae fsae": "SAE (Society of Automotive Engineers) sets the standards for aerospace and automotive engineering. Formula Student (FSAE) is where these standards are tested by students building small-scale F1-style cars. Key focuses: torsional rigidity, unsprung weight, and driver interface safety. FSAE cars often use 600cc engines or high-voltage EV setups with 4-wheel independent motors.",
     "motorsport engineer": "Motorsport engineering requires task-oriented problem solving. Real-world obstacles include budget-cap limits, wind-tunnel time constraints, and tyre thermal degradation. Engineers use CFD (Computational Fluid Dynamics) to simulate airflow and FEA (Finite Element Analysis) for structural integrity of the monocoque.",
@@ -64,47 +64,92 @@ KB = {
     "diffuser": "The diffuser is the upward-sloping part at the rear of the floor. It 'expands' the air coming from under the car, which creates a lower pressure at the exit, pulling air through the Venturi tunnels even faster. It's the most powerful downforce tool on the car."
 }
 
-def generate_ai_response(message: str, conversation_history=None) -> str:
+def generate_ai_response(message: str, user_id: str = None) -> str:
     """
-    AutoVerse AI Concierge - 'Elite User Smart' Grade.
-    Multi-Provider Fallback with Peer-Reviewed Knowledge Base.
+    AutoVerse AI Concierge V5.0 - 'Fuzzy Intelligence' & Persistent Memory.
+    Uses keyword correlation for high-fidelity understanding.
     """
-    msg_lower = message.lower()
-    persona_prefix = "Hey there, future engineer! I'm your AutoVerse guide. Let me explain this like we're playing with the world's fastest LEGOs: "
-    
-    # 1. Search the massive Peer-Reviewed KB (Instant & Highly Accurate)
-    found_fact = None
-    for key, fact in KNOWLEDGE_BASE.items():
-        if key.replace('_', ' ') in msg_lower or key in msg_lower:
-            found_fact = fact
-            break # High-fidelity match found
-            
-    if found_fact:
-        return f"{persona_prefix}{found_fact}"
-            
-    # 2. Logic for suggesting correct queries if match is low
-    if len(msg_lower) < 5 or "help" in msg_lower:
-        return f"{persona_prefix}I'm still learning some big words! To get the best technical results, try asking me specifically about: 'Adrian Newey', 'MGU-K', 'Venturi Floor', '2026 Rules', or 'Tire Temperatures'. Use clear sentences like 'How do tires work?'!"
+    try:
+        msg_lower = message.lower()
+        persona_prefix = "🏎️ AutoVerse Virtual Guide // "
+        
+        # 🟢 1. RECALL PAST CONTEXT (If user_id provided)
+        history_context = ""
+        if user_id:
+            try:
+                import sqlite3
+                conn = sqlite3.connect('autoverse.db')
+                cursor = conn.cursor()
+                # Get last 3 exchanges for context
+                cursor.execute("SELECT message, response FROM chat_history WHERE user_id=? ORDER BY timestamp DESC LIMIT 3", (user_id,))
+                past = cursor.fetchall()
+                if past:
+                    history_context = " [User Memory Active: We previously discussed " + ", ".join([p[0][:15] for p in past[::-1]]) + "] "
+                conn.close()
+            except: pass
 
-    # 3. External ELITE Provider Fallback
-    if G4F_OK:
-        full_prompt = (
-            "You are the AutoVerse AI Guide, the industry's most advanced motorsport engineer persona. "
-            "Explain everything clearly and simply, as if you are talking to a 5-year-old child (EL5). "
-            "Use peer-reviewed engineering data sourced from FIA manuals and Adrian Newey's literature. "
-            "If you are unsure, tell the user to use technical terms like 'Aero Mapping' or 'MGU-K'. "
-            f"User Question: {message}"
-        )
-        try:
-            resp = _client.chat.completions.create(
-                model="gpt-4o", provider=g4f.Provider.BlackboxPro,
-                messages=[{"role": "user", "content": full_prompt}], timeout=15
-            )
-            text = resp.choices[0].message.content
-            if text and len(text.strip()) > 10:
-                return f"{persona_prefix}{text}"
-        except Exception:
-            pass
+        # 🔵 2. FUZZY KEYWORD CORRELATION
+        # Instead of exact match, we check for 'relatable' keys using word intersection
+        words = set(re.findall(r'\w+', msg_lower))
+        found_fact = None
+        best_score = 0
+        
+        for key, fact in KNOWLEDGE_BASE.items():
+            key_words = set(key.replace('_', ' ').split())
+            intersection = words.intersection(key_words)
+            # Scoring: handle multi-word keys better
+            score = len(intersection) / len(key_words) if key_words else 0
+            if score > 0.4 and score > best_score:
+                best_score = score
+                found_fact = fact
             
-    # 4. Final Fail-Safe: High-Engagement Engineering Topic Suggestion
-    return f"{persona_prefix}I'm having a little trouble reaching my 'Master Brain' right now! But I'd love to talk about the 2026 350kW engines or the physics of porpoising. Try asking me: 'What is a Venturi Floor?'"
+            # Difflib fallback for single long words (e.g. 'Aerodynamics')
+            if not found_fact:
+                matches = difflib.get_close_matches(msg_lower, [key.replace('_',' ')], n=1, cutoff=0.6)
+                if matches:
+                    found_fact = fact
+                    break
+
+        # 🟡 3. GENERATE THE ELITE RESPONSE
+        final_reply = ""
+        if found_fact:
+            final_reply = f"{persona_prefix}{history_context}{found_fact}"
+        elif len(msg_lower) < 6:
+            final_reply = f"{persona_prefix}I'm tracking your telemetry! Ask me about 'Ground Effect', '2026 Regulations', or 'Adrian Newey' to dive deep into the data."
+        else:
+            # External ELITE Provider with memory awareness
+            if G4F_OK:
+                full_prompt = (
+                    f"You are the AutoVerse Elite Engineer. Past context: {history_context}. "
+                    "Explain the following in an accessible but technically rich way for a 'Car Guy'. "
+                    "Use FIA data and Newey-level insights. Be clear and engaging. "
+                    f"Message: {message}"
+                )
+                try:
+                    resp = _client.chat.completions.create(
+                        model="gpt-4o", provider=g4f.Provider.BlackboxPro,
+                        messages=[{"role": "user", "content": full_prompt}], timeout=15
+                    )
+                    text = resp.choices[0].message.content
+                    if text and len(text.strip()) > 10:
+                        final_reply = f"{persona_prefix}{text}"
+                except: pass
+        
+        if not final_reply:
+            final_reply = f"{persona_prefix}I'm recalibrating my satellite link. Try asking about the '350kW 2026 MGU-K' while I reconnect to the master brain!"
+
+        # 🔴 4. COMMIT TO MEMORY
+        if user_id:
+            try:
+                conn = sqlite3.connect('autoverse.db')
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO chat_history (user_id, message, response) VALUES (?,?,?)", (user_id, message, final_reply))
+                conn.commit()
+                conn.close()
+            except: pass
+
+        return final_reply
+
+    except Exception as e:
+        print(f"AI Engine Error: {e}")
+        return "🏎️ AutoVerse Virtual Guide // SYSTEM_OVERRIDE: I'm performing a live data sync. Let's talk about Aero or 2026 Engines in a second!"
