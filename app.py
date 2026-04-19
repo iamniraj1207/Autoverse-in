@@ -59,18 +59,31 @@ def inject_user_data():
 
 import threading
 import car_auto_update
+import os
 
-# --- Background Maintenance Engine ---
-def run_maintenance():
-    """Periodically updates the car library and safety systems."""
-    while True:
-        try:
-            car_auto_update.update_library()
-        except: pass
-        time.sleep(3600 * 24) # Run once every 24 hours
+# --- Vercel Cloud Compatibility ---
+IS_VERCEL = os.environ.get('VERCEL') == '1'
 
-maintenance_thread = threading.Thread(target=run_maintenance, daemon=True)
-maintenance_thread.start()
+if not IS_VERCEL:
+    # Background Maintenance Engine (Local Development Only)
+    def run_maintenance():
+        """Periodically updates the car library and safety systems."""
+        while True:
+            try:
+                car_auto_update.update_library()
+            except: pass
+            time.sleep(3600 * 24)
+
+    maintenance_thread = threading.Thread(target=run_maintenance, daemon=True)
+    maintenance_thread.start()
+else:
+    # On Vercel, ensure FastF1 cache is in /tmp
+    try:
+        import fastf1
+        if not os.path.exists('/tmp/ff1_cache'):
+            os.makedirs('/tmp/ff1_cache')
+        fastf1.Cache.enable_cache('/tmp/ff1_cache')
+    except: pass
 
 @app.before_request
 def enforce_login():
