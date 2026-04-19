@@ -1,9 +1,13 @@
-"""
-app.py — AutoVerse Flask Application
-All routes live here. Page routes use Jinja2, API routes return JSON.
-"""
 import os
 import json
+import time
+
+# --- CLOUD-NATIVE HEADLESS OVERRIDE ---
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+except: pass
+
 from cs50 import SQL
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -23,6 +27,10 @@ from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# --- Vercel Cloud Compatibility ---
+IS_VERCEL = os.environ.get('VERCEL') == '1'
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 # ── App Setup ──────────────────────────────────────────────────────────────────
 app = Flask(__name__)
@@ -44,10 +52,12 @@ limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["200 per
 # Performance Layer (Cache)
 cache = Cache(app, config={'CACHE_TYPE': 'simple', 'CACHE_DEFAULT_TIMEOUT': 300})
 
-# Boot Background Update & Security Daemons
-SecurityManager.init_background_threads()
+if not IS_VERCEL:
+    # Only boot background threads on local/persistent servers
+    SecurityManager.init_background_threads()
 
-db = SQL("sqlite:///autoverse.db") # Still used for static data (fast)
+db_path = os.path.join(basedir, "autoverse.db")
+db = SQL(f"sqlite:///{db_path}")
 app.jinja_env.globals.update(min=min, max=max, int=int, str=str, json=json)
 
 @app.context_processor
