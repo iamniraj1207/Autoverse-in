@@ -15,10 +15,19 @@ from plotly.subplots import make_subplots
 import random
 import numpy as np
 
-CACHE_DIR = os.path.join(os.getcwd(), ".tmp", "fastf1_cache")
-os.makedirs(CACHE_DIR, exist_ok=True)
-if FASTF1_AVAILABLE:
-    fastf1.Cache.enable_cache(CACHE_DIR)
+# --- CLOUD-NATIVE CACHE CONFIG ---
+IS_VERCEL = os.environ.get('VERCEL') == '1'
+if IS_VERCEL:
+    CACHE_DIR = "/tmp/fastf1_cache"
+else:
+    CACHE_DIR = os.path.join(os.getcwd(), ".tmp", "fastf1_cache")
+
+try:
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    if FASTF1_AVAILABLE:
+        fastf1.Cache.enable_cache(CACHE_DIR)
+except Exception as e:
+    print(f"Cache Initialization suppressed: {e}")
 
 # 2026 grid — sourced from OpenF1 API live session
 DRIVERS_2026 = [
