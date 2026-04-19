@@ -1,0 +1,231 @@
+/* --- ACETERNITY STYLE TIMELINE --- */
+
+.tl-aceternity-wrapper {
+    position: relative;
+    padding: 2rem 0;
+    --line-bg: rgba(255, 255, 255, 0.05);
+}
+
+.tl-progress-line-container {
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    z-index: 1;
+}
+
+@media (min-width: 768px) {
+    .tl-progress-line-container {
+        left: 2rem;
+    }
+}
+
+.tl-progress-line-bg {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.1) 10%, rgba(255, 255, 255, 0.1) 90%, transparent);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    /* Mask similar to [mask-image:linear-gradient(to_bottom,transparent_0%,black_10%,black_90%,transparent_100%)] */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+.tl-progress-line-fill {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(to bottom, transparent, #a855f7, #3b82f6, transparent);
+    /* React uses purple-500 via blue-500 */
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+    transition: height 0.1s linear, opacity 0.3s ease;
+    border-radius: 999px;
+    opacity: 0;
+}
+
+.tl-items {
+    display: flex;
+    flex-direction: column;
+}
+
+.tl-row {
+    display: flex;
+    gap: 1rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    .tl-row {
+        gap: 2.5rem;
+        padding-top: 10rem;
+        padding-bottom: 10rem;
+    }
+}
+
+.tl-left {
+    position: sticky;
+    top: 10rem;
+    /* top-40 in React (approx 10rem) */
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    z-index: 40;
+    width: 2.5rem;
+    flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+    .tl-left {
+        width: 12rem;
+    }
+}
+
+.tl-dot-outer {
+    position: absolute;
+    left: -0.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 768px) {
+    .tl-dot-outer {
+        left: 0.75rem;
+    }
+}
+
+.tl-dot-inner {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: #1e2535;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.tl-active .tl-dot-inner {
+    background: var(--accent);
+    box-shadow: 0 0 20px var(--accent);
+    transform: scale(1.1);
+}
+
+.tl-year-sticky {
+    display: none;
+    font-family: var(--bebas);
+    font-size: 3rem;
+    line-height: 1;
+    color: #333;
+    /* neutral-500 approx */
+    margin-left: 5rem;
+    transition: all 0.4s ease;
+    opacity: 0.3;
+}
+
+@media (min-width: 768px) {
+    .tl-year-sticky {
+        display: block;
+    }
+}
+
+@media (min-width: 992px) {
+    .tl-year-sticky {
+        font-size: 4.5rem;
+    }
+}
+
+.tl-active .tl-year-sticky {
+    color: #fff;
+    opacity: 1;
+    transform: translateX(10px);
+}
+
+.tl-right {
+    flex: 1;
+    padding-left: 2rem;
+}
+
+@media (min-width: 768px) {
+    .tl-right {
+        padding-left: 0;
+    }
+}
+
+.tl-year-mobile {
+    display: block;
+    font-family: var(--bebas);
+    font-size: 2rem;
+    color: #666;
+    margin-bottom: 1rem;
+    transition: color 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .tl-year-mobile {
+        display: none;
+    }
+}
+
+.tl-active .tl-year-mobile {
+    color: var(--accent);
+}
+
+.tl-content-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s ease;
+}
+
+.tl-content-card:hover {
+    transform: scale(1.02);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.tl-badge {
+    display: inline-block;
+    font-family: var(--dm-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.tl-title {
+    font-family: var(--bebas);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.tl-desc {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #999;
+    margin-bottom: 0;
+}
+
+.tl-img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}

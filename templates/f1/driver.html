@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ driver.name }} | F1 Hub{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/f1.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/f1_timeline.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="driver-hero-section" style="--team-color: {{ team.primary_color }}">
+    <div class="driver-hero-inner">
+        <div class="driver-hero-content container">
+            <div class="row align-items-end">
+                <div class="col-lg-7 pb-5" data-aos="fade-right" data-aos-duration="800">
+                    <div class="helmet-bar mb-4" data-aos="stretch-x" data-aos-delay="500"></div>
+                    <span class="badge badge-outline mb-3 text-uppercase fw-bold">{{ driver.nationality }}</span>
+                    <h1 class="display-1 bebas mb-3">{{ driver.name }}</h1>
+
+                    {% if driver.championships > 0 %}
+                    <div class="trophy-row d-flex gap-2 mb-4">
+                        {% for i in range(driver.championships) %}
+                        <div class="trophy-badge" data-aos="zoom-in" data-aos-delay="{{ 600 + loop.index * 100 }}">
+                            <span class="trophy-icon">🏆</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <p class="driver-bio lead muted col-lg-10">{{ driver.bio }}</p>
+                </div>
+                <div class="col-lg-5 text-center position-relative" data-aos="fade-left" data-aos-duration="1200">
+                    <!-- Image with fallback -->
+                    <img id="driver-portrait" src="{{ driver.image_url }}" data-type="driver"
+                        data-fallback1="{{ driver.image_fallback1 or '' }}"
+                        data-fallback2="/static/img/placeholder_driver.svg" alt="{{ driver.name }}"
+                        class="img-fluid parallax-bg">
+                    <div class="driver-number-hero">{{ driver.number }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="container py-5">
+    <!-- Career Stats Grid -->
+    <div class="stats-row mb-5 mt-0">
+        <div class="stat-glass" data-aos="fade-up" data-aos-delay="0">
+            <span class="stat-number" data-counter data-target="{{ driver.wins }}">0</span>
+            <span class="stat-label">Wins</span>
+        </div>
+        <div class="stat-glass" data-aos="fade-up" data-aos-delay="100">
+            <span class="stat-number" data-counter data-target="{{ driver.podiums }}">0</span>
+            <span class="stat-label">Podiums</span>
+        </div>
+        <div class="stat-glass" data-aos="fade-up" data-aos-delay="200">
+            <span class="stat-number" data-counter data-target="{{ driver.poles }}">0</span>
+            <span class="stat-label">Pole Positions</span>
+        </div>
+        <div class="stat-glass" data-aos="fade-up" data-aos-delay="300">
+            <span class="stat-number" data-counter data-target="{{ driver.fastest_laps }}">0</span>
+            <span class="stat-label">Fastest Laps</span>
+        </div>
+    </div>
+
+    <!-- Details Row -->
+    <div class="row mb-5 pt-4">
+        <div class="col-lg-4" data-aos="fade-right">
+            <div class="details-card h-100 p-4 bg-surface border border-secondary">
+                <h3 class="bebas display-6 mb-4">DRIVER OVERVIEW</h3>
+                <ul class="list-unstyled">
+                    <li class="d-flex justify-content-between py-2 border-bottom border-secondary">
+                        <span class="muted small text-uppercase fw-bold">Date of Birth</span>
+                        <span class="fw-bold">{{ driver.birth_date }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between py-2 border-bottom border-secondary">
+                        <span class="muted small text-uppercase fw-bold">Place of Birth</span>
+                        <span class="fw-bold">{{ driver.birth_place }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between py-2 border-bottom border-secondary">
+                        <span class="muted small text-uppercase fw-bold">F1 Debut</span>
+                        <span class="fw-bold">{{ driver.debut_year }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between py-2 border-bottom border-secondary">
+                        <span class="muted small text-uppercase fw-bold">Career Points</span>
+                        <span class="fw-bold">{{ driver.points_career }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between py-2">
+                        <span class="muted small text-uppercase fw-bold">Current Team</span>
+                        <span class="fw-bold"><a href="/f1/team/{{ team.id }}"
+                                style="color: {{ team.primary_color }}">{{ team.name }}</a></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-8" data-aos="fade-left">
+            <h3 class="bebas display-6 mb-4 ms-lg-5">CAREER MILESTONES</h3>
+            <div id="driver-timeline" class="timeline-container ms-lg-5">
+                <!-- JS Hydrated -->
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/f1_timeline.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        new F1Timeline(
+            'driver-timeline',
+            '/api/timeline/driver/{{ driver.id }}',
+            '{{ team.primary_color if team else "#e83a3a" }}'
+        );
+    });
+
+    // OpenF1 Live Headshot Sync
+    document.addEventListener("DOMContentLoaded", async () => {
+        const fallbackImages = {
+            'lindblad': "https://ui-avatars.com/api/?name=Arvid+Lindblad&size=400&background=1a1a2e&color=e83a3a",
+            'perez': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/2col/image.png",
+            'hulkenberg': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/2col/image.png"
+        };
+        try {
+            const res = await fetch("https://api.openf1.org/v1/drivers?session_key=latest");
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            const openF1Cache = { ...fallbackImages };
+            data.forEach(d => {
+                let hUrl = d.headshot_url;
+                if(hUrl) hUrl = hUrl.replace('1col/image.png', '2col/image.png');
+                
+                if (d.last_name) openF1Cache[d.last_name.toLowerCase()] = hUrl;
+                if (d.full_name) openF1Cache[d.full_name.toLowerCase()] = hUrl;
+            });
+
+            const img = document.getElementById('driver-portrait');
+            if (img) {
+                const name = (img.alt || '').toLowerCase();
+                const lastName = name.split(" ").pop();
+                
+                if (openF1Cache[name] && openF1Cache[name].includes('http')) {
+                    img.src = openF1Cache[name];
+                    img.onerror = null;
+                } else if (openF1Cache[lastName] && openF1Cache[lastName].includes('http')) {
+                    img.src = openF1Cache[lastName];
+                    img.onerror = null;
+                }
+            }
+        } catch(e) {
+            console.error("OpenF1 image fetch failed:", e);
+        }
+    });
+</script>
+{% endblock %}

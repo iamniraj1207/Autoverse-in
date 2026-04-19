@@ -1,0 +1,235 @@
+{% extends 'layout.html' %}
+{% block title %}Telemetry Lab | AutoVerse{% endblock %}
+
+{% block head %}
+<style>
+.telem-hero {
+    padding: 130px 0 70px;
+    background: radial-gradient(ellipse at top right, rgba(232,58,58,0.12), transparent 60%);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.lab-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:22px; margin-top:56px; }
+.lab-card {
+    background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);
+    border-radius:20px; padding:36px; cursor:pointer; position:relative; overflow:hidden;
+    transition:all .4s cubic-bezier(.16,1,.3,1);
+}
+.lab-card::before {
+    content:''; position:absolute; top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,var(--accent),transparent);
+    opacity:0; transition:.3s;
+}
+.lab-card:hover { border-color:var(--accent); transform:translateY(-8px); background:rgba(232,58,58,0.04); }
+.lab-card:hover::before { opacity:1; }
+
+/* Modal */
+.cfg-modal {
+    display:none; position:fixed; top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,0.85); backdrop-filter:blur(6px);
+    z-index:1200; align-items:center; justify-content:center;
+}
+.cfg-modal.open { display:flex; }
+.modal-box {
+    background:rgba(10,13,20,0.97); border:1px solid rgba(255,255,255,0.08);
+    border-radius:24px; padding:44px; width:100%; max-width:660px;
+    max-height:90vh; overflow-y:auto;
+}
+.fld-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+             color:var(--accent); text-transform:uppercase; margin-bottom:8px; display:block; }
+.fld-select {
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1);
+    border-radius:10px; color:#fff; padding:11px 14px; width:100%;
+    font-family:'DM Mono',monospace; font-size:13px; cursor:pointer;
+}
+.fld-select:focus { outline:none; border-color:var(--accent); }
+.fld-select option { background:#0e1117; }
+.drv-chip {
+    padding:9px 14px; border-radius:10px;
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+    cursor:pointer; text-align:center; font-family:'DM Mono',monospace;
+    font-size:12px; font-weight:600; letter-spacing:1px;
+    transition:all .2s; user-select:none; position:relative;
+}
+.drv-chip .drv-team { font-size:9px; opacity:.5; display:block; margin-top:2px; }
+.drv-chip:hover { border-color:rgba(232,58,58,0.5); }
+.drv-chip.sel { border-color:var(--accent); background:rgba(232,58,58,0.15); color:#fff; }
+.drv-chip.sel::after { content:'✓'; position:absolute; top:3px; right:5px; font-size:9px; color:var(--accent); }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="telem-hero">
+    <div class="container">
+        <div data-aos="fade-up">
+            <div class="badge mb-3">◆ FASTF1 × OPENF1 — 2018 → 2026</div>
+            <h1 class="font-bebas" style="font-size:5rem;line-height:.9;">RACE <span class="accent-red">INTELLIGENCE</span></h1>
+            <p class="muted2 lead mt-3" style="max-width:640px;">
+                Access certified telemetry from every F1 season 2018–2026.
+                Analyze speed, throttle, brake, and gear data from real championship laps.
+            </p>
+        </div>
+        <div class="lab-cards">
+            <div class="lab-card" data-aos="fade-up" data-aos-delay="100" onclick="openModal('R')">
+                <div style="font-size:36px;color:var(--accent);margin-bottom:18px;"><i class="fas fa-tachometer-alt"></i></div>
+                <h3 class="font-bebas h2">RACE ANALYSIS</h3>
+                <p class="muted small">Fastest lap telemetry from the Grand Prix. Speed, throttle, gear maps across full distance.</p>
+                <span class="badge mt-3" style="color:#00d4aa;border-color:#00d4aa;">REAL DATA</span>
+            </div>
+            <div class="lab-card" data-aos="fade-up" data-aos-delay="200" onclick="openModal('Q')">
+                <div style="font-size:36px;color:var(--accent);margin-bottom:18px;"><i class="fas fa-stopwatch"></i></div>
+                <h3 class="font-bebas h2">QUALIFYING</h3>
+                <p class="muted small">Compare hotlaps from Q3. See exactly where pole position is gained or lost corner by corner.</p>
+                <span class="badge mt-3" style="color:#ff8000;border-color:#ff8000;">Q SESSION</span>
+            </div>
+            <div class="lab-card" data-aos="fade-up" data-aos-delay="300" onclick="openModal('FP1')">
+                <div style="font-size:36px;color:var(--accent);margin-bottom:18px;"><i class="fas fa-flask"></i></div>
+                <h3 class="font-bebas h2">PRACTICE</h3>
+                <p class="muted small">Long-run pace, setup correlation, and tyre degradation from Friday sessions.</p>
+                <span class="badge mt-3" style="color:#aaa;border-color:#aaa;">FP SESSION</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Config Modal -->
+<div class="cfg-modal" id="cfg-modal">
+    <div class="modal-box" data-aos="zoom-in">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="font-bebas mb-0" style="font-size:2rem;">ANALYSIS CONFIG</h2>
+            <button onclick="closeModal()" class="btn btn-sm btn-outline-secondary">✕</button>
+        </div>
+        <form action="/f1/telemetry/analysis" method="GET" id="telem-form">
+            <input type="hidden" name="session_type" id="stype" value="R">
+
+            <div class="row g-3 mb-4">
+                <!-- Year -->
+                <div class="col-md-4">
+                    <label class="fld-label">SEASON</label>
+                    <select name="year" class="fld-select" id="year-sel" onchange="updateCalendar(this.value)">
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                        <option value="2018">2018</option>
+                    </select>
+                </div>
+                <!-- GP -->
+                <div class="col-md-8">
+                    <label class="fld-label">GRAND PRIX</label>
+                    <select name="gp" class="fld-select" id="gp-sel"></select>
+                </div>
+            </div>
+
+            <!-- Drivers -->
+            <div class="mb-4">
+                <label class="fld-label">DRIVERS — SELECT UP TO 4</label>
+                <div id="drv-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+                <div id="drv-inputs"></div>
+            </div>
+
+            <button type="submit" class="btn btn-danger w-100 py-3 font-bebas" style="font-size:1.2rem;letter-spacing:3px;">
+                ⚡ INITIATE ANALYSIS
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+const CALENDARS = {
+    2026: ["Australia","China","Japan","Miami","Canada","Monaco","Spain","Austria","Great Britain","Belgium","Hungary","Netherlands","Italy","Azerbaijan","Singapore","United States","Mexico","Brazil","Las Vegas","Qatar","Abu Dhabi"],
+    2025: ["Australia","China","Japan","Bahrain","Saudi Arabia","Miami","Emilia Romagna","Monaco","Spain","Canada","Austria","Great Britain","Belgium","Hungary","Netherlands","Italy","Azerbaijan","Singapore","United States","Mexico","Brazil","Las Vegas","Qatar","Abu Dhabi"],
+    2024: ["Bahrain","Saudi Arabia","Australia","Japan","China","Miami","Monaco","Canada","Spain","Austria","Great Britain","Hungary","Belgium","Netherlands","Italy","Azerbaijan","Singapore","USA","Mexico","Brazil","Las Vegas","Qatar","Abu Dhabi"],
+    2023: ["Bahrain","Saudi Arabia","Australia","Azerbaijan","Miami","Monaco","Spain","Canada","Austria","Great Britain","Hungary","Belgium","Netherlands","Italy","Singapore","Japan","Qatar","United States","Mexico","Brazil","Las Vegas","Abu Dhabi"],
+    2022: ["Bahrain","Saudi Arabia","Australia","Emilia Romagna","Miami","Spain","Monaco","Azerbaijan","Canada","Great Britain","Austria","France","Hungary","Belgium","Netherlands","Italy","Singapore","Japan","United States","Mexico","Brazil","Abu Dhabi"],
+    2021: ["Bahrain","Emilia Romagna","Portugal","Spain","Monaco","Azerbaijan","France","Styria","Austria","Great Britain","Hungary","Belgium","Netherlands","Italy","Russia","Turkey","United States","Mexico","Brazil","Qatar","Saudi Arabia","Abu Dhabi"],
+    2020: ["Austria","Styria","Hungary","Great Britain","70th Anniversary","Spain","Belgium","Italy","Tuscany","Russia","Eifel","Portugal","Emilia Romagna","Turkey","Bahrain","Sakhir","Abu Dhabi"],
+    2019: ["Australia","Bahrain","China","Azerbaijan","Spain","Monaco","Canada","France","Austria","Great Britain","Germany","Hungary","Belgium","Italy","Singapore","Russia","Japan","Mexico","United States","Brazil","Abu Dhabi"],
+    2018: ["Australia","Bahrain","China","Azerbaijan","Spain","Monaco","Canada","France","Austria","Great Britain","Germany","Hungary","Belgium","Italy","Singapore","Russia","Japan","United States","Mexico","Brazil","Abu Dhabi"]
+};
+
+const DRIVERS = {
+    2026: [
+        {c:"NOR",n:"Norris",t:"McLaren"},    {c:"PIA",n:"Piastri",t:"McLaren"},
+        {c:"VER",n:"Verstappen",t:"Red Bull"},{c:"HAD",n:"Hadjar",t:"Red Bull"},
+        {c:"HAM",n:"Hamilton",t:"Ferrari"},  {c:"LEC",n:"Leclerc",t:"Ferrari"},
+        {c:"RUS",n:"Russell",t:"Mercedes"},  {c:"ANT",n:"Antonelli",t:"Mercedes"},
+        {c:"SAI",n:"Sainz",t:"Williams"},    {c:"ALB",n:"Albon",t:"Williams"},
+        {c:"ALO",n:"Alonso",t:"Aston M."},  {c:"STR",n:"Stroll",t:"Aston M."},
+        {c:"GAS",n:"Gasly",t:"Alpine"},      {c:"COL",n:"Colapinto",t:"Alpine"},
+        {c:"LAW",n:"Lawson",t:"R.Bulls"},    {c:"LIN",n:"Lindblad",t:"R.Bulls"},
+        {c:"HUL",n:"Hulkenberg",t:"Audi"},   {c:"BOR",n:"Bortoleto",t:"Audi"},
+        {c:"OCO",n:"Ocon",t:"Haas"},         {c:"BEA",n:"Bearman",t:"Haas"},
+        {c:"PER",n:"Perez",t:"Cadillac"},    {c:"BOT",n:"Bottas",t:"Cadillac"},
+    ],
+    default: [
+        {c:"VER",n:"Verstappen"},{c:"HAM",n:"Hamilton"},{c:"LEC",n:"Leclerc"},
+        {c:"NOR",n:"Norris"},{c:"SAI",n:"Sainz"},{c:"RUS",n:"Russell"},
+        {c:"PIA",n:"Piastri"},{c:"ALO",n:"Alonso"},{c:"STR",n:"Stroll"},
+        {c:"PER",n:"Perez"},{c:"GAS",n:"Gasly"},{c:"TSU",n:"Tsunoda"},
+        {c:"HUL",n:"Hulkenberg"},{c:"MAG",n:"Magnussen"},{c:"BOT",n:"Bottas"},
+        {c:"ZHO",n:"Zhou"},{c:"ALB",n:"Albon"},{c:"SAR",n:"Sargeant"},
+        {c:"OCO",n:"Ocon"},{c:"RIC",n:"Ricciardo"},
+    ]
+};
+
+let selectedDrivers = new Set();
+let sessionType = 'R';
+
+function openModal(type) {
+    sessionType = type;
+    document.getElementById('stype').value = type;
+    document.getElementById('cfg-modal').classList.add('open');
+    updateCalendar(document.getElementById('year-sel').value);
+}
+function closeModal() { document.getElementById('cfg-modal').classList.remove('open'); }
+
+function updateCalendar(year) {
+    const gps = CALENDARS[parseInt(year)] || CALENDARS[2024];
+    const sel = document.getElementById('gp-sel');
+    sel.innerHTML = gps.map(g => `<option value="${g}">${g} Grand Prix</option>`).join('');
+    updateDriverGrid(parseInt(year));
+}
+
+function updateDriverGrid(year) {
+    selectedDrivers.clear();
+    const list = year === 2026 ? DRIVERS[2026] : DRIVERS.default;
+    const grid = document.getElementById('drv-grid');
+    grid.innerHTML = list.map(d =>
+        `<div class="drv-chip" onclick="toggleDrv(this,'${d.c}')" data-code="${d.c}">
+            ${d.c}<span class="drv-team">${d.t||''}</span>
+         </div>`
+    ).join('');
+    syncInputs();
+}
+
+function toggleDrv(el, code) {
+    if (selectedDrivers.has(code)) {
+        selectedDrivers.delete(code); el.classList.remove('sel');
+    } else if (selectedDrivers.size < 4) {
+        selectedDrivers.add(code); el.classList.add('sel');
+    }
+    syncInputs();
+}
+
+function syncInputs() {
+    const c = document.getElementById('drv-inputs');
+    c.innerHTML = '';
+    selectedDrivers.forEach(d => {
+        const inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = 'drivers'; inp.value = d;
+        c.appendChild(inp);
+    });
+}
+
+document.getElementById('cfg-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+// Init calendar on load
+updateCalendar(2024);
+</script>
+{% endblock %}

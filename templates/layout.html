@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* http://*; style-src 'self' 'unsafe-inline' https://*; img-src 'self' data: https: http:; font-src 'self' https://*; connect-src 'self' https://* http://*;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AutoVerse{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cars.css') }}">
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/f1.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/academy.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cinematic_hero.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/compare_bar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ai_guide.css') }}">
+  {% block head %}{% endblock %}
+</head>
+
+<body class="dark-theme">
+
+  <!-- NAVIGATION -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">AUTO<span>VERSE</span></a>
+      <div class="nav-links-wrapper">
+        <div class="nav-column">
+          <span class="nav-label">EXPLORE</span>
+          <ul class="nav-links">
+            <li><a href="/cars" {% if request.path.startswith('/cars') %}class="active" {% endif %}>Cars</a></li>
+            <li><a href="/compare" {% if request.path=='/compare' %}class="active" {% endif %}>Compare</a></li>
+            <li><a href="/garage" {% if request.path=='/garage' %}class="active" {% endif %}>Garage</a></li>
+            <li><a href="/academy" {% if request.path.startswith('/academy') %}class="active" {% endif %}>Academy</a></li>
+          </ul>
+        </div>
+        
+        <div class="nav-column">
+          <span class="nav-label">FORMULA ONE</span>
+          <ul class="nav-links">
+            <li><a href="/f1/telemetry" {% if request.path == '/f1/telemetry' %}class="active" {% endif %} style="color:var(--accent);">Telemetry ⚡</a></li>
+            <li><a href="/f1/news" {% if request.path == '/f1/news' %}class="active" {% endif %}>News</a></li>
+            <li><a href="/f1/live-hub" style="color: #00d4aa; font-weight: bold;" {% if request.path == '/f1/live-hub' %}class="active" {% endif %}>Live ●</a></li>
+            <li><a href="/f1/history" {% if request.path == '/f1/history' %}class="active" {% endif %}>History</a></li>
+            <li><a href="/f1" {% if request.path == '/f1' %}class="active"{% endif %}>F1 Hub</a></li>
+            <li><a href="/f1/hall-of-fame" {% if 'hall-of-fame' in request.path %}class="active" {% endif %}>Hall of Fame</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-column nav-auth">
+          {% if session.user_id %}
+            <div class="nav-user-stats" style="margin-right: 15px;">
+              <span title="Current Streak">🔥 {{ user_xp.current_streak if user_xp else 0 }}</span>
+              <span title="Total XP">⚡ {{ user_xp.total_xp if user_xp else 0 }} XP</span>
+            </div>
+            <a href="/logout" class="nav-btn-ghost">Logout</a>
+          {% else %}
+            <a href="/login" class="nav-btn-ghost">Login</a>
+            <a href="/register" class="nav-btn">Join</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- FLASH / ERROR -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-container">
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <!-- CONTENT -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Global Compare Bar -->
+  <div class="compare-bar" id="compare-bar">
+    <div class="compare-bar-inner">
+      <div class="compare-slots" id="compare-slots">
+        <!-- Filled dynamically -->
+      </div>
+      <div class="compare-bar-actions">
+        <span class="compare-count" id="compare-count">0/4 cars selected</span>
+        <button class="compare-go-btn" id="compare-go-btn" onclick="goToCompare()" disabled>
+          COMPARE NOW →
+        </button>
+        <button class="compare-clear-btn" onclick="clearCompare()">CLEAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer p-5 mt-5 border-top border-secondary bg-black">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-4 mb-4 mb-md-0">
+          <span class="footer-logo">AUTO<span>VERSE</span></span>
+          <p class="text-muted mt-2 small">Automotive &amp; F1 Enthusiast Intelligence Hub</p>
+        </div>
+        <div class="col-md-8">
+          <div class="footer-nav-grid d-flex justify-content-md-end gap-5">
+            <div class="f-group">
+              <h6 class="font-bebas text-white tracking-widest mb-3">PLATFORM</h6>
+              <ul class="list-unstyled d-flex flex-column gap-2">
+                <li><a href="/about" class="text-white text-decoration-none hover-red transition-all">ABOUT US</a></li>
+                <li><a href="/contact" class="text-white text-decoration-none hover-red transition-all">CONTACT US</a></li>
+              </ul>
+            </div>
+            <div class="f-group">
+              <h6 class="font-bebas text-white tracking-widest mb-3">LEGAL</h6>
+              <ul class="list-unstyled d-flex flex-column gap-2">
+                <li><a href="/terms" class="text-white text-decoration-none hover-red transition-all">TERMS & CONDITIONS</a></li>
+                <li><a href="/privacy" class="text-white text-decoration-none hover-red transition-all">PRIVACY POLICY</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-5">
+        <p class="" style="font-size: 9px; opacity: 0.3; letter-spacing: 2px;">© 2026 AUTOVERSE INTEL • ALL DATA CALIBRATED FOR ELITES • V3.4.0-STABLE</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating AI Assistant -->
+  <div id="ai-chat-btn" onclick="toggleChat()">
+    <i class="fas fa-robot"></i>
+  </div>
+  
+  <div id="ai-chat-window">
+    <div class="chat-header">
+        <h4 class="chat-title">AUTOVERSE <span>GUIDE</span></h4>
+        <i class="fas fa-times chat-close" onclick="toggleChat()"></i>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <!-- Messages injected here -->
+    </div>
+    <div class="typing-indicator" id="typing-indicator">Guide is typing...</div>
+    <div class="chat-input-area">
+        <input type="text" id="ai-chat-input" class="chat-input" placeholder="Ask about F1, engines...">
+        <button class="chat-send" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+
+  <!-- Global Scripts -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="{{ url_for('static', filename='js/garage.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/three_scenes.js') }}"></script>
+
+  {% block scripts %}{% endblock %}
+
+  <script>
+    (function () {
+      // PREMIUM IMAGE INTEGRITY SYSTEM
+      async function handleImageError(img) {
+        const type = img.dataset.type || 'generic';
+        const brand = img.dataset.brand || 'AutoVerse';
+        const model = img.dataset.model || 'Model';
+
+        if (img.dataset.tries === undefined) img.dataset.tries = '0';
+        const tries = parseInt(img.dataset.tries);
+        img.dataset.tries = tries + 1;
+
+        if (tries === 0 && type === 'car') {
+            // First Attempt: Real-time Imagin.studio Generation
+            img.src = `https://cdn.imagin.studio/getImage?customer=hr-autoverse&make=${brand.toLowerCase()}&modelFamily=${model.split(' ')[0].toLowerCase()}&zoomType=fullscreen`;
+        } else if (tries === 1) {
+            // Second Attempt: Pixabay/Wikimedia Direct Proxy (Simulated with Safe Unsplash)
+            const query = encodeURIComponent(`${brand} ${model} car high resolution`);
+            img.src = `https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1200`;
+        } else {
+          // Final: Branded Lux Placeholder
+          let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500">
+            <rect width="800" height="500" fill="#0b0e14"/>
+            <rect width="800" height="4" fill="#e83a3a"/>
+            <text x="400" y="250" font-family="'Bebas Neue', sans-serif" font-size="45" fill="#2e3545" text-anchor="middle" letter-spacing="8">${brand.toUpperCase()}</text>
+            <text x="400" y="285" font-family="'DM Mono', monospace" font-size="10" fill="#1a1d26" text-anchor="middle">CALIBRATING HIGH-FIDELITY ASSET...</text>
+          </svg>`;
+          img.src = 'data:image/svg+xml;base64,' + btoa(svgContent);
+          img.onerror = null;
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        AOS.init({ duration: 800, once: true });
+
+        document.querySelectorAll('img[data-type]').forEach(img => {
+          img.onerror = () => handleImageError(img);
+          if (!img.complete || img.naturalWidth === 0) {
+            handleImageError(img);
+          }
+        });
+      });
+    })();
+  </script>
+  <script src="{{ url_for('static', filename='js/compare.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ai_guide.js') }}"></script>
+</body>
+
+</html>

@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+{% block title %}About Us | AutoVerse{% endblock %}
+{% block content %}
+<section class="py-5 mt-5 position-relative">
+    <div class="container">
+        <div class="glass-card mb-5 p-5 border-none bg-black bg-opacity-50" data-aos="fade-up">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="badge mb-4">◆ THE AUTOVERSE MISSION</div>
+                    <h1 class="font-bebas display-3 mb-4 reveal-text">ENGINEERING <span class="accent-red">INTELLIGENCE</span></h1>
+                    <p class="lead text-white mb-5 opacity-80" style="max-width: 600px;">
+                        AutoVerse is the world's most comprehensive digital automotive intelligence hub, designed for enthusiasts, engineers, and the global elite.
+                    </p>
+                    
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-6">
+                            <h4 class="font-bebas text-muted small tracking-widest mb-3" style="font-size: 10px;">DATA INTEGRITY</h4>
+                            <p class="small muted2">We synthesize high-fidelity technical data from sources like the NHTSA with live Formula 1 telemetry, providing a unified dashboard for the modern petrolhead.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="font-bebas text-muted small tracking-widest mb-3" style="font-size: 10px;">EDUCATIONAL EMPOWERMENT</h4>
+                            <p class="small muted2">Our 1,000+ lesson curriculum is designed to bridge the gap between raw automotive data and immersive user mastery.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-5">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="p-4 h-100 border border-secondary rounded-4 hover-bg-dark transition-all">
+                    <h3 class="font-bebas accent-red h2 mb-3">15,000+</h3>
+                    <p class="small muted tracking-widest uppercase">Technical Nodes Analyzed</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="p-4 h-100 border border-secondary rounded-4 hover-bg-dark transition-all">
+                    <h3 class="font-bebas accent-red h2 mb-3">LIVE</h3>
+                    <p class="small muted tracking-widest uppercase">F1 Telemetry Streams</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="p-4 h-100 border border-secondary rounded-4 hover-bg-dark transition-all">
+                    <h3 class="font-bebas accent-red h2 mb-3">ELITE</h3>
+                    <p class="small muted tracking-widest uppercase">Concierge Support</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        gsap.from(".reveal-text", {
+            y: 100,
+            opacity: 0,
+            duration: 1.2,
+            ease: "power4.out"
+        });
+    });
+</script>
+{% endblock %}

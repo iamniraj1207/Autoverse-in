@@ -1,0 +1,162 @@
+/* Academy Content Styling */
+.engine-diagram {
+    width: 200px;
+    height: 280px;
+    position: relative;
+    margin: 40px auto;
+}
+
+.cylinder {
+    position: absolute;
+    left: 50px;
+    top: 20px;
+    width: 100px;
+    height: 180px;
+    border: 2px solid #e83a3a;
+    border-bottom: none;
+    background: rgba(232, 58, 58, 0.05);
+}
+
+.piston {
+    position: absolute;
+    left: 55px;
+    width: 90px;
+    height: 25px;
+    background: #1e2535;
+    border: 1px solid #3a7bd5;
+    animation: pistonMove 2s ease-in-out infinite;
+}
+
+@keyframes pistonMove {
+
+    0%,
+    100% {
+        top: 150px;
+    }
+
+    50% {
+        top: 40px;
+    }
+}
+
+.con-rod {
+    position: absolute;
+    left: 96px;
+    width: 8px;
+    background: #2e3545;
+    transform-origin: bottom center;
+    animation: conRodMove 2s ease-in-out infinite;
+}
+
+@keyframes conRodMove {
+
+    0%,
+    100% {
+        top: 175px;
+        height: 60px;
+    }
+
+    50% {
+        top: 65px;
+        height: 80px;
+    }
+}
+
+.spark-plug {
+    position: absolute;
+    left: 95px;
+    top: 10px;
+    width: 10px;
+    height: 15px;
+    background: #f0a500;
+    border-radius: 2px;
+    animation: sparkFire 2s ease-in-out infinite;
+}
+
+@keyframes sparkFire {
+
+    0%,
+    45%,
+    55%,
+    100% {
+        box-shadow: none;
+        opacity: 0.5;
+    }
+
+    50% {
+        box-shadow: 0 0 15px #f0a500, 0 0 30px #ff6b35;
+        opacity: 1;
+    }
+}
+
+.combustion {
+    position: absolute;
+    left: 55px;
+    top: 35px;
+    width: 90px;
+    height: 30px;
+    background: radial-gradient(ellipse, rgba(255, 107, 53, 0.6), transparent);
+    animation: combustionFlash 2s ease-in-out infinite;
+    opacity: 0;
+}
+
+@keyframes combustionFlash {
+
+    0%,
+    45% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+
+    55%,
+    100% {
+        opacity: 0;
+    }
+}
+
+.slide-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.slide-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: #e83a3a;
+    margin-bottom: 20px;
+}
+
+.slide-text {
+    font-size: 18px;
+    line-height: 1.6;
+    color: #ccd0d9;
+}
+
+.slide-image {
+    width: 100%;
+    border-radius: 12px;
+    margin: 30px 0;
+    border: 1px solid #1e2535;
+}
+
+.key-point-box {
+    background: rgba(232, 58, 58, 0.1);
+    border-left: 4px solid #e83a3a;
+    padding: 15px 20px;
+    margin: 20px 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .slide-title {
+        font-size: 36px;
+    }
+    .slide-text {
+        font-size: 16px;
+    }
+}

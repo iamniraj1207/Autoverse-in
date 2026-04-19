@@ -1,0 +1,95 @@
+{% extends 'layout.html' %}
+{% block title %}Contact Us | AutoVerse{% endblock %}
+{% block content %}
+<section class="py-5 mt-5 position-relative">
+    <div class="container">
+        <div class="row g-0 rounded-5 overflow-hidden shadow-2xl border border-secondary bg-black">
+            <!-- Left Panel: Concierge Info -->
+            <div class="col-lg-5 p-5 bg-dark position-relative overflow-hidden" data-aos="fade-right">
+                <div class="position-absolute top-0 end-0 p-5 opacity-05">
+                    <i class="fas fa-headset" style="font-size: 200px;"></i>
+                </div>
+                
+                <div class="position-relative" style="z-index: 2;">
+                    <div class="badge mb-3">◆ DIRECT UPLINK</div>
+                    <h1 class="font-bebas display-3 mb-4">DIGITAL <span class="accent-red">CONCIERGE</span></h1>
+                    <p class="muted2 mb-5">Our engineering desk is available for technical support, high-end acquisitions, and platform telemetry queries.</p>
+                    
+                    <div class="d-flex flex-column gap-4">
+                        <div class="contact-node p-3 rounded-3 border border-secondary hover-bg-light transition-all">
+                            <span class="d-block small muted text-uppercase tracking-widest mb-1">Satellite Tech Support</span>
+                            <span class="h5 mb-0 text-white">support@autoverse.com</span>
+                        </div>
+                        <div class="contact-node p-3 rounded-3 border border-secondary hover-bg-light transition-all">
+                            <span class="d-block small muted text-uppercase tracking-widest mb-1">Global Partnership</span>
+                            <span class="h5 mb-0 text-white">intel@autoverse.com</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 p-4 bg-black bg-opacity-50 rounded-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="pulse-red me-2"></div>
+                            <span class="small text-white font-bebas">SYSTEM STATUS: OPTIMAL</span>
+                        </div>
+                        <p class="small muted mb-0">Average response latency: 120ms</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Transmission Interface -->
+            <div class="col-lg-7 p-5 d-flex flex-column justify-content-center" data-aos="fade-left">
+                <h3 class="font-bebas mb-4">TRANSMIT ENCRYPTED MESSAGE</h3>
+                <form id="expensive-contact-form" class="row g-4">
+                    <div class="col-md-6">
+                        <label class="small muted tracking-widest mb-2">IDENTIFICATION</label>
+                        <input type="text" class="form-control-lavish" placeholder="NAME / CALLSIGN">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="small muted tracking-widest mb-2">UPLINK ADDRESS</label>
+                        <input type="email" class="form-control-lavish" placeholder="EMAIL">
+                    </div>
+                    <div class="col-12">
+                        <label class="small muted tracking-widest mb-2">TECHNICAL QUERY</label>
+                        <textarea class="form-control-lavish" rows="4" placeholder="DESCRIBE YOUR REQUIREMENT..."></textarea>
+                    </div>
+                    <div class="col-12 pt-3">
+                        <button type="submit" class="btn btn-danger w-100 py-4 font-bebas tracking-widest shadow-lg reveal-btn">
+                            SEND SECURE TRANSMISSION <i class="fas fa-paper-plane ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .form-control-lavish {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 8px;
+        padding: 16px;
+        color: white;
+        width: 100%;
+        transition: all 0.3s;
+    }
+    .form-control-lavish:focus {
+        background: rgba(255,255,255,0.05);
+        border-color: #e83a3a;
+        outline: none;
+        box-shadow: 0 0 20px rgba(232, 58, 58, 0.1);
+    }
+    .pulse-red {
+        width: 10px;
+        height: 10px;
+        background: #e83a3a;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(232, 58, 58, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(232, 58, 58, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(232, 58, 58, 0); }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,271 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<section class="f1-drivers-page">
+
+    <!-- Page header -->
+    <div class="f1-page-header" data-aos="fade-up">
+        <div class="f1-eyebrow">2026 FORMULA ONE</div>
+        <h1 class="f1-page-title">
+            THE <span>DRIVERS</span>
+        </h1>
+        <p>All {{ drivers|length }} drivers competing in the 2026 World Championship</p>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="driver-filters container" data-aos="fade-up" style="text-align: center; margin-bottom: 40px;">
+        <button class="btn btn-ghost dfilter active" onclick="filterDrivers('all')">ALL {{ drivers|length }}</button>
+        <button class="btn btn-ghost dfilter" onclick="filterDrivers('champion')">🏆 CHAMPIONS</button>
+        <button class="btn btn-ghost dfilter" onclick="filterDrivers('rookie')">🌟 ROOKIES</button>
+    </div>
+
+    <!-- Injecting layout styles right here for isolated component styling -->
+    <style>
+        .av-driver-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .av-driver-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .av-driver-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .av-driver-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .av-driver-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(145deg, rgba(20, 24, 32, 0.8), rgba(10, 13, 20, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 24px 16px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+            height: 100%;
+        }
+
+        .av-driver-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            border-color: var(--team-color, #e83a3a);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 20px var(--team-color);
+            z-index: 100;
+        }
+
+        .av-team-logo-overlay {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            height: 30px;
+            width: auto;
+            max-width: 60px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+            z-index: 10;
+        }
+
+        .av-driver-img-wrap {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .av-driver-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: bottom;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.6));
+        }
+
+        .av-driver-num-bg {
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 100px;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 0;
+            line-height: 0.8;
+            pointer-events: none;
+        }
+
+        .av-driver-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            color: #e8eaf0;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .av-driver-team-name {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--team-color, #e83a3a);
+            text-align: center;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            z-index: 2;
+        }
+
+        .av-driver-stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            width: 100%;
+            justify-content: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 16px;
+        }
+
+        .av-ds-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .av-ds-val {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .av-ds-key {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+        }
+    </style>
+
+    <!-- Drivers grid — Outer CSS Grid, Inner Flexbox Column -->
+    <div class="av-driver-grid" id="drivers-grid">
+        {% for driver in drivers %}
+        <div class="av-driver-card" style="--team-color: {{ driver.primary_color or '#e83a3a' }}"
+            data-championships="{{ driver.championships }}" data-debut="{{ driver.debut_year }}" data-aos="fade-up"
+            data-aos-delay="{{ [loop.index0 * 60, 800] | min }}" onclick="window.location='/f1/driver/{{ driver.id }}'">
+
+            <!-- Team Logo removed for clean text-based aesthetic -->
+
+            <!-- Driver Image Wrap (Fixed Aspect Ratio) -->
+            <div class="av-driver-img-wrap">
+                <div class="av-driver-num-bg">{{ driver.number }}</div>
+                <img src="{{ driver.image_url }}" data-type="driver" alt="{{ driver.name }}" loading="lazy"
+                    class="av-driver-photo" style="position: relative; z-index: 1;"
+                    onerror="this.src='https://ui-avatars.com/api/?name={{ driver.name|replace(' ','+') }}&size=400&background=1a1a2e&color=e83a3a&bold=true';this.onerror=null" />
+            </div>
+
+            <!-- Driver Info Block -->
+            <div class="av-driver-name">{{ driver.name }}</div>
+            <div class="av-driver-team-name">{{ driver.team_name or 'Independent' }}</div>
+
+            <!-- Stats Base -->
+            <div class="av-driver-stats">
+                <div class="av-ds-item">
+                    <span class="av-ds-val">{{ driver.championships }}</span>
+                    <span class="av-ds-key">TITLES</span>
+                </div>
+                <div class="av-ds-item">
+                    <span class="av-ds-val">{{ driver.wins }}</span>
+                    <span class="av-ds-key">WINS</span>
+                </div>
+                <div class="av-ds-item">
+                    <span class="av-ds-val">{{ driver.poles }}</span>
+                    <span class="av-ds-key">POLES</span>
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function filterDrivers(type) {
+        const cards = document.querySelectorAll('.driver-card');
+        const buttons = document.querySelectorAll('.dfilter');
+
+        buttons.forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+
+        cards.forEach(card => {
+            if (type === 'all') {
+                card.style.display = 'block';
+            } else if (type === 'champion') {
+                card.style.display = parseInt(card.dataset.championships) > 0 ? 'block' : 'none';
+            } else if (type === 'rookie') {
+                card.style.display = parseInt(card.dataset.debut) >= 2024 ? 'block' : 'none';
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const fallbackImages = {
+            'lindblad': "https://ui-avatars.com/api/?name=Arvid+Lindblad&size=400&background=1a1a2e&color=e83a3a",
+            'perez': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/2col/image.png",
+            'hulkenberg': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/2col/image.png"
+        };
+        try {
+            const res = await fetch("https://api.openf1.org/v1/drivers?session_key=latest");
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            const openF1Cache = { ...fallbackImages };
+            data.forEach(d => {
+                let hUrl = d.headshot_url;
+                if(hUrl) hUrl = hUrl.replace('1col/image.png', '2col/image.png');
+                
+                if (d.last_name) openF1Cache[d.last_name.toLowerCase()] = hUrl;
+                if (d.full_name) openF1Cache[d.full_name.toLowerCase()] = hUrl;
+            });
+
+            // Replace all driver photos with official OpenF1 headshots if available
+            document.querySelectorAll('.av-driver-photo').forEach(img => {
+                const name = (img.alt || '').toLowerCase();
+                const lastName = name.split(" ").pop();
+                
+                if (openF1Cache[name] && openF1Cache[name].includes('http')) {
+                    img.src = openF1Cache[name];
+                    img.onerror = null;
+                } else if (openF1Cache[lastName] && openF1Cache[lastName].includes('http')) {
+                    img.src = openF1Cache[lastName];
+                    img.onerror = null;
+                }
+            });
+        } catch(e) {
+            console.error("OpenF1 image fetch failed:", e);
+        }
+    });
+</script>
+{% endblock %}

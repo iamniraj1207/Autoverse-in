@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 220 90" width="220" height="90">
+  <defs>
+    <linearGradient id="grad_haas" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1A0000;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#1A0000dd;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="220" height="90" rx="6" 
+        fill="url(#grad_haas)"/>
+  
+  <!-- Left accent bar -->
+  <rect x="0" y="0" width="4" height="90" rx="2"
+        fill="#E8002D"/>
+  
+  <!-- Top accent line -->
+  <rect x="4" y="0" width="216" height="2"
+        fill="#E8002D" opacity="0.4"/>
+  
+  <!-- Abbreviation — large -->
+  <text x="110" y="52" 
+        font-family="Arial Black, sans-serif"
+        font-size="28" font-weight="900"
+        fill="#E8002D"
+        text-anchor="middle"
+        letter-spacing="3">HAA</text>
+  
+  <!-- Full name — small -->
+  <text x="110" y="72"
+        font-family="Arial, monospace"
+        font-size="8" font-weight="400"
+        fill="#ffffff"
+        text-anchor="middle"
+        letter-spacing="2"
+        opacity="0.7">HAAS F1 TEAM</text>
+  
+  <!-- Corner decoration -->
+  <rect x="190" y="10" width="16" height="2"
+        fill="#E8002D" opacity="0.5"/>
+  <rect x="190" y="16" width="10" height="2"
+        fill="#E8002D" opacity="0.3"/>
+</svg>

@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block title %}Global Leaderboard — AutoVerse Academy{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/academy.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container page-section">
+    <div class="leaderboard-header" style="text-align: center; margin-bottom: 60px;">
+        <h1 class="bebas">GLOBAL <span class="accent">LEADERBOARD</span></h1>
+        <p>The top automotive enthusiasts in the world.</p>
+    </div>
+
+    <div class="leaderboard-wrap" data-aos="fade-up">
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>RANK</th>
+                    <th>USERNAME</th>
+                    <th>LEVEL</th>
+                    <th>TOTAL XP</th>
+                    <th>STREAK</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="rank-row {% if user.username == session.username %}me{% endif %}">
+                    <td>
+                        {% if loop.index == 1 %}🥇
+                        {% elif loop.index == 2 %}🥈
+                        {% elif loop.index == 3 %}🥉
+                        {% else %}#{{ loop.index }}{% endif %}
+                    </td>
+                    <td class="user-cell">
+                        <div class="leader-username">{{ user.username }}</div>
+                    </td>
+                    <td>LVL {{ user.level }}</td>
+                    <td class="xp-cell">{{ user.total_xp }} XP</td>
+                    <td>🔥 {{ user.current_streak }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .user-cell {
+        font-weight: bold;
+        color: white;
+    }
+
+    .xp-cell {
+        color: #f1c40f;
+        font-weight: bold;
+    }
+
+    .rank-row {
+        transition: background 0.2s;
+    }
+
+    .rank-row:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+</style>
+{% endblock %}

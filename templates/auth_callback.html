@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block title %}Authenticating...{% endblock %}
+
+{% block content %}
+<div class="container text-center" style="padding-top: 15vh;">
+    <h2 class="bebas">VERIFYING <span class="accent-text">CLEARANCE</span></h2>
+    <div class="spinner-border text-danger mt-3" role="status"></div>
+    <p class="muted mt-3">Establishing secure connection via Supabase...</p>
+</div>
+
+<script>
+    // Supabase redirects to callback with hash parameters: #access_token=...
+    document.addEventListener("DOMContentLoaded", () => {
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+
+        if (accessToken) {
+            // Send the tokens to backend to set session securely
+            fetch('/auth/session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    access_token: accessToken,
+                    refresh_token: refreshToken
+                })
+            }).then(response => {
+                if(response.ok) {
+                    window.location.href = '/';
+                } else {
+                    window.location.href = '/login?error=Session_Failed';
+                }
+            });
+        } else {
+            window.location.href = '/login?error=OAuth_Failed';
+        }
+    });
+</script>
+{% endblock %}
