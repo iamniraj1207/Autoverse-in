@@ -69,9 +69,16 @@
         </div>
 
         <div class="content-body" data-aos="fade-up">
-            <p>{{ content.body }}</p>
+            {% if content.sections %}
+                {% for section in content.sections %}
+                    <h3 class="bebas mt-4 mb-3" style="color: #e83a3a; font-size: 28px;">{{ section.title }}</h3>
+                    <p style="font-size: 17px; line-height: 1.8; opacity: 0.9;">{{ section.content }}</p>
+                {% endfor %}
+            {% else %}
+                <p>{{ content.body }}</p>
+            {% endif %}
             
-            <div class="technical-dossier">
+            <div class="technical-dossier mt-5">
                 <div class="mb-2" style="color:#e83a3a">ENGINEERING ANALYSIS [LIVE_DATA]</div>
                 <div class="opacity-70">
                     STATUS: VERIFIED BY AUTOVERSE CORE<br>

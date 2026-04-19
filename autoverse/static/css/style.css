@@ -800,6 +800,51 @@ a {
 
 .auth-switch a {
   color: var(--accent);
+  font-weight: 600;
+}
+
+/* Social Buttons */
+.btn-social {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+}
+
+.btn-social i {
+  font-size: 18px;
+}
+
+.btn-social:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-google { background: rgba(219, 68, 55, 0.05); border-color: rgba(219, 68, 55, 0.25); }
+.btn-google i { color: #DB4437; }
+.btn-google:hover { background: rgba(219, 68, 55, 0.12); border-color: #DB4437; box-shadow: 0 0 15px rgba(219, 68, 55, 0.2); }
+
+.btn-github { background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.1); }
+.btn-github i { color: #fff; }
+.btn-github:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); }
+
+.btn-discord { background: rgba(88, 101, 242, 0.05); border-color: rgba(88, 101, 242, 0.25); }
+.btn-discord i { color: #5865F2; }
+.btn-discord:hover { background: rgba(88, 101, 242, 0.12); border-color: #5865F2; box-shadow: 0 0 15px rgba(88, 101, 242, 0.2); }
+
+.auth-switch a {
+  color: var(--accent);
 }
 
 /* ── Compare ─────────────────────────────────────────────── */

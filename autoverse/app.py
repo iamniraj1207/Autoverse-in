@@ -57,6 +57,16 @@ def inject_user_data():
         return {'user_xp': xp_data, 'username': session.get('username')}
     return {'user_xp': None, 'username': None}
 
+@app.before_request
+def enforce_login():
+    """Global Security Gate: Enforce login for all high-value content."""
+    exempt = ['index', 'login', 'register', 'auth_oauth', 'auth_callback', 'static']
+    if request.endpoint not in exempt:
+        # Prevent loop/error on internal requests or missing endpoints
+        if request.endpoint and not request.endpoint.startswith('static'):
+            if 'user_id' not in session:
+                return redirect(url_for('login'))
+
 @app.route("/")
 @cache.cached(timeout=300)
 def index():
@@ -190,12 +200,13 @@ def car_detail(car_id):
         val = float(clean_val)
         luxury_price = f"₹{round(val * 1.09, 2)} Cr"
     except Exception as e:
-        luxury_price = dealer_price # Fallback
+        luxury_price = dealer_price
 
     similar = db.execute("SELECT * FROM cars WHERE (brand=? OR category=?) AND id != ? LIMIT 3", car['brand'], car['category'], car_id)
     return render_template("car.html", car=car, dealer_price=dealer_price, luxury_price=luxury_price, similar=similar)
 
 @app.route("/compare")
+@login_required
 def compare():
     ids_param = request.args.get('ids', '')
     if not ids_param: return render_template("compare.html", cars=[])
@@ -206,6 +217,7 @@ def compare():
 
 # ── ACADEMY ───────────────────────────────────────────────────────────────────
 @app.route("/academy")
+@login_required
 def academy():
     courses = db.execute("SELECT * FROM academy_courses ORDER BY order_num")
     # Group by difficulty for Phase display
@@ -217,6 +229,7 @@ def academy():
     return render_template("academy.html", phases=phases)
 
 @app.route("/academy/course/<slug>")
+@login_required
 def academy_course(slug):
     course = db.execute("SELECT * FROM academy_courses WHERE slug = ?", slug)
     if not course: return render_template("404.html"), 404
@@ -224,6 +237,7 @@ def academy_course(slug):
     return render_template("academy/course.html", course=course[0], lessons=lessons)
 
 @app.route("/academy/lesson/<identifier>")
+@login_required
 def academy_lesson(identifier):
     # Try ID first, then slug
     if identifier.isdigit():
@@ -237,11 +251,17 @@ def academy_lesson(identifier):
     content = json.loads(lesson[0]['content_json'])
     questions = db.execute("SELECT * FROM academy_questions WHERE lesson_id = ?", lesson[0]['id'])
     return render_template("academy/lesson.html", lesson=lesson[0], course=course, content=content, questions=questions)
+
 @app.route("/academy/anatomy")
+@login_required
 def academy_anatomy(): return render_template("academy/anatomy.html")
+
 @app.route("/academy/wind-tunnel")
+@login_required
 def academy_wind_tunnel(): return render_template("academy/wind_tunnel.html")
+
 @app.route("/academy/strategy")
+@login_required
 def academy_strategy(): return render_template("academy/strategy.html")
 
 # ── F1 HUB ────────────────────────────────────────────────────────────────────
@@ -254,6 +274,7 @@ def f1_hub():
     return render_template("f1/f1.html", teams=teams, legends=legends, top_lap=top_lap[0] if top_lap else None)
 
 @app.route("/f1/live-hub")
+@login_required
 def f1_live_hub(): return render_template("f1/live.html")
 
 @app.route("/f1/history")
@@ -299,7 +320,13 @@ def f1_team_profile(team_id):
     standings = f1_engine.get_constructor_standings()
     live_stat = next((s for s in standings if s['team'].lower() in team[0]['name'].lower()), None)
     
-    return render_template("f1/team.html", team=team[0], drivers=drivers, live_stat=live_stat)
+    # Live Telemetry Teaser
+    from telemetry_engine import _simulated
+    drv_codes = [d['name'].split(' ')[-1].upper()[:3] for d in drivers]
+    teaser_data = _simulated("Active Teaser", drv_codes[:2])
+    teaser_json = teaser_data[0] if isinstance(teaser_data, tuple) else teaser_data
+    
+    return render_template("f1/team.html", team=team[0], drivers=drivers, live_stat=live_stat, teaser_json=teaser_json)
 
 @app.route("/api/timeline/<type>/<int:id>")
 def api_timeline(type, id):
@@ -321,7 +348,7 @@ def f1_records():
     return render_template("f1/records.html", laps=laps)
 
 @app.route("/garage")
-@role_required(required_role="user")
+@login_required
 def garage():
     car_ids = supabase_engine.get_user_garage(session['user_id'])
     if not car_ids: return render_template("garage.html", cars=[])
@@ -330,7 +357,7 @@ def garage():
     return render_template("garage.html", cars=user_cars)
 
 @app.route("/api/garage/add", methods=["POST"])
-@role_required(required_role="user")
+@login_required
 def api_garage_add():
     data = request.get_json()
     car_id = data.get('car_id')
@@ -342,13 +369,12 @@ def api_garage_add():
     return jsonify({"status": "error", "message": msg}), 400
 
 @app.route("/api/garage/remove", methods=["DELETE"])
-@role_required(required_role="user")
+@login_required
 def api_garage_remove():
     data = request.get_json()
     car_id = data.get('car_id')
     if not car_id: return jsonify({"status": "error", "message": "Car ID required"}), 400
     
-    # We need a remove function in supabase_engine
     success, msg = supabase_engine.remove_from_garage(session['user_id'], car_id)
     if success:
         return jsonify({"status": "success", "message": msg})
@@ -356,10 +382,12 @@ def api_garage_remove():
 
 # ── TELEMETRY LAB ─────────────────────────────────────────────────────────────
 @app.route("/f1/telemetry")
+@login_required
 def f1_telemetry_hub():
     return render_template("f1/telemetry.html")
 
 @app.route("/f1/telemetry/analysis")
+@login_required
 def telemetry_analysis():
     gp = request.args.get("gp", "Bahrain")
     year = int(request.args.get("year", 2024))
@@ -372,21 +400,16 @@ def telemetry_analysis():
 
     try:
         result = telemetry_engine.generate_multi_overlay(gp, drivers, year, session_type)
-        if isinstance(result, tuple):
-            chart_json, lap_summaries = result
-        else:
-            chart_json, lap_summaries = result, []
-        session_info = {"name": gp, "year": year, "session": session_type}
+        chart_json, lap_summaries = result if isinstance(result, tuple) else (result, [])
         return render_template("f1/telemetry_results.html",
                                chart_json=chart_json,
-                               session_info=session_info,
+                               session_info={"name": gp, "year": year, "session": session_type},
                                drivers=drivers,
                                lap_summaries=lap_summaries)
     except Exception as e:
         print(f"Telemetry route error: {e}")
         sim_result = telemetry_engine._simulated(gp, drivers)
-        chart_json = sim_result[0] if isinstance(sim_result, tuple) else sim_result
-        lap_summaries = sim_result[1] if isinstance(sim_result, tuple) else []
+        chart_json, lap_summaries = sim_result if isinstance(sim_result, tuple) else (sim_result, [])
         return render_template("f1/telemetry_results.html",
                                chart_json=chart_json,
                                session_info={"name": gp, "year": year},
@@ -411,6 +434,7 @@ def api_compare():
     return jsonify(db.execute(f"SELECT * FROM cars WHERE id IN ({placeholders})", *ids))
 
 @app.route("/api/academy/answer", methods=["POST"])
+@login_required
 @role_required(required_role="user")
 def api_academy_answer():
     data = request.get_json()
