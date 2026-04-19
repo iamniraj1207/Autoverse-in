@@ -150,3 +150,33 @@
     transform: translateY(0);
     opacity: 1;
 }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .compare-bar {
+        height: auto;
+        padding: 10px 0;
+    }
+    .compare-bar-inner {
+        flex-direction: column;
+        padding: 0 16px;
+        gap: 10px;
+    }
+    .compare-slots {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+    .compare-slot {
+        flex-shrink: 0;
+        width: 80px;
+        height: 50px;
+    }
+    .compare-bar-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .compare-go-btn {
+        padding: 8px 16px;
+    }
+}

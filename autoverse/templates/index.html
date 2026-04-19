@@ -1,179 +1,249 @@
-{% extends "layout.html" %}
-{% block title %}AutoVerse — Where Car Culture Lives{% endblock %}
+{% extends 'layout.html' %}
+{% block title %}AutoVerse | Future of Automotive Intelligence{% endblock %}
+
+{% block head %}
+<style>
+    /* ─── Lavish Spacing & Sections ─── */
+    .section-lavish {
+        padding: 120px 0;
+        position: relative;
+    }
+    
+    .bg-darker {
+        background: #030508;
+    }
+
+    .section-divider {
+        width: 100px;
+        height: 2px;
+        background: #e83a3a;
+        margin: 40px auto;
+        opacity: 0.3;
+    }
+
+    .intel-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 60px;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #e83a3a, #ff4a4a);
+        border: none;
+        box-shadow: 0 4px 15px rgba(232, 58, 58, 0.3);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        font-family: 'Bebas Neue', sans-serif;
+        letter-spacing: 1px;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 10px 30px rgba(232, 58, 58, 0.5);
+        background: linear-gradient(135deg, #ff4a4a, #ff6b6b);
+    }
+
+    .btn-outline-light {
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.02);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s;
+        font-family: 'Bebas Neue', sans-serif;
+        letter-spacing: 1px;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: #fff;
+        box-shadow: 0 0 20px rgba(255,255,255,0.1);
+    }
+
+    .video-background-wrap {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .hero-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.6; /* Cinematic dimming */
+        filter: contrast(1.1) brightness(0.8);
+    }
+
+    .hero-vignette {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+        z-index: 2;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 
-<!-- ═══════════════════════════════════════════════════════════
-     CINEMATIC HERO — Pagani-Inspired Reveal
-     Using Real Car Photos from imagin.studio
-════════════════════════════════════════════════════════════ -->
-<!-- ═══════════════════════════════════════════════════════════
-     CINEMATIC HERO — Autoverse Technical Animation
-════════════════════════════════════════════════════════════ -->
-<section class="av-hero" id="av-hero" style="position: relative; overflow: hidden; height: 100vh; z-index: 1;">
-    <!-- NATIVE HTML5 VIDEO BACKGROUND -->
-    <video class="hero-video-bg" autoplay muted loop playsinline
-        src="{{ url_for('static', filename='video/hero_bg.mp4') }}"
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transform: translateZ(0);"></video>
-
-    <!-- CINEMATIC OVERLAY -->
-    <div class="hero-video-overlay"
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.4)); pointer-events: none;">
-    </div>
-
-    <!-- LAYER 8 — HERO TEXT OVERLAY -->
-    <div class="hero-text-content" style="position: relative; z-index: 1;">
-        <div class="htc-eyebrow">THE EVOLUTION OF SPEED</div>
-        <h1 class="htc-title">AUTO<span class="red">VERSE</span></h1>
-        <div class="htc-sub">AUTHENTIC CAR CULTURE • 2026 F1 GRID • PERFORMANCE DATA</div>
-
-        <div class="htc-ctas">
-            <a href="/cars" class="htc-btn-primary">
-                EXPLORE CARS <div class="rev-dot"></div>
-            </a>
-            <a href="/f1" class="htc-btn-ghost">F1 HUB 2026</a>
-        </div>
-
-        <!-- SCROLL INDICATOR -->
-        <div class="hero-scroll-indicator"
-            style="position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%); text-align: center; color: rgba(255,255,255,0.5); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; animation: bounce 2s infinite;">
-            SCROLL TO DISCOVER
-            <div style="margin-top: 10px; font-size: 16px;">↓</div>
-        </div>
-        <style>
-            @keyframes bounce {
-
-                0%,
-                20%,
-                50%,
-                80%,
-                100% {
-                    transform: translate(-50%, 0);
-                }
-
-                40% {
-                    transform: translate(-50%, -10px);
-                }
-
-                60% {
-                    transform: translate(-50%, -5px);
-                }
-            }
-        </style>
-    </div>
-</section>
-
 <!-- ═══════════════════════════════════
-     STATS STRIP
+     HERO SECTION
 ═══════════════════════════════════ -->
-<div class="stats-strip" data-aos="fade-up">
-    <div class="container stats-inner">
-        <div class="stat-item">
-            <span class="stat-num" data-target="1100">0</span>
-            <span class="stat-label">CARS</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-num" data-target="20">0</span>
-            <span class="stat-label">F1 DRIVERS</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-num" data-target="75">0</span>
-            <span class="stat-label">YEARS OF F1</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-num" data-target="5">0</span>
-            <span class="stat-label">COURSES</span>
+<section class="av-hero">
+    <div id="hero-particles-canvas-wrap" style="position:absolute; inset:0; z-index:5; pointer-events:none;">
+        <canvas id="hero-particles-canvas"></canvas>
+    </div>
+    <div class="video-background-wrap">
+        <video autoplay muted loop playsinline class="hero-video">
+            <source src="{{ url_for('static', filename='img/hero/Pagani_huayra_website_animation_cf5e5e43d0.mp4') }}" type="video/mp4">
+        </video>
+        <div class="hero-vignette"></div>
+    </div>
+
+    <div class="container h-100 d-flex flex-column justify-content-center position-relative" style="z-index: 10;">
+        <div class="hero-content" data-aos="fade-right">
+            <div class="hero-label">EST. 2026 • THE FUTURE IS CALIBRATED</div>
+            <h1 class="hero-title">ENGINEERED <br><span class="accent">FOR ELITES</span></h1>
+            <p class="hero-desc">Experience the world's most comprehensive digital automotive hub. Data-driven, performance-verified, and strictly elite.</p>
+            <div class="hero-btns mt-4">
+                <a href="/cars" class="btn btn-danger btn-lg me-3 px-5">EXPLORE LIBRARY</a>
+                <a href="/compare" class="btn btn-outline-light btn-lg px-5">COMPARE SPECS</a>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- ═══════════════════════════════════
-     DAILY CAR FACTS ENGINE
-═══════════════════════════════════ -->
-<section class="daily-facts-section container" data-aos="fade-up">
-    <style>
-        .fact-card {
-            background: linear-gradient(145deg, rgba(20, 24, 32, 0.9), rgba(10, 13, 20, 0.95));
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-top: 1px solid rgba(232, 58, 58, 0.4);
-            border-bottom: 3px solid #e83a3a;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(232, 58, 58, 0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding: 40px;
-            border-radius: 16px;
-        }
-
-        .fact-card:hover {
-            transform: scale(1.03) translateY(-10px);
-            box-shadow: 0 25px 50px rgba(232, 58, 58, 0.25), inset 0 0 20px rgba(232, 58, 58, 0.1);
-            border-color: #e83a3a;
-        }
-    </style>
-    <h2 class="section-title" data-aos="fade-right">DAILY <span class="accent">AUTOMOTIVE INTEL</span></h2>
-    <div class="fact-card" id="daily-fact-card" data-aos="zoom-in-up" data-aos-delay="200">
-        <div class="fact-icon">⚙️</div>
-        <div class="fact-content">
-            <h3 id="fact-title">Firing up the knowledge cylinder...</h3>
-            <p id="fact-body"></p>
-        </div>
-        <div class="fact-meta" id="fact-category">F1 Technology</div>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════
-     ACADEMY TEASER
-═══════════════════════════════════ -->
-<section class="academy-teaser section-dark" data-aos="fade-up">
-    <div class="container teaser-split">
-        <div class="teaser-text" data-aos="fade-right">
-            <div class="label">LEARN</div>
-            <h2>AUTOVERSE <span class="accent">ACADEMY</span></h2>
-            <p>Master the engineering, history, and secrets of your favourite cars. Earn XP, level up your rank, and
-                dominate the global leaderboard.</p>
-            <ul class="feature-bullets">
-                <li>✓ 5 Comprehensive Courses</li>
-                <li>✓ 200+ Interactive Quizzes</li>
-                <li>✓ Earn Ranks &amp; Badges</li>
-            </ul>
-            <a href="/academy" class="btn btn-primary">START LEARNING FREE →</a>
-        </div>
-        <div class="teaser-visual" data-aos="fade-left">
-            <canvas id="academy-teaser-canvas"></canvas>
-            <div class="floating-badge academy-float">
-                <div class="lvl">LVL 5</div>
-                <div class="rank">TRACK ENTHUSIAST</div>
+    <div class="hero-bottom-strip">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="hb-stat">
+                <span class="stat-num" data-target="2500">0</span>
+                <span class="stat-label">VERIFIED ASSETS</span>
+            </div>
+            <div class="hb-scroll-indicator">
+                <div class="mouse"></div>
+                <span>SCROLL TO DISCOVER</span>
+            </div>
+            <div class="hb-status">
+                <span class="status-dot"></span>
+                <span class="status-text">SYSTEMS OPTIMAL</span>
             </div>
         </div>
     </div>
 </section>
 
 <!-- ═══════════════════════════════════
-     F1 TEASER
+     DAILY INTEL (Spacious)
 ═══════════════════════════════════ -->
-<section class="f1-teaser container" data-aos="fade-up">
-    <div class="teaser-header" data-aos="fade-down" data-aos-delay="100">
-        <div class="label">Pinnacle of Racing</div>
-        <h2>THE <span class="accent">F1 HUB</span></h2>
-    </div>
-    <div class="f1-grid-preview">
-        <div class="f1-card team-preview" data-aos="flip-left">
-            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/5/50/Ferrari_Logo.svg/200px-Ferrari_Logo.svg.png"
-                alt="Ferrari">
-            <p>Explore the 2026 Grid</p>
+<section class="section-lavish bg-darker">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-down">
+            <div class="badge mb-3">INTELLIGENCE</div>
+            <h2 class="display-4 font-bebas">DAILY <span class="accent-red" style="color:#e83a3a;">INTEL</span></h2>
         </div>
-        <div class="f1-card driver-preview" data-aos="flip-right" data-aos-delay="200">
-            <div class="driver-silhouette"
-                style="background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Lewis_Hamilton_2 Malaysia 2016.jpg/200px-Lewis_Hamilton_2 Malaysia 2016.jpg') center/cover;">
+        
+        <div class="intel-grid">
+            <div class="intel-card" data-aos="fade-right">
+                <div class="badge mb-2" style="font-size: 8px;">{{ daily_fact.category }}</div>
+                <h3 class="font-bebas h4 mb-3">Intelligence Report</h3>
+                <p class="muted font-monospace small" style="line-height: 1.6;">{{ daily_fact.fact }}</p>
+                <div class="mt-3 text-muted small" style="font-size: 9px; opacity: 0.5;">REFRESH FOR NEW DOSSIER</div>
             </div>
-            <p>75 Years of History</p>
+            <div class="intel-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="badge mb-2" style="font-size: 8px;">SYSTEMS</div>
+                <h3 class="font-bebas h4 mb-3">Power Unit 2.0</h3>
+                <p class="muted font-monospace small">The shift to 100% sustainable fuels and increased electrical output for 2026.</p>
+            </div>
+            <div class="intel-card" data-aos="fade-left" data-aos-delay="200">
+                <h3 class="font-bebas h4 mb-3">Simulated Pace</h3>
+                <p class="muted font-monospace small">Latest CFD data and digital wind tunnel results from the Maranello labs.</p>
+            </div>
         </div>
     </div>
-    <div class="teaser-actions">
-        <a href="/f1" class="btn btn-ghost">EXPLORE F1 HUB →</a>
-        <a href="/f1/hall-of-fame" class="btn btn-ghost"
-            style="border-color:rgba(212,175,55,0.4);color:#d4af37 !important;">HALL OF FAME 🏆</a>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════
+     F1 TEASER (Lavish)
+═══════════════════════════════════ -->
+<section class="section-lavish">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-down">
+            <span class="text-muted tracking-widest font-monospace small">Pinnacle of Racing</span>
+            <h2 class="display-4 font-bebas mt-2">THE <span class="accent-red" style="color:#e83a3a;">F1 HUB</span></h2>
+        </div>
+        
+        <div class="f1-grid-preview" style="display:flex; justify-content:center; gap:30px;">
+            <div class="f1-card team-preview" data-aos="flip-left" onclick="location.href='/f1/teams'" style="border-left: 4px solid #e83a3a; background: rgba(232, 58, 58, 0.05);">
+                <i class="fas fa-shield-halved" style="font-size: 40px; color: #e83a3a; margin-bottom: 20px; display: block;"></i>
+                <p class="mt-3 font-bebas" style="font-size: 24px;">2026 CONSTRUCTORS</p>
+                <div class="small muted font-monospace">10 TEAMS • FULL DATA</div>
+            </div>
+            <div class="f1-card driver-preview" data-aos="flip-right" data-aos-delay="200" onclick="location.href='/f1/hall-of-fame'" style="border-left: 4px solid #ffffff; background: rgba(255, 255, 255, 0.05);">
+                <i class="fas fa-user-ninja" style="font-size: 40px; color: #fff; margin-bottom: 20px; display: block;"></i>
+                <p class="mt-3 font-bebas" style="font-size: 24px;">DRIVERS GALLERY</p>
+                <div class="small muted font-monospace">75 YEARS OF LEGENDS</div>
+            </div>
+        </div>
+        <div class="teaser-actions text-center mt-5">
+            <a href="/f1" class="btn btn-outline-danger btn-lg px-5 mx-2">EXPLORE F1 HUB →</a>
+            <a href="/f1/hall-of-fame" class="btn btn-outline-warning btn-lg px-5 mx-2">HALL OF FAME 🏆</a>
+        </div>
+    </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════
+     ACADEMY PREVIEW (Spacious)
+═══════════════════════════════════ -->
+<section class="section-lavish bg-darker">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="badge mb-3">KNOWLEDGE BASE</div>
+                <h2 class="display-5 font-bebas mb-4">AUTOVERSE <span class="accent-red" style="color:#e83a3a;">ACADEMY</span></h2>
+                <p class="muted2 mb-5">Master the technical nuances of the automotive world. From suspension geometry to high-voltage battery management systems.</p>
+                <a href="/academy" class="btn btn-outline-light px-5 py-3 font-bebas tracking-widest">ACCESS CURRICULUM</a>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="glass-card p-5" style="border-left: 4px solid #e83a3a; background: rgba(255,255,255,0.02); border-radius: 12px;">
+                    <div class="font-monospace text-muted small mb-2">CURRICULUM PREVIEW</div>
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item bg-transparent text-white border-secondary py-3">01. Internal Combustion Fluid Dynamics</li>
+                        <li class="list-group-item bg-transparent text-white border-secondary py-3">02. Regenerative Braking Algorithms</li>
+                        <li class="list-group-item bg-transparent text-white border-secondary py-3">03. Downforce vs Drag: The 2026 Dilemma</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════
+     DYNAMIC NEWS (Spacious)
+═══════════════════════════════════ -->
+<section class="section-lavish" id="news-section">
+    <div class="container">
+        <div data-aos="fade-right" class="mb-5">
+            <div class="badge">LIVE FEED</div>
+            <h2 class="display-4 font-bebas">DAILY <span class="accent-red" style="color:#e83a3a;">BRIEFINGS</span></h2>
+            <p class="muted2">F1 & Luxury Automotive news from global sources.</p>
+        </div>
+        
+        <div id="dynamic-news-container" class="row">
+            <!-- News skeleton loaders -->
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-danger" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Web Scraper engaging...</p>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -197,10 +267,38 @@
             sObs.unobserve(e.target);
         });
     }, { threshold: 0.5 });
-    const ss = document.querySelector('.stats-strip');
+    const ss = document.querySelector('.hero-bottom-strip');
     if (ss) sObs.observe(ss);
 
 </script>
 <script src="{{ url_for('static', filename='js/car_facts.js') }}"></script>
 <script src="{{ url_for('static', filename='js/cinematic_hero.js') }}"></script>
+<script>
+    // Fetch News Autopilot
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch('/api/news')
+            .then(res => res.json())
+            .then(newsArray => {
+                const container = document.getElementById('dynamic-news-container');
+                if (newsArray && newsArray.length > 0) {
+                    let html = '';
+                    newsArray.forEach((article, idx) => {
+                        html += `
+                        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="${idx * 100}">
+                            <div class="glass-card p-4 h-100" style="background: rgba(14, 17, 23, 0.7); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; transition: transform 0.3s; display: flex; flex-direction: column;">
+                                <div class="text-muted small mb-2 font-monospace">${article.date}</div>
+                                <h4 class="mb-3" style="font-size: 1.1rem; line-height: 1.4;">${article.title}</h4>
+                                <p class="text-muted small mb-4" style="flex-grow: 1;">${article.summary}</p>
+                                <a href="${article.url}" target="_blank" class="btn btn-sm btn-ghost w-100" style="border-color: rgba(232, 58, 58, 0.4); color: #e83a3a !important;">READ FULL REPORT</a>
+                            </div>
+                        </div>`;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `<div class="col-12 text-center text-muted">No news updates available from scraper currently.</div>`;
+                }
+            })
+            .catch(err => console.error("News scrape failed", err));
+    });
+</script>
 {% endblock %}

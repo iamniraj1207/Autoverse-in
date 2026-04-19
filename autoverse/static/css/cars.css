@@ -104,6 +104,33 @@
     border-radius: 2px;
 }
 
+/* Verified Badge Styling */
+.verified-badge-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    background: rgba(0, 212, 170, 0.05); /* subtle teal glow */
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+.verified-icon {
+    color: var(--teal) !important;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.car-card:hover .verified-icon {
+    animation: pulseTeal 1.5s infinite;
+}
+
+@keyframes pulseTeal {
+    0% { filter: drop-shadow(0 0 0px var(--teal)); }
+    50% { filter: drop-shadow(0 0 5px var(--teal)); }
+    100% { filter: drop-shadow(0 0 0px var(--teal)); }
+}
+
 .pb-fill {
     height: 100%;
     width: 0%;

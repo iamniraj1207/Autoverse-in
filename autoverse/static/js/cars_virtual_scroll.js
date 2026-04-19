@@ -10,17 +10,30 @@ async function loadCars() {
     renderPage(0, true);
 }
 
-function createCarCard(car) {
+function createCarCard(car, index = 0) {
     const div = document.createElement('div');
     div.className = 'car-card-wrap';
     div.setAttribute('data-aos', 'fade-up');
+    div.setAttribute('data-aos-delay', String((index % 12) * 50));
 
-    // Stats formatted for the pro "car guy" look
     const hp = car.horsepower ? Math.round(car.horsepower) : '---';
     const accel = car.acceleration ? Number(car.acceleration).toFixed(1) : '---';
-    const price = car.price_usd ? '$' + Math.round(car.price_usd).toLocaleString() : 'Price on Request';
+    // High-fidelity price synchronization (1 Cr = $120,000 USD / ₹10M INR)
+    let rawPriceUSD = 0;
+    let rawPriceINR = 0;
+    const dbPrice = String(car.price_usd || '1.5 Cr').toLowerCase();
+    
+    if (dbPrice.includes('cr')) {
+        const val = parseFloat(dbPrice);
+        rawPriceUSD = val * 120000;
+        rawPriceINR = val * 10000000; // 1 Crore = 10,000,000
+    } else {
+        rawPriceUSD = parseFloat(dbPrice) || 50000;
+        rawPriceINR = rawPriceUSD * 83.5;
+    }
+    
+    const priceDisplay = `$${Math.round(rawPriceUSD).toLocaleString()} | ₹${(rawPriceINR/10000000).toFixed(2)} Cr`;
 
-    // Performance bar calculations
     const hpFill = Math.min((car.horsepower / 15) || 0, 100);
     const accFill = Math.min(((10 - (car.acceleration || 10)) / 10 * 100), 100);
 
@@ -28,12 +41,11 @@ function createCarCard(car) {
         <div class="car-card" data-car-id="${car.id}" data-brand="${car.brand}" data-hp="${hp}" data-acc="${accel}" onclick="window.location='/cars/${car.id}'">
             <div class="card-speed-sweep"></div>
             <div class="card-img-wrap">
-                <img src="${car.image_exterior || car.image_url}" 
-                     data-brand="${car.brand}"
-                     data-model="${car.model}"
+                <img src="${car.image_url}" 
                      alt="${car.brand} ${car.model}"
                      loading="lazy"
-                     class="car-photo">
+                     class="car-photo"
+                     onerror="this.onerror=null;this.src='https://cdn.imagin.studio/getImage?customer=img&make=${car.brand.toLowerCase().replace(/ /g,'-')}&modelFamily=${car.model.split(' ')[0].toLowerCase()}&zoomType=fullscreen&paintId=25&angle=01';">
                 
                 <div class="card-hover-overlay">
                     <div class="perf-bars">
@@ -48,36 +60,18 @@ function createCarCard(car) {
                             <span class="pb-val">${accel}s</span>
                         </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="ca-btn ca-garage" onclick="event.stopPropagation(); addToGarage(${car.id})">+ GARAGE</button>
-                        <button class="ca-btn ca-compare" onclick="event.stopPropagation(); addToCompare(${car.id}, '${car.model}', '${car.brand}', ${hp}, ${accel}, '${car.image_exterior || car.image_url}')">COMPARE</button>
-                    </div>
                 </div>
-                <div class="card-category-badge">${car.category || car.fuel_type || 'SPORT'}</div>
+                <div class="card-category-badge">${car.category || 'SPORT'}</div>
             </div>
             <div class="card-body">
                 <div class="card-brand">${car.brand.toUpperCase()}</div>
                 <div class="card-model">${car.model}</div>
-                <div class="card-year-row">
-                    <span class="card-year">${car.year}</span>
-                    <div class="rev-lights">
-                        <div class="rev-light rl-green"></div><div class="rev-light rl-green"></div><div class="rev-light rl-yellow"></div><div class="rev-light rl-yellow"></div><div class="rev-light rl-red"></div>
-                    </div>
-                </div>
-                <div class="card-stat-strip">
-                    <div class="css-item"><span class="css-v">${hp}</span><span class="css-k">HP</span></div>
-                    <div class="css-divider"></div>
-                    <div class="css-item"><span class="css-v">${accel}</span><span class="css-k">0-100s</span></div>
-                    <div class="css-divider"></div>
-                    <div class="css-item"><span class="css-v">${(car.fuel_type || 'GAS').substring(0, 3).toUpperCase()}</span><span class="css-k">FUEL</span></div>
+                <div class="card-price-row" style="margin-top: 10px; text-align: center;">
+                    <span class="price-val" style="font-family: 'DM Mono', monospace; font-size: 12px; color: #e83a3a; letter-spacing: 1px;">${priceDisplay}</span>
                 </div>
             </div>
         </div>
     `;
-
-    // Initialize error handling for the new image
-    const img = div.querySelector('img');
-    img.onerror = () => { if (typeof handleImageError === 'function') handleImageError(img); };
 
     return div;
 }
@@ -92,59 +86,50 @@ function renderPage(pageNum, clear = false) {
     const start = pageNum * pageSize;
     const slice = filteredCars.slice(start, start + pageSize);
 
-    slice.forEach(car => {
-        grid.appendChild(createCarCard(car));
+    slice.forEach((car, index) => {
+        grid.appendChild(createCarCard(car, index));
     });
 
-    if (typeof AOS !== 'undefined') {
-        AOS.refresh();
-    }
+    if (typeof AOS !== 'undefined') { AOS.refresh(); }
+    initTilt();
     page = pageNum;
 }
 
-// Filtering
+function initTilt() {
+    const cards = document.querySelectorAll('.car-card');
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -5;
+            const rotateY = ((x - centerX) / centerX) * 5;
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px) scale(1.02)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1)`;
+        });
+    });
+}
+
 function applyFilters() {
     const search = document.getElementById('search-input').value.toLowerCase();
     const brand = document.getElementById('filter-brand').value;
     const category = document.getElementById('filter-category').value;
-
     filteredCars = allCars.filter(car => {
         const matchSearch = (car.brand + ' ' + car.model).toLowerCase().includes(search);
         const matchBrand = !brand || car.brand === brand;
         const matchCat = !category || car.category === category;
         return matchSearch && matchBrand && matchCat;
     });
-
     renderPage(0, true);
 }
 
-// Sorting
-function applySort() {
-    const sort = document.getElementById('sort-select').value;
-
-    if (sort === 'fastest') {
-        filteredCars.sort((a, b) => (b.horsepower || 0) - (a.horsepower || 0));
-    } else if (sort === 'quickest') {
-        filteredCars.sort((a, b) => (a.acceleration || 99) - (b.acceleration || 99));
-    } else if (sort === 'newest') {
-        filteredCars.sort((a, b) => (b.year || 0) - (a.year || 0));
-    } else if (sort === 'price-high') {
-        filteredCars.sort((a, b) => (b.price_usd || 0) - (a.price_usd || 0));
-    } else {
-        filteredCars = [...allCars]; // Default/Alphabetical (mostly)
-    }
-
-    renderPage(0, true);
-}
-
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadCars();
-
-    // Search listener
     document.getElementById('search-input').addEventListener('input', applyFilters);
-
-    // Intersection Observer for infinite scroll
     const sentinel = document.getElementById('scroll-sentinel');
     const observer = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting && (page + 1) * pageSize < filteredCars.length) {

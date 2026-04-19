@@ -66,8 +66,10 @@
         }
 
         .av-driver-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--team-color, rgba(232, 58, 58, 0.5));
+            transform: translateY(-12px) scale(1.02);
+            border-color: var(--team-color, #e83a3a);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 20px var(--team-color);
+            z-index: 100;
         }
 
         .av-team-logo-overlay {
@@ -170,9 +172,7 @@
             data-championships="{{ driver.championships }}" data-debut="{{ driver.debut_year }}" data-aos="fade-up"
             data-aos-delay="{{ [loop.index0 * 60, 800] | min }}" onclick="window.location='/f1/driver/{{ driver.id }}'">
 
-            <!-- Team Logo (Absolute Top Right) -->
-            <img src="{{ driver.team_logo_url }}" alt="{{ driver.team_name }}" class="av-team-logo-overlay"
-                loading="lazy">
+            <!-- Team Logo removed for clean text-based aesthetic -->
 
             <!-- Driver Image Wrap (Fixed Aspect Ratio) -->
             <div class="av-driver-img-wrap">
@@ -229,5 +229,43 @@
             }
         });
     }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const fallbackImages = {
+            'lindblad': "https://ui-avatars.com/api/?name=Arvid+Lindblad&size=400&background=1a1a2e&color=e83a3a",
+            'perez': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/2col/image.png",
+            'hulkenberg': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/2col/image.png"
+        };
+        try {
+            const res = await fetch("https://api.openf1.org/v1/drivers?session_key=latest");
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            const openF1Cache = { ...fallbackImages };
+            data.forEach(d => {
+                let hUrl = d.headshot_url;
+                if(hUrl) hUrl = hUrl.replace('1col/image.png', '2col/image.png');
+                
+                if (d.last_name) openF1Cache[d.last_name.toLowerCase()] = hUrl;
+                if (d.full_name) openF1Cache[d.full_name.toLowerCase()] = hUrl;
+            });
+
+            // Replace all driver photos with official OpenF1 headshots if available
+            document.querySelectorAll('.av-driver-photo').forEach(img => {
+                const name = (img.alt || '').toLowerCase();
+                const lastName = name.split(" ").pop();
+                
+                if (openF1Cache[name] && openF1Cache[name].includes('http')) {
+                    img.src = openF1Cache[name];
+                    img.onerror = null;
+                } else if (openF1Cache[lastName] && openF1Cache[lastName].includes('http')) {
+                    img.src = openF1Cache[lastName];
+                    img.onerror = null;
+                }
+            });
+        } catch(e) {
+            console.error("OpenF1 image fetch failed:", e);
+        }
+    });
 </script>
 {% endblock %}

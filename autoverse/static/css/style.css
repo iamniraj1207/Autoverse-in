@@ -88,15 +88,39 @@ a {
   color: var(--accent);
 }
 
+.nav-links-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-grow: 1;
+  justify-content: flex-end;
+}
+
+.nav-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.nav-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  font-weight: 600;
+  padding-left: 14px;
+}
+
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   list-style: none;
 }
 
 .nav-links a {
-  padding: 6px 14px;
+  padding: 4px 12px;
   font-size: 13px;
   font-weight: 500;
   color: var(--muted2);
@@ -108,6 +132,14 @@ a {
 .nav-links a.active {
   color: var(--text);
   background: var(--surface2);
+}
+
+.nav-auth {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-left: 20px;
 }
 
 .nav-btn {
@@ -1266,7 +1298,152 @@ a {
   .compare-selectors {
     grid-template-columns: 1fr 1fr;
   }
+
+  .spec-grid-premium {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
+
+@media (max-width: 768px) {
+  .nav-inner {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px 16px;
+    justify-content: center;
+    gap: 12px;
+  }
+  
+  .nav-logo {
+    text-align: center;
+    width: 100%;
+  }
+
+  .nav-links {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 12px;
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+  }
+  
+  .nav-links::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari/Edge */
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .page-section {
+    padding: 32px 0;
+  }
+
+  .hero h1 {
+    font-size: 48px;
+  }
+  
+  .hero-sub {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .main-title {
+    font-size: clamp(50px, 12vw, 80px);
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .f1-team-grid, .f1-driver-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .specs-grid-v2 {
+    grid-template-columns: 1fr;
+  }
+
+  .car-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .compare-selectors {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .compare-select {
+    width: 100%;
+  }
+
+  .page-header h2 {
+    font-size: 32px;
+  }
+
+  .hero-premium {
+    height: auto;
+    padding: 120px 0 60px;
+  }
+
+  .car-name-title {
+    font-size: 48px;
+  }
+
+  .hero-card-3d {
+    flex-direction: column;
+    padding: 30px;
+    gap: 20px;
+  }
+
+  .main-gallery-img {
+    width: 100%;
+  }
+
+  .spec-grid-premium {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 30px;
+  }
+
+  .spec-card {
+    padding: 24px;
+  }
+
+  .premium-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .data-table {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .car-header-main h1 {
+    font-size: 48px;
+  }
+  
+  .auth-card {
+    padding: 24px;
+  }
+  
+  .f1-stats {
+    flex-wrap: wrap;
+  }
+  
+  .driver-stats-row {
+    flex-direction: column;
+  }
+  
+  .gallery-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
 
 /* ── Animated Hero Background ─────────────────────────── */
 #hero-bg-container {

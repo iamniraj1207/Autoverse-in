@@ -6,46 +6,66 @@
     <div class="f1-page-header" data-aos="fade-up">
         <div class="f1-eyebrow">FORMULA ONE</div>
         <h1 class="f1-page-title">THE <span>CONSTRUCTORS</span></h1>
-        <p>The engineering marvels of the 2026 grid and beyond.</p>
+        <p>The 11 engineering powerhouses of the 2026 World Championship grid.</p>
     </div>
 
     <div class="container">
         <h2 class="bebas mb-4" data-aos="fade-right">2026 STARTING GRID</h2>
         <div class="row g-4 mb-5">
             {% for team in active_teams %}
-            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
-                <div class="team-card card-3d" style="--team-color: {{ team.primary_color }}"
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 80 }}">
+                <div class="team-card-v2" style="--tc: {{ team.primary_color }}"
                     onclick="window.location='/f1/team/{{ team.id }}'">
-                    <div class="team-bar" style="background: var(--team-color); height: 4px;"></div>
-                    <div class="p-4">
-                        <div style="height: 60px; display: flex; align-items: center; margin-bottom: 15px;">
-                            <img src="{{ team.logo_url }}" alt="{{ team.name }}"
-                                style="max-height: 100%; max-width: 150px; filter: brightness(1.2);">
+                    <div class="tc-top-bar"></div>
+                    <div class="tc-body">
+                        <div class="tc-logo-wrap" style="height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                            <span class="bebas" style="font-size: 38px; color: var(--tc); text-shadow: 0 0 20px var(--tc); letter-spacing: 3px;">{{ team.name | upper }}</span>
                         </div>
-                        <h3 class="bebas h2">{{ team.name }}</h3>
-                        <p class="muted small">{{ team.base }}</p>
 
-                        <div class="d-flex gap-2 mt-3">
+                        <p class="muted small mb-3" style="text-align: center; opacity: 0.6;">BASE: {{ team.base | upper }}</p>
+ 
+                        <!-- Driver avatars (Icon-only substitution) -->
+                        <div class="tc-drivers">
                             {% for driver in team.drivers %}
-                            <span class="badge"
-                                style="background: #1e2535; color: #8892a4; font-size: 10px; padding: 5px 10px;">{{
-                                driver.name }}</span>
+                                <div class="tc-driver-info d-flex flex-row align-items-center gap-2 p-2 rounded-pill" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                                    <img src="{{ driver.image_url }}" alt="{{ driver.name }}" 
+                                         style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--tc); object-fit: cover; background: #000;"
+                                         onerror="this.src='https://ui-avatars.com/api/?name={{ driver.name|replace(' ','+') }}&background=1a1a2e&color=fff'">
+                                    <span class="tc-driver-name" style="font-size: 12px; color: #fff; font-weight: 700; letter-spacing: 1px;">{{ driver.name.split(' ')[-1] | upper }}</span>
+                                </div>
                             {% endfor %}
                         </div>
+
+                        <!-- Stats row -->
+                        <div class="tc-stats">
+                            <div class="tc-stat">
+                                <span class="bebas" style="color:var(--tc); font-size:20px;">{{ team.championships }}</span>
+                                <span class="tc-stat-label">TITLES</span>
+                            </div>
+                            <div class="tc-stat">
+                                <span class="bebas" style="color:var(--tc); font-size:20px;">{{ team.wins }}</span>
+                                <span class="tc-stat-label">WINS</span>
+                            </div>
+                            <div class="tc-stat">
+                                <span class="bebas" style="color:var(--tc); font-size:20px;">{{ team.podiums }}</span>
+                                <span class="tc-stat-label">PODIUMS</span>
+                            </div>
+                        </div>
                     </div>
+                    <div class="tc-hover-glow"></div>
                 </div>
             </div>
             {% endfor %}
         </div>
 
         <h2 class="bebas mb-4" data-aos="fade-right">CONSTRUCTOR HERITAGE</h2>
-        <div class="row g-4">
+        <div class="row g-3">
             {% for team in legacy_teams %}
-            <div class="col-lg-3 col-md-4 col-6" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
-                <div class="team-card h-100" style="background: #0e1117; border: 1px solid #1e2535; padding: 20px;"
+            <div class="col-lg-3 col-md-4 col-6" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 40 }}">
+                <div class="team-legacy-card"
                     onclick="window.location='/f1/team/{{ team.id }}'">
-                    <h4 class="bebas">{{ team.name }}</h4>
-                    <p style="color: #e83a3a; font-size: 12px; margin: 0;">{{ team.championships }} TITLES</p>
+                    <h4 class="bebas mb-1" style="font-size: 20px;">{{ team.name | upper }}</h4>
+                    <p style="color: #e83a3a; font-size: 10px; margin: 0; font-family: 'DM Mono', monospace;">CALIBRATED: {{ team.championships }} TITLES</p>
                 </div>
             </div>
             {% endfor %}
@@ -54,16 +74,155 @@
 </section>
 
 <style>
-    .team-card {
-        background: #0e1117;
-        border: 1px solid #1e2535;
+    /* ── Team Card V2 ── */
+    .team-card-v2 {
+        position: relative;
+        background: linear-gradient(145deg, #0d1017, #070911);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 14px;
+        overflow: hidden;
         cursor: pointer;
-        transition: 0.3s;
+        transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        will-change: transform;
+    }
+    .team-card-v2:hover {
+        transform: translateY(-6px);
+        border-color: var(--tc, #e83a3a);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px var(--tc, #e83a3a);
+    }
+    .team-card-v2:hover .tc-hover-glow {
+        opacity: 1;
+    }
+    .tc-hover-glow {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at center bottom, var(--tc, #e83a3a) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+        z-index: 0;
+        mix-blend-mode: screen;
+    }
+    .tc-top-bar {
+        height: 3px;
+        background: var(--tc, #e83a3a);
+        width: 100%;
+    }
+    .tc-body {
+        padding: 20px;
+        position: relative;
+        z-index: 1;
+    }
+    .tc-logo-wrap {
+        height: 52px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+    .tc-logo {
+        max-height: 52px;
+        max-width: 140px;
+        object-fit: contain;
+        filter: brightness(1.1) drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+        transition: filter 0.3s;
+    }
+    .team-card-v2:hover .tc-logo {
+        filter: brightness(1.3) drop-shadow(0 4px 16px var(--tc, #e83a3a));
+    }
+    /* Drivers row */
+    .tc-drivers {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+    .tc-driver-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 30px;
+        padding: 4px 10px 4px 4px;
+        flex: 1;
+        min-width: 120px;
+    }
+    .tc-driver-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--tc, #e83a3a);
+        flex-shrink: 0;
+    }
+    .tc-driver-info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+    }
+    .tc-driver-num {
+        font-size: 10px;
+        font-family: 'DM Mono', monospace;
+        font-weight: 600;
+    }
+    .tc-driver-name {
+        font-size: 11px;
+        color: rgba(255,255,255,0.7);
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.5px;
+    }
+    /* Stats */
+    .tc-stats {
+        display: flex;
+        gap: 12px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        padding-top: 12px;
+        margin-top: 4px;
+    }
+    .tc-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        flex: 1;
+    }
+    .tc-stat-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 9px;
+        color: rgba(255,255,255,0.3);
+        letter-spacing: 1px;
+    }
+    /* Legacy */
+    .team-legacy-card {
+        background: #0a0c12;
+        border: 1px solid #1a1e2a;
+        border-radius: 10px;
+        padding: 18px;
+        cursor: pointer;
+        transition: border-color 0.25s, transform 0.25s;
+        text-align: center;
+    }
+    .team-legacy-card:hover {
+        border-color: rgba(232,58,58,0.4);
+        transform: translateY(-3px);
+    }
+    .tc-legacy-logo {
+        height: 36px;
+        object-fit: contain;
+        filter: grayscale(0.4) brightness(0.8);
+        margin-bottom: 10px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        transition: filter 0.3s;
+    }
+    .team-legacy-card:hover .tc-legacy-logo {
+        filter: grayscale(0) brightness(1.1);
     }
 
-    .team-card:hover {
-        border-color: var(--team-color, #e83a3a);
-        transform: translateY(-5px);
+    /* Mobile tweaks */
+    @media (max-width: 576px) {
+        .tc-driver-chip { min-width: 100%; }
+        .tc-stats { gap: 8px; }
     }
 </style>
 {% endblock %}

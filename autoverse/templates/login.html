@@ -8,9 +8,10 @@
         <h2>WELCOME<br><span>BACK</span></h2>
         {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
         <form method="POST" action="/login">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input id="username" type="text" name="username" placeholder="your_username" required autofocus>
+                <label for="email">Email</label>
+                <input id="email" type="email" name="email" placeholder="you@example.com" required autofocus>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
@@ -18,6 +19,18 @@
             </div>
             <button type="submit" class="btn btn-primary w-full">Login</button>
         </form>
+        <div class="mt-4 mb-3 text-center muted small">OR CONTINUE WITH</div>
+        <div class="d-flex justify-content-center gap-3 mb-4">
+            <a href="/auth/google" class="btn btn-outline-light rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="Login with Google">
+                <i class="fab fa-google" style="color: #DB4437; font-size: 20px;"></i>
+            </a>
+            <a href="/auth/github" class="btn btn-outline-light rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="Login with GitHub">
+                <i class="fab fa-github" style="color: #fff; font-size: 22px;"></i>
+            </a>
+            <a href="/auth/discord" class="btn btn-outline-light rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; transition: 0.3s;" title="Login with Discord">
+                <i class="fab fa-discord" style="color: #5865F2; font-size: 20px;"></i>
+            </a>
+        </div>
         <p class="auth-switch">Don't have an account? <a href="/register">Join AutoVerse</a></p>
     </div>
 </div>

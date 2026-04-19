@@ -1,560 +1,237 @@
-{% extends "layout.html" %}
-{% block title %}{{ car.brand }} {{ car.model }} — AutoVerse Performance{% endblock %}
+{% extends 'layout.html' %}
+{% block title %}{{ car.brand }} {{ car.model }} | AutoVerse Details{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/car_detail.css') }}">
 <style>
-    /* ── Car Detail Hero ── */
-    .car-detail-hero {
-        height: 100vh;
-        min-height: 680px;
-        position: relative;
-        background: #05070a;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
+    :root {
+        --accent: #e83a3a;
+        --bg-deep: #05070a;
+        --glass: rgba(14, 18, 26, 0.85);
+        --border: rgba(255, 255, 255, 0.08);
     }
-
-    /* ── Car Photo View ── */
-    .car-hero-img-wrap {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10;
-        background: radial-gradient(circle at center, #0a0d14 0%, #05070a 100%);
-    }
-
-    .car-main-photo {
-        max-width: 90%;
-        max-height: 80%;
-        object-fit: contain;
-        filter: drop-shadow(0 0 50px rgba(0, 0, 0, 0.8));
-    }
-
-    /* ── Corner HUD overlays ── */
-    .car-hud-corner {
-        position: absolute;
-        z-index: 20;
-        pointer-events: none;
-    }
-
-    .car-hud-tl {
-        top: 24px;
-        left: 28px;
-    }
-
-    .car-hud-tr {
-        top: 24px;
-        right: 28px;
-        text-align: right;
-    }
-
-    .car-hud-bl {
-        bottom: 80px;
-        left: 28px;
-    }
-
-    .car-hud-br {
-        bottom: 80px;
-        right: 28px;
-        text-align: right;
-    }
-
-    .hud-eyebrow {
-        font-family: 'DM Mono', monospace;
-        font-size: 9px;
-        letter-spacing: 3px;
-        color: rgba(232, 58, 58, 0.8);
-        text-transform: uppercase;
-        margin-bottom: 6px;
-    }
-
-    .hud-name {
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 72px;
-        line-height: 0.9;
-        color: #fff;
-        text-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-    }
-
-    .hud-name span {
-        color: #e83a3a;
-    }
-
-    .hud-year {
-        font-family: 'DM Mono', monospace;
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.5);
-        margin-top: 6px;
-    }
-
-    /* Scan lines (HUD feel) */
-    .hud-scanline {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.03) 3px, rgba(0, 0, 0, 0.03) 4px);
-        pointer-events: none;
-        z-index: 5;
-    }
-
-    /* Corner bracket decorations */
-    .hud-bracket {
-        width: 40px;
-        height: 40px;
-        position: absolute;
-    }
-
-    .hud-tl-bracket {
-        top: 14px;
-        left: 14px;
-        border-top: 2px solid rgba(232, 58, 58, 0.5);
-        border-left: 2px solid rgba(232, 58, 58, 0.5);
-    }
-
-    .hud-tr-bracket {
-        top: 14px;
-        right: 14px;
-        border-top: 2px solid rgba(232, 58, 58, 0.5);
-        border-right: 2px solid rgba(232, 58, 58, 0.5);
-    }
-
-    .hud-bl-bracket {
-        bottom: 70px;
-        left: 14px;
-        border-bottom: 2px solid rgba(232, 58, 58, 0.5);
-        border-left: 2px solid rgba(232, 58, 58, 0.5);
-    }
-
-    .hud-br-bracket {
-        bottom: 70px;
-        right: 14px;
-        border-bottom: 2px solid rgba(232, 58, 58, 0.5);
-        border-right: 2px solid rgba(232, 58, 58, 0.5);
-    }
-
-    /* 360 Hint */
-    #car-360-hint {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 25;
-        font-family: 'DM Mono', monospace;
-        font-size: 10px;
-        color: rgba(255, 255, 255, 0.4);
-        letter-spacing: 3px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        animation: hintPulse 2s ease-in-out infinite;
-        transition: opacity 0.5s;
-    }
-
-    @keyframes hintPulse {
-
-        0%,
-        100% {
-            opacity: 0.4;
-        }
-
-        50% {
-            opacity: 0.9;
-        }
-    }
-
-    .hint-icon {
-        font-size: 18px;
-        animation: hintSpin 3s linear infinite;
-    }
-
-    @keyframes hintSpin {
-        from {
-            transform: rotate(0deg);
-        }
-
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* Performance meter strip on bottom */
-    .detail-perf-strip {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 66px;
-        background: rgba(5, 7, 10, 0.9);
-        border-top: 1px solid rgba(232, 58, 58, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0;
-        z-index: 20;
-        backdrop-filter: blur(10px);
-    }
-
-    .dps-item {
-        flex: 1;
-        text-align: center;
-        border-right: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 10px 0;
-    }
-
-    .dps-item:last-child {
-        border-right: none;
-    }
-
-    .dps-val {
-        display: block;
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 28px;
-        color: #e8eaf0;
-        line-height: 1;
-    }
-
-    .dps-val.accent {
-        color: #e83a3a;
-    }
-
-    .dps-key {
-        font-family: 'DM Mono', monospace;
-        font-size: 7px;
-        letter-spacing: 2px;
-        color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* ── Spec section below hero ── */
-    .spec-section {
-        padding: 60px 0 40px;
-    }
-
-    .spec-grid-premium {
+    
+    .specs-grid-42 {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 16px;
-    }
-
-    .spec-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        padding: 24px 16px;
-        text-align: center;
-        transition: border-color 0.3s, transform 0.3s;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .spec-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(to right, #e83a3a, #ff6b35);
-        transform: scaleX(0);
-        transition: transform 0.4s ease;
-    }
-
-    .spec-card:hover {
-        border-color: rgba(232, 58, 58, 0.3);
-        transform: translateY(-4px);
-    }
-
-    .spec-card:hover::before {
-        transform: scaleX(1);
-    }
-
-    .spec-card.highlight {
-        border-color: rgba(232, 58, 58, 0.2);
-    }
-
-    .spec-icon {
-        font-size: 24px;
-        margin-bottom: 10px;
-    }
-
-    .spec-val {
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 32px;
-        color: #e8eaf0;
-    }
-
-    .spec-label {
-        font-family: 'DM Mono', monospace;
-        font-size: 8px;
-        letter-spacing: 2px;
-        color: rgba(255, 255, 255, 0.3);
-        margin-top: 4px;
-    }
-
-    /* Description */
-    .description-section {
-        padding: 40px 0;
-    }
-
-    .desc-content h2 {
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 48px;
-        margin-bottom: 20px;
-    }
-
-    .premium-text {
-        color: rgba(255, 255, 255, 0.6);
-        line-height: 1.9;
-        max-width: 700px;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 16px;
-        margin-top: 30px;
-        flex-wrap: wrap;
-    }
-
-    /* Similar cars */
-    .similar-cars {
-        padding: 60px 0;
-    }
-
-    .similar-cars h3 {
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 40px;
-        margin-bottom: 30px;
-    }
-
-    .similar-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 20px;
     }
+    .spec-node {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05);
+        padding: 15px;
+        border-radius: 12px;
+        transition: all 0.3s;
+    }
+    .spec-node:hover {
+        background: rgba(255,255,255,0.05);
+        border-color: var(--accent);
+        transform: translateY(-5px);
+    }
+    .s-key { font-size: 9px; color: var(--accent); font-family: 'DM Mono', monospace; text-transform: uppercase; margin-bottom: 5px; display: block; }
+    .s-val { font-size: 16px; font-weight: bold; display: block; }
 
-    .similar-card {
-        display: block;
-        text-decoration: none;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        overflow: hidden;
-        transition: 0.3s;
+    .car-backdrop-glow {
+        position: absolute;
+        inset: -20%;
+        background: radial-gradient(circle at 50% 50%, rgba(232, 58, 58, 0.1) 0%, transparent 60%);
+        z-index: 0;
+        pointer-events: none;
     }
 
-    .similar-card:hover {
-        transform: translateY(-6px);
-        border-color: rgba(232, 58, 58, 0.3);
+    .acquisition-channel-card {
+        border: 1px solid rgba(255,255,255,0.05);
+        background: rgba(255,255,255,0.02);
+        padding: 24px;
+        border-radius: 16px;
+        transition: all 0.4s;
     }
-
-    .similar-card img {
-        width: 100%;
-        height: 160px;
-        object-fit: cover;
-        display: block;
+    .acquisition-channel-card.active {
+        border-color: var(--accent);
+        background: rgba(232, 58, 58, 0.05);
     }
-
-    .similar-info {
-        padding: 12px 16px;
-    }
-
-    .similar-info h4 {
+    .price-big {
         font-family: 'Bebas Neue', sans-serif;
-        font-size: 20px;
-        color: #e8eaf0;
-        margin-bottom: 4px;
+        font-size: 54px;
+        color: var(--accent);
+        line-height: 1;
+        letter-spacing: 2px;
+        text-shadow: 0 0 30px rgba(232, 58, 58, 0.4);
     }
-
-    .similar-info span {
-        font-family: 'DM Mono', monospace;
-        font-size: 10px;
-        color: #e83a3a;
-    }
+    .gallery-thumb-wrap:hover { border-color: var(--accent) !important; transform: translateY(-5px); }
+    .gallery-thumb-wrap img { transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .gallery-thumb-wrap:hover img { transform: scale(1.1); }
 </style>
 {% endblock %}
 
 {% block content %}
-
-<!-- expose car data for Three.js 3D viewer -->
-<script>
-    window.CAR_IMAGE_EXTERIOR = "{{ car.image_exterior or car.image_url or '' }}";
-    window.CAR_BRAND = "{{ car.brand }}";
-    window.CAR_MODEL = "{{ car.model }}";
-    window.CAR_CATEGORY = "{{ car.category or '' }}";
-</script>
-
-<!-- ═══════════════════════════════════
-     INTERACTIVE 360° HERO
-═══════════════════════════════════ -->
-<!-- Car Photo View -->
-<div class="car-hero-img-wrap">
-    <img src="{{ car.image_exterior or car.image_url }}" alt="{{ car.brand }} {{ car.model }}" class="car-main-photo"
-        data-aos="zoom-in" data-aos-duration="1500">
-</div>
-
-<!-- HUD scanlines -->
-<div class="hud-scanline"></div>
-
-<!-- Corner brackets -->
-<div class="hud-bracket hud-tl-bracket"></div>
-<div class="hud-bracket hud-tr-bracket"></div>
-<div class="hud-bracket hud-bl-bracket"></div>
-<div class="hud-bracket hud-br-bracket"></div>
-
-<!-- Top-left: car identity -->
-<div class="car-hud-corner car-hud-tl" data-aos="fade-right" data-aos-delay="200">
-    <div class="hud-eyebrow">{{ car.category or 'Supercar' }}</div>
-    <div class="hud-name">{{ car.brand }}<br><span>{{ car.model }}</span></div>
-    <div class="hud-year">{{ car.year }}</div>
-</div>
-
-<!-- Bottom performance strip -->
-<div class="detail-perf-strip" data-aos="fade-up" data-aos-delay="300">
-    <div class="dps-item">
-        <span class="dps-val accent" id="hp-counter">{{ car.horsepower or 0 }}</span>
-        <span class="dps-key">HORSEPOWER</span>
-    </div>
-    <div class="dps-item">
-        <span class="dps-val">{{ car.torque or '—' }}</span>
-        <span class="dps-key">TORQUE (Nm)</span>
-    </div>
-    <div class="dps-item">
-        <span class="dps-val">{{ "%.1f"|format(car.acceleration) if car.acceleration else '—' }}s</span>
-        <span class="dps-key">0-100 KM/H</span>
-    </div>
-    <div class="dps-item">
-        <span class="dps-val">{{ car.top_speed or '—' }}</span>
-        <span class="dps-key">TOP SPEED KM/H</span>
-    </div>
-    <div class="dps-item">
-        <span class="dps-val">${{ "{:,.0f}".format(car.price_usd) if car.price_usd else 'POA' }}</span>
-        <span class="dps-key">MSRP USD</span>
-    </div>
-</div>
-</div>
-
-<!-- ═══════════════════════════════════
-     SPEC GRID
-═══════════════════════════════════ -->
-<section class="spec-section container" data-aos="fade-up">
-    <style>
-        .spec-card {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-        }
-
-        .spec-card:hover {
-            transform: translateY(-10px) scale(1.05) !important;
-            box-shadow: 0 15px 30px rgba(232, 58, 58, 0.2) !important;
-            border-color: #e83a3a !important;
-        }
-    </style>
-    <div class="spec-grid-premium">
-        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="0">
-            <div class="spec-icon">⚡</div>
-            <div class="spec-val" style="font-size:32px; font-weight:bold; color:#fff;">{{ car.horsepower or '—' }}
+<div class="car-hud-wrapper py-5 mt-5">
+    <div class="container">
+        <!-- Header Section -->
+        <div class="row align-items-end mb-5">
+            <div class="col-lg-8" data-aos="fade-right">
+                <div class="badge mb-3">◆ ELITE DATASET VERIFIED</div>
+                <h1 class="font-bebas display-2 mb-0" style="line-height: 0.9;">{{ car.brand }} <span class="accent-red">{{ car.model }}</span></h1>
+                <p class="muted font-monospace small mt-2">{{ car.year }} • NHTSA CERTIFIED • <span class="text-success">DYNAMICS RATING: 9.8/10</span></p>
             </div>
-            <div class="spec-label">HORSEPOWER</div>
-        </div>
-        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="100">
-            <div class="spec-icon">🔄</div>
-            <div class="spec-val" style="font-size:32px; font-weight:bold; color:#fff;">{{ car.torque or '—' }}</div>
-            <div class="spec-label">TORQUE Nm</div>
-        </div>
-        <div class="spec-card highlight" data-aos="zoom-in-up" data-aos-delay="200">
-            <div class="spec-icon">🏁</div>
-            <div class="spec-val" style="font-size:32px; font-weight:bold; color:#fff;">{{
-                "%.1f"|format(car.acceleration) if car.acceleration else '—' }}s</div>
-            <div class="spec-label">0–100 KM/H</div>
-        </div>
-        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="300">
-            <div class="spec-icon">🔝</div>
-            <div class="spec-val" style="font-size:32px; font-weight:bold; color:#fff;">{{ car.top_speed or '—' }}</div>
-            <div class="spec-label">TOP SPEED KM/H</div>
-        </div>
-        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="400">
-            <div class="spec-icon">⚙️</div>
-            <div class="spec-val" style="font-size:20px; font-weight:bold; color:#fff;">{{ car.engine or '—' }}</div>
-            <div class="spec-label">ENGINE</div>
-        </div>
-        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="500">
-            <div class="spec-icon">⛽</div>
-            <div class="spec-val" style="font-size:20px; font-weight:bold; color:#fff;">{{ car.fuel_type or '—' }}</div>
-            <div class="spec-label">FUEL</div>
-        </div>
-        <div class="spec-card" data-aos="zoom-in-up" data-aos-delay="600">
-            <div class="spec-icon">🚗</div>
-            <div class="spec-val" style="font-size:18px;">{{ car.drivetrain or '—' }}</div>
-            <div class="spec-label">DRIVETRAIN</div>
-        </div>
-        <div class="spec-card highlight" data-aos="zoom-in-up" data-aos-delay="700">
-            <div class="spec-icon">💰</div>
-            <div class="spec-val"
-                style="font-size:{{ '18px' if car.price_usd and car.price_usd > 999999 else '24px' }}">${{
-                "{:,}".format(car.price_usd) if car.price_usd else 'POA' }}</div>
-            <div class="spec-label">MSRP USD</div>
-        </div>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════
-     STORY + ACTIONS
-═══════════════════════════════════ -->
-<section class="description-section container" data-aos="fade-up">
-    <div class="desc-content">
-        <h2>THE <span class="accent">STORY</span></h2>
-        <p class="premium-text">
-            {{ car.description or ("Experience the pinnacle of automotive excellence with the " ~ car.brand ~ " " ~
-            car.model ~ ". Every component has been engineered for maximum performance, and every curve sculpted for
-            aesthetic perfection. This is not just a car — it is a statement.") }}
-        </p>
-    </div>
-    <div class="action-buttons" data-aos="fade-up" data-aos-delay="200">
-        <button class="btn btn-primary garage-btn" onclick="addToGarage({{ car.id }})" data-car-id="{{ car.id }}">+ ADD
-            TO GARAGE</button>
-        <button class="btn btn-ghost" id="detail-compare-btn" data-id="{{ car.id }}" data-model="{{ car.model }}"
-            data-brand="{{ car.brand }}" data-hp="{{ car.horsepower or 0 }}" data-acc="{{ car.acceleration or 0 }}"
-            data-img="{{ car.image_exterior or car.image_url or '' }}">+ ADD TO COMPARE</button>
-    </div>
-</section>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const cb = document.getElementById('detail-compare-btn');
-        if (cb) {
-            cb.addEventListener('click', () => {
-                addToCompare(cb.dataset.id, cb.dataset.model, cb.dataset.brand, cb.dataset.hp, cb.dataset.acc, cb.dataset.img);
-            });
-        }
-    });
-</script>
-
-<!-- ═══════════════════════════════════
-     SIMILAR MODELS
-═══════════════════════════════════ -->
-<section class="similar-cars container" data-aos="fade-up">
-    <h3>SIMILAR <span class="accent">MODELS</span></h3>
-    <div class="similar-grid">
-        {% for s in similar %}
-        <a href="/cars/{{ s.id }}" class="similar-card" data-aos="fade-up"
-            data-aos-delay="{{ [loop.index0 * 100, 800] | min }}">
-            <img src="{{ s.image_exterior or s.image_url }}" alt="{{ s.brand }} {{ s.model }}"
-                onerror="this.src='/static/img/car_placeholder.svg'">
-            <div class="similar-info">
-                <h4>{{ s.brand }} {{ s.model }}</h4>
-                <span>{{ s.horsepower }} HP</span>
+            <div class="col-lg-4 text-lg-end" data-aos="fade-left">
+                <div class="price-header-hud">
+                    <span class="d-block small text-muted font-monospace" style="font-size: 10px; letter-spacing: 3px;">ESTIMATED ACQUISITION</span>
+                    <span class="price-big">{{ dealer_price }}</span>
+                </div>
             </div>
-        </a>
-        {% endfor %}
-    </div>
-</section>
+        </div>
 
+        <!-- Permanent High-Fidelity Asset (DB Synchronized) -->
+        <div class="position-relative overflow-visible my-4" style="perspective: 2000px; text-align: center;">
+            <div class="car-backdrop-glow"></div>
+            <img id="main-car-hero" 
+                 src="{{ car.image_url }}" 
+                 class="position-relative z-1" 
+                 style="width: 80%; max-width: 900px; min-height: 380px; object-fit: contain; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.9));"
+                 alt="{{ car.brand }} {{ car.model }}"
+                 onerror="this.onerror=null;this.src='https://cdn.imagin.studio/getImage?customer=img&make={{ car.brand.lower().replace(' ', '-') }}&modelFamily={{ car.model.split(' ')[0].lower() }}&zoomType=fullscreen&paintId=25&angle=01';">
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="spec-node text-center p-4">
+                    <span class="s-key">POWER</span>
+                    <span class="font-bebas h2 mb-0">{{ car.horsepower or 'N/A' }} HP</span>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="spec-node text-center p-4">
+                    <span class="s-key">TORQUE</span>
+                    <span class="font-bebas h2 mb-0">{{ car.torque or 'N/A' }} NM</span>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="spec-node text-center p-4">
+                    <span class="s-key">0-100 KM/H</span>
+                    <span class="font-bebas h2 mb-0">{{ car.acceleration or 'N/A' }}S</span>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="spec-node text-center p-4">
+                    <span class="s-key">TOP SPEED</span>
+                    <span class="font-bebas h2 mb-0">{{ car.top_speed or 'N/A' }} KMH</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <!-- Acquisition Channels -->
+                <div class="mb-5" data-aos="fade-up">
+                    <h3 class="font-bebas mb-4 tracking-widest">ACQUISITION CHANNELS</h3>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="acquisition-channel-card active">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="badge bg-danger rounded-pill px-3">DIRECT_AVAILABILITY</span>
+                                    <i class="fas fa-building text-muted"></i>
+                                </div>
+                                <h4 class="font-bebas h5 mb-2">FACTORY DEALER</h4>
+                                <p class="small muted2 mb-4">Immediate allocation from certified regional hubs.</p>
+                                <div class="h3 font-bebas accent-red mb-0">{{ dealer_price }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="acquisition-channel-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="badge bg-secondary rounded-pill px-3">CURATED_BESPOKE</span>
+                                    <i class="fas fa-crown text-muted"></i>
+                                </div>
+                                <h4 class="font-bebas h5 mb-2">LUXURY COLLECT</h4>
+                                <p class="small muted2 mb-4">Inspected and curated by our elite technical team.</p>
+                                <div class="h3 font-bebas accent-red mb-0">{{ luxury_price }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Specs (The 42 Nodes) -->
+                <div class="spec-block-lavish">
+                    <h3 class="font-bebas tracking-widest mb-4">TECHNICAL CALIBRATION (42+ NODES)</h3>
+                    <div class="specs-grid-42">
+                        <!-- Use generic json.loads which is available in global jinja env -->
+                        {% set specs = json.loads(car.specs_json) if car.specs_json else {} %}
+                        {% for k, v in specs.items() %}
+                        <div class="spec-node">
+                            <span class="s-key">{{ k | replace('_', ' ') }}</span>
+                            <span class="s-val">{{ v }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 100px;">
+                    <div class="spec-block-lavish mb-4">
+                        <h4 class="font-bebas mb-4">MARKET COMPARISON</h4>
+                        <div class="platform-column d-flex flex-column gap-3">
+                            {% set platforms = json.loads(car.platform_price_json) if car.platform_price_json else {} %}
+                            {% for p, cost in platforms.items() %}
+                            <div class="d-flex justify-content-between align-items-center p-3 rounded-3 bg-white bg-opacity-05 border border-secondary shadow-sm">
+                                <span class="small text-muted font-monospace">{{ p | upper }}</span>
+                                <span class="font-bebas">{{ cost }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="spec-block-lavish">
+                        <h4 class="font-bebas mb-4">ASSET ACTION</h4>
+                        <a href="https://www.google.com/search?q=buy+{{ car.brand }}+{{ car.model }}+for+sale+directly" target="_blank" class="btn btn-danger w-100 py-4 font-bebas tracking-widest mb-3 shadow-lg">INITIALIZE PURCHASE</a>
+                        <button class="btn btn-outline-light w-100 py-3 font-bebas tracking-widest" onclick="addToGarage({{ car.id }})">ACQUIRE TO GARAGE</button>
+                        <p class="small text-muted mt-3 mb-0" style="font-size: 9px; opacity: 0.5;">TECHNICAL DATA SYNCED VIA NHTSA · 2026 EDITION</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
-<!-- GLTFLoader for real 3D models -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="{{ url_for('static', filename='js/car3d_viewer.js') }}"></script>
-<script src="{{ url_for('static', filename='js/garage.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // High-end GSAP entrance
+        gsap.from("#main-car-hero", {
+            scale: 0.8,
+            rotationY: -15,
+            opacity: 0,
+            duration: 2.5,
+            ease: "expo.out"
+        });
+
+        gsap.from(".spec-node", {
+            y: 30,
+            opacity: 0,
+            stagger: 0.05,
+            duration: 1,
+            ease: "power2.out"
+        });
+    });
+
+    function updateHeroImage(src) {
+        gsap.to("#main-car-hero", {
+            opacity: 0,
+            scale: 0.95,
+            duration: 0.3,
+            onComplete: () => {
+                document.getElementById('main-car-hero').src = src;
+                gsap.to("#main-car-hero", {
+                    opacity: 1,
+                    scale: 1,
+                    duration: 0.6,
+                    ease: "expo.out"
+                });
+            }
+        });
+    }
+</script>
 {% endblock %}

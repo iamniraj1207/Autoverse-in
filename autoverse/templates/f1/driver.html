@@ -108,7 +108,50 @@
 <script src="{{ url_for('static', filename='js/f1_timeline.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        new F1Timeline('driver-timeline', '/api/timeline/driver/{{ driver.id }}', '{{ team.primary_color }}');
+        new F1Timeline(
+            'driver-timeline',
+            '/api/timeline/driver/{{ driver.id }}',
+            '{{ team.primary_color if team else "#e83a3a" }}'
+        );
+    });
+
+    // OpenF1 Live Headshot Sync
+    document.addEventListener("DOMContentLoaded", async () => {
+        const fallbackImages = {
+            'lindblad': "https://ui-avatars.com/api/?name=Arvid+Lindblad&size=400&background=1a1a2e&color=e83a3a",
+            'perez': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/2col/image.png",
+            'hulkenberg': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/2col/image.png"
+        };
+        try {
+            const res = await fetch("https://api.openf1.org/v1/drivers?session_key=latest");
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            const openF1Cache = { ...fallbackImages };
+            data.forEach(d => {
+                let hUrl = d.headshot_url;
+                if(hUrl) hUrl = hUrl.replace('1col/image.png', '2col/image.png');
+                
+                if (d.last_name) openF1Cache[d.last_name.toLowerCase()] = hUrl;
+                if (d.full_name) openF1Cache[d.full_name.toLowerCase()] = hUrl;
+            });
+
+            const img = document.getElementById('driver-portrait');
+            if (img) {
+                const name = (img.alt || '').toLowerCase();
+                const lastName = name.split(" ").pop();
+                
+                if (openF1Cache[name] && openF1Cache[name].includes('http')) {
+                    img.src = openF1Cache[name];
+                    img.onerror = null;
+                } else if (openF1Cache[lastName] && openF1Cache[lastName].includes('http')) {
+                    img.src = openF1Cache[lastName];
+                    img.onerror = null;
+                }
+            }
+        } catch(e) {
+            console.error("OpenF1 image fetch failed:", e);
+        }
     });
 </script>
 {% endblock %}

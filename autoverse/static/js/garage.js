@@ -3,36 +3,46 @@
  */
 
 async function addToGarage(carId) {
-    const btn = document.querySelector(`[data-car-id="${carId}"]`);
-    if (!btn) return;
+    const btn = document.querySelector(`button[onclick*="addToGarage(${carId})"]`);
+    const originalText = btn ? btn.innerHTML : 'ACQUIRE ASSET';
+    
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESING...';
+    }
 
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Adding...';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
     try {
         const response = await fetch('/api/garage/add', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken
+            },
             body: JSON.stringify({ car_id: carId })
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            btn.innerHTML = '✓ In Garage';
-            btn.classList.remove('btn-outline');
-            btn.classList.add('btn-success');
+            if (btn) {
+                btn.innerHTML = '✓ ASSET SECURED';
+                btn.classList.remove('btn-outline-light');
+                btn.classList.add('btn-success');
+            }
             showToast('Vehicle added to your garage!', 'success');
         } else {
-            throw new Error(data.error || 'Failed to add');
+            throw new Error(data.message || 'Failed to add');
         }
     } catch (error) {
         console.error('Garage Error:', error);
-        btn.disabled = false;
-        btn.innerHTML = originalText;
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
 
-        if (error.message.includes('login')) {
+        if (error.message.toLowerCase().includes('login')) {
             showToast('Please login to save cars.', 'error');
         } else {
             showToast(error.message, 'error');
@@ -43,10 +53,15 @@ async function addToGarage(carId) {
 async function removeFromGarage(carId) {
     if (!confirm('Remove this vehicle from your garage?')) return;
 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
     try {
         const response = await fetch('/api/garage/remove', {
             method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken
+            },
             body: JSON.stringify({ car_id: carId })
         });
 
@@ -58,6 +73,9 @@ async function removeFromGarage(carId) {
                 setTimeout(() => card.remove(), 400);
             }
             showToast('Vehicle removed.', 'success');
+        } else {
+            const data = await response.json();
+            showToast(data.message || 'Failed to remove car.', 'error');
         }
     } catch (error) {
         showToast('Failed to remove car.', 'error');

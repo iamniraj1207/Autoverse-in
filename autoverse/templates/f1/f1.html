@@ -1,7 +1,8 @@
 {% extends 'layout.html' %}
 
 {% block head %}
-<script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.27/build/spline-viewer.js"></script>
+<!-- High-fidelity animations handled by GSAP and Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <style>
     .f1-hero-hub {
         position: relative;
@@ -15,10 +16,13 @@
     .spline-container {
         position: absolute;
         top: 0;
-        right: -10%;
-        width: 70%;
+        right: -5%;
+        width: 80%;
         height: 100%;
         z-index: 1;
+        pointer-events: none;
+        display: block !important;
+        opacity: 1 !important;
     }
 
     .adrenaline-bg {
@@ -86,10 +90,11 @@
         flex-shrink: 0;
     }
 
-    .hof-card:hover {
-        transform: translateY(-15px) rotate(2deg);
-        border-color: var(--gold);
-        box-shadow: 0 20px 50px rgba(240, 165, 0, 0.2);
+    .av-driver-card:hover {
+        transform: translateY(-12px) scale(1.02);
+        border-color: var(--team-color, #e83a3a);
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 20px var(--team-color);
+        z-index: 100;
     }
 
     .hof-img {
@@ -124,10 +129,8 @@
     <canvas id="f1-race-canvas"
         style="position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
 
-    <!-- Spline 3D scene (on top, right side) -->
-    <div class="spline-container" style="z-index:2;">
-        <spline-viewer url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"></spline-viewer>
-    </div>
+    <!-- Advanced Three.js flow engine (replaces Spline) -->
+    <div class="spline-container" id="f1-flow-canvas" style="z-index:2; pointer-events:none;"></div>
 
     <div class="container" style="position:relative;z-index:10;">
         <div class="f1-hero-content" data-aos="fade-right">
@@ -207,7 +210,7 @@
         }
 
         // ── F1 Spark particles (like rear tyre sparks) ──
-        const N = 600;
+        const N = 200; // Reduced from 600 for performance
         const sPos = new Float32Array(N * 3);
         const sCol = new Float32Array(N * 3);
         const sSpd = new Float32Array(N);
@@ -274,33 +277,146 @@
     })();
 </script>
 
-<!-- SEASON STATS -->
-<div class="f1-stats-strip">
+<!-- SEASON STATS / LIVE TELEMETRY -->
+<div class="f1-stats-strip" id="live-f1-data">
     <div class="container d-flex justify-content-between align-items-center">
-        <div class="stat-box" data-aos="zoom-in">
-            <h3>20</h3>
-            <p>ELITE DRIVERS</p>
-        </div>
-        <div class="stat-divider d-none d-md-block" style="width:1px; height:40px; background: rgba(255,255,255,0.1);">
-        </div>
-        <div class="stat-box" data-aos="zoom-in" data-aos-delay="100">
-            <h3>10</h3>
-            <p>TEAM LINEUPS</p>
-        </div>
-        <div class="stat-divider d-none d-md-block" style="width:1px; height:40px; background: rgba(255,255,255,0.1);">
-        </div>
-        <div class="stat-box" data-aos="zoom-in" data-aos-delay="200">
-            <h3>24</h3>
-            <p>GRAND PRIX</p>
-        </div>
-        <div class="stat-divider d-none d-md-block" style="width:1px; height:40px; background: rgba(255,255,255,0.1);">
-        </div>
-        <div class="stat-box" data-aos="zoom-in" data-aos-delay="300">
-            <h3>1.3s</h3>
-            <p>RE-FUEL PACE</p>
+        <div class="stat-box">
+            <h3><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> CONNECTING</h3>
+            <p>OPENF1 LIVE ENGINE</p>
         </div>
     </div>
 </div>
+
+<script>
+    // ═══ Advanced Flow Engine (Three.js) ═══
+    (function() {
+        const container = document.getElementById('f1-flow-canvas');
+        if (!container || typeof THREE === 'undefined') return;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+
+        // Create racing flow lines
+        const lineCount = 120;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(lineCount * 6);
+        const colors = new Float32Array(lineCount * 6);
+
+        for (let i = 0; i < lineCount; i++) {
+            const i6 = i * 6;
+            const x = Math.random() * 40 - 20;
+            const y = Math.random() * 20 - 10;
+            const z = Math.random() * -50;
+            
+            positions[i6] = x;
+            positions[i6 + 1] = y;
+            positions[i6 + 2] = z;
+            positions[i6 + 3] = x;
+            positions[i6 + 4] = y;
+            positions[i6 + 5] = z - 20 - Math.random() * 20;
+            
+            const r = 0.91, g = 0.23, b = 0.23; // #e83a3a
+            colors[i6] = r; colors[i6+1] = g; colors[i6+2] = b;
+            colors[i6+3] = r; colors[i6+4] = g; colors[i6+5] = b;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        const material = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.15 });
+        const lines = new THREE.LineSegments(geometry, material);
+        scene.add(lines);
+
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const posAttr = geometry.attributes.position.array;
+            for (let i = 0; i < lineCount; i++) {
+                const i6 = i * 6;
+                posAttr[i6 + 2] += 0.8;
+                posAttr[i6 + 5] += 0.8;
+                if (posAttr[i6 + 2] > 5) {
+                    posAttr[i6 + 2] = -50;
+                    posAttr[i6 + 5] = -70 - Math.random() * 20;
+                }
+            }
+            geometry.attributes.position.needsUpdate = true;
+            lines.rotation.z += 0.001;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    })();
+
+    // Defer API calls so they don't block first paint
+    setTimeout(() => {
+    fetch('/api/f1/live')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('live-f1-data').querySelector('.container');
+            if (data && data.session && Object.keys(data.session).length > 0) {
+                container.innerHTML = `
+                    <div class="stat-box" data-aos="zoom-in">
+                        <h3>${data.session.session_name || 'LIVE'} <span style="color:red; font-size: 20px;">●</span></h3>
+                        <p>CURRENT SESSION</p>
+                    </div>
+                    <div class="stat-divider d-none d-md-block" style="width:1px; height:40px; background: rgba(255,255,255,0.1);"></div>
+                    <div class="stat-box" data-aos="zoom-in" data-aos-delay="100">
+                        <h3>${data.session.circuit_short_name || 'UNKNOWN'}</h3>
+                        <p>CIRCUIT LOCATION</p>
+                    </div>
+                    <div class="stat-divider d-none d-md-block" style="width:1px; height:40px; background: rgba(255,255,255,0.1);"></div>
+                    <div class="stat-box" data-aos="zoom-in" data-aos-delay="200">
+                        <h3 style="color: #00d4aa">${data.positions ? data.positions.length : 0}</h3>
+                        <p>ACTIVE TELEMETRY NODES</p>
+                    </div>
+                `;
+            } else {
+                 container.innerHTML = `
+                    <div class="stat-box" data-aos="zoom-in">
+                        <h3>OFFLINE</h3>
+                        <p>SESSION COMPLETE</p>
+                    </div>
+                    <div class="stat-divider d-none d-md-block" style="width:1px; height:40px; background: rgba(255,255,255,0.1);"></div>
+                    <div class="stat-box" id="standings-leader" data-aos="zoom-in" data-aos-delay="100">
+                        <h3>--</h3>
+                        <p>WDC LEADER</p>
+                    </div>
+                    <div class="stat-divider d-none d-md-block" style="width:1px; height:40px; background: rgba(255,255,255,0.1);"></div>
+                    <div class="stat-box" id="standings-constructor" data-aos="zoom-in" data-aos-delay="200">
+                        <h3>--</h3>
+                        <p>MANUFACTURER LEADER</p>
+                    </div>
+                `;
+                
+                 // Fallback to load standings
+                 setTimeout(() => {
+                 fetch('/api/f1/standings')
+                    .then(res => res.json())
+                    .then(sData => {
+                        if (sData.drivers && sData.drivers.length > 0) {
+                            const leader = sData.drivers[0];
+                            document.getElementById('standings-leader').innerHTML = `<h3>${leader.Driver.familyName}</h3><p>WDC LEADER</p>`;
+                        }
+                        if (sData.constructors && sData.constructors.length > 0) {
+                            const cLeader = sData.constructors[0];
+                            document.getElementById('standings-constructor').innerHTML = `<h3>${cLeader.Constructor.name}</h3><p>MANUFACTURER LEADER</p>`;
+                        }
+                    }).catch(() => {});
+                 }, 500);
+            }
+        }).catch(err => console.warn('F1 live fetch:', err));
+    }, 800); // end outer setTimeout — defer all API calls 800ms after paint
+});
+</script>
 
 <!-- HALL OF FAME -->
 <section class="container py-5 mt-5">
@@ -315,8 +431,7 @@
 
     <div class="hof-scroll d-flex gap-4 pb-4 overflow-auto" style="scrollbar-width: none;">
         {% for legend in legends %}
-        <div class="hof-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
-            <img src="{{ legend.image_url }}" alt="{{ legend.name }}" class="hof-img">
+        <div class="hof-card" data-aos="fade-up" data-aos-delay="{{ [loop.index0 * 100, 400] | min }}">
             <h4 class="bebas mb-1" style="font-size: 28px;">{{ legend.name }}</h4>
             <div class="muted small text-uppercase mb-3">{{ legend.nationality }}</div>
             <div
@@ -334,17 +449,28 @@
     <div class="glass-card p-5 overflow-hidden position-relative"
         style="background: linear-gradient(45deg, #1a1a1a, #0d0d0d); border-radius: 20px;">
         <div class="row align-items-center">
-            <div class="col-lg-7" data-aos="fade-right">
+            <div class="col-lg-12" data-aos="fade-up">
                 <div class="badge">LEARN TECH</div>
                 <h2 class="bebas mb-4" style="font-size: 50px;">MASTER THE <span class="accent-text">ENGINEERING</span>
                 </h2>
-                <p class="muted2 mb-4">How do these machines work? From Turbo-Hybrid MGU-H to Ground Effect floors, our
+                <p class="muted2 mb-4" style="max-width: 700px;">How do these machines work? From Turbo-Hybrid MGU-H to Ground Effect floors, our
                     Tech Academy has the ultimate car guy's library.</p>
                 <a href="/academy" class="btn btn-primary px-5">START LEARNING</a>
             </div>
-            <div class="col-lg-5 d-none d-lg-block" data-aos="fade-left">
-                <img src="/static/img/academy/engine_proto.png"
-                    style="width: 100%; transform: rotate(-10deg) scale(1.2); filter: drop-shadow(0 0 30px rgba(232,58,58,0.4))">
+        </div>
+    </div>
+</section>
+
+<!-- F1 HISTORY PORTAL PROMO -->
+<section class="container py-5 mt-3 mb-5">
+    <div class="glass-card p-5 overflow-hidden position-relative"
+        style="background: linear-gradient(45deg, #0d121a, #05080c); border: 1px solid rgba(212,175,55,0.2); border-radius: 20px;">
+        <div class="row align-items-center text-center">
+            <div class="col-12" data-aos="fade-up">
+                <div class="badge" style="color:var(--gold); border-color:var(--gold); background:rgba(240,165,0,0.1)">1950 TO PRESENT</div>
+                <h2 class="bebas mt-3 mb-4" style="font-size: 50px;">THE ULTIMATE <span style="color:var(--gold)">F1 ARCHIVE</span></h2>
+                <p class="muted2 mb-4 mx-auto" style="max-width: 600px;">Access full structural telemetry: view every race result, qualifying session, lap time, pit stop, and constructor stat from the inception of Formula One powered by Jolpi.</p>
+                <a href="/f1/history" class="btn btn-ghost" style="border-color:rgba(212,175,55,0.4);color:#d4af37 !important; padding: 15px 40px; font-size: 20px;">ACCESS DATABANK →</a>
             </div>
         </div>
     </div>

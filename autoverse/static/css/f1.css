@@ -246,3 +246,43 @@
     font-family: 'Bebas Neue', sans-serif;
     font-size: 24px;
 }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .drivers-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .drivers-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 0 16px;
+    }
+    .f1-page-title {
+        font-size: 56px;
+    }
+    .f1-drivers-page {
+        padding-top: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .drivers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Constructor Logo Styling */
+.tc-logo {
+    max-height: 48px;
+    max-width: 160px;
+    object-fit: contain;
+    filter: brightness(0.9) grayscale(0.2) drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.team-card-v2:hover .tc-logo {
+    filter: brightness(1.2) grayscale(0) drop-shadow(0 8px 24px rgba(0,0,0,0.6));
+    transform: scale(1.05);
+}

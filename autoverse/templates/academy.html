@@ -1,0 +1,110 @@
+{% extends 'layout.html' %}
+{% block title %}AutoVerse Academy | Master the Machine{% endblock %}
+
+{% block head %}
+<style>
+    .academy-hero {
+        padding: 120px 0 80px;
+        text-align: center;
+        background: radial-gradient(circle at 50% 0%, rgba(232, 58, 58, 0.1), transparent 70%);
+    }
+
+    .module-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        padding-bottom: 100px;
+    }
+
+    .module-card {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 20px;
+        padding: 40px;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        text-decoration: none;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .module-card:hover {
+        background: rgba(255,255,255,0.05);
+        border-color: #e83a3a;
+        transform: translateY(-10px);
+    }
+
+    .module-level {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 3px;
+        color: #e83a3a;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .module-title { font-family: 'Bebas Neue', sans-serif; font-size: 42px; margin-bottom: 20px; }
+    .module-icon { font-size: 40px; margin-bottom: 25px; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="academy-hero">
+    <div class="container">
+        <span class="eyebrow" data-aos="fade-down" style="letter-spacing: 8px;">KNOWLEDGE IS HORSEPOWER</span>
+        <h1 class="display-2 font-bebas mt-3" data-aos="fade-up">AUTOVERSE <span class="accent-red" style="color:#e83a3a;">ACADEMY</span></h1>
+        <p class="muted mx-auto" style="max-width: 600px;" data-aos="fade-up" data-aos-delay="100">
+            From mechanical physics to aerodynamic theory. Step into the role of an elite engineer and master the machine from the inside out.
+        </p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    {% for phase_key, courses in phases.items() %}
+    <div class="phase-section mb-5">
+        <h2 class="font-bebas display-4 mb-4" data-aos="fade-right">
+            {% if phase_key == 'beginner' %}PHASE 1: THE BEGINNER<span class="muted small ms-3">/ BASIC SURVIVAL</span>
+            {% elif phase_key == 'intermediate' %}PHASE 2: THE INTERMEDIATE<span class="muted small ms-3">/ WRENCHING</span>
+            {% else %}PHASE 3: THE ADVANCED<span class="muted small ms-3">/ PERFORMANCE</span>
+            {% endif %}
+        </h2>
+        <div class="module-grid">
+            {% for course in courses %}
+            <a href="/academy/course/{{ course.slug }}" class="module-card" data-aos="fade-up">
+                <div class="module-icon">{{ course.icon }}</div>
+                <span class="module-level">{{ phase_key | upper }} TIER · {{ course.difficulty | upper }}</span>
+                <h2 class="module-title">{{ course.title }}</h2>
+                <p class="muted small mb-4">{{ course.description }}</p>
+                <div class="progress mb-4" style="height: 4px; background: rgba(255,255,255,0.05);">
+                    <div class="progress-bar bg-danger" style="width: 0%"></div>
+                </div>
+                <span class="btn btn-sm btn-outline-danger mt-auto">ACCESS CURRICULUM</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    
+    <div class="section-divider"></div>
+    
+    <div class="mt-5 pt-5 text-center">
+        <h3 class="font-bebas display-5 mb-4">LEGACY SIMULATORS</h3>
+        <div class="module-grid mt-4">
+             <a href="/academy/anatomy" class="module-card" data-aos="fade-up">
+                <div class="module-icon">🔩</div>
+                <h2 class="module-title" style="font-size: 24px;">COMPONENT EXPLORER</h2>
+                <p class="muted small">High-fidelity SVG car wireframe.</p>
+            </a>
+            <a href="/academy/wind-tunnel" class="module-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="module-icon">💨</div>
+                <h2 class="module-title" style="font-size: 24px;">WIND TUNNEL SIM</h2>
+                <p class="muted small">Real-time drag & aero simulation.</p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

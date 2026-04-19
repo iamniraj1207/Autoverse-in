@@ -150,3 +150,13 @@
     padding: 15px 20px;
     margin: 20px 0;
 }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .slide-title {
+        font-size: 36px;
+    }
+    .slide-text {
+        font-size: 16px;
+    }
+}

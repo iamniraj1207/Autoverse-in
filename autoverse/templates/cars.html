@@ -1,6 +1,31 @@
 {% extends "layout.html" %}
 {% block title %}Explore the Fleet — AutoVerse{% endblock %}
 
+{% block head %}
+<style>
+    .car-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 50px; /* Increased from default */
+        padding: 50px 0;
+    }
+    
+    .page-section {
+        padding-top: 100px;
+        padding-bottom: 150px;
+    }
+
+    .premium-badge {
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 5px;
+        font-size: 10px;
+        margin-bottom: 20px;
+        display: inline-block;
+        color: #e83a3a;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container page-section">
     <div class="page-header" data-aos="fade-up">

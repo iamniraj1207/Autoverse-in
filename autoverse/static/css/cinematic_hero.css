@@ -56,7 +56,7 @@
 
 /* ─── LAYER 3 — GROUND POOL (underbody light) ─── */
 .ground-pool {
-    position: absolute;
+    s position: absolute;
     bottom: 24%;
     left: 50%;
     transform: translateX(-50%);

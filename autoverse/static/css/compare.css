@@ -146,3 +146,42 @@
 .compare-toast.show {
     transform: translateX(0);
 }
+
+/* Lavish Compare Extensions */
+body {
+    background-color: #030508;
+}
+
+.compare-page-lavish {
+    background: radial-gradient(circle at 10% 20%, rgba(232, 58, 58, 0.05) 0%, rgba(0, 0, 0, 1) 90%);
+}
+
+.glitch-reveal {
+    animation: glitch 1s ease-in-out;
+}
+
+@keyframes glitch {
+    0% { transform: skewX(0deg); }
+    20% { transform: skewX(-2deg); opacity: 0.8; }
+    40% { transform: skewX(2deg); opacity: 1; }
+    100% { transform: skewX(0deg); }
+}
+
+/* Red Dot Button Accents */
+.btn-primary-lavish {
+    position: relative;
+    padding-left: 30px;
+}
+
+.btn-primary-lavish::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background: #e83a3a;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #e83a3a;
+}

@@ -1,0 +1,172 @@
+{% extends 'layout.html' %}
+{% block title %}The Strategy Room | Academy{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .academy-wrapper { background: #05070a; min-height: 100vh; padding: 100px 0; color: #fff; }
+    .strategy-hero { text-align: center; margin-bottom: 80px; }
+    
+    .strategy-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    .strat-card {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 20px;
+        padding: 40px;
+        backdrop-filter: blur(15px);
+    }
+
+    /* ─── Undercut UI ─── */
+    .undercut-input {
+        background: #111;
+        border: 1px solid #333;
+        color: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        width: 100%;
+        margin-bottom: 20px;
+        font-family: 'DM Mono', monospace;
+    }
+
+    .calc-btn {
+        background: #e83a3a;
+        color: #fff;
+        border: none;
+        padding: 20px;
+        border-radius: 8px;
+        width: 100%;
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 24px;
+        letter-spacing: 2px;
+        transition: 0.3s;
+    }
+
+    .calc-btn:hover { background: #ff4a4a; transform: translateY(-2px); }
+
+    .result-hud {
+        margin-top: 30px;
+        padding: 25px;
+        border-radius: 12px;
+        background: rgba(0, 212, 170, 0.05);
+        border: 1px solid rgba(0, 212, 170, 0.2);
+        display: none;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="academy-wrapper">
+    <div class="container">
+        
+        <header class="strategy-hero">
+            <span class="eyebrow" style="color:#e83a3a; letter-spacing: 5px;">TACTICAL TIER</span>
+            <h1 class="display-3 font-bebas">THE <span class="accent-red" style="color:#e83a3a;">STRATEGY ROOM</span></h1>
+            <p class="muted font-monospace">WHERE RACES ARE WON IN THE CHASM BETWEEN THE PIT WALL AND THE COCKPIT</p>
+        </header>
+
+        <div class="strategy-grid">
+            <!-- Part 1: Tyre Degradation -->
+            <div class="strat-card" data-aos="fade-right">
+                <h3 class="font-bebas h2 mb-4">TYRE <span class="accent-red" style="color:#e83a3a;">DEGRADATION</span> CROSS-OVER</h3>
+                <div style="height: 300px;">
+                    <canvas id="tyreChart"></canvas>
+                </div>
+                <div class="mt-4 p-3 border-start border-danger">
+                    <p class="small text-muted font-monospace">Current Context: Track temp 44°C. The "Soft" compound (red) loses 0.2s of pace per lap. At lap 12, the "Medium" (yellow) becomes the superior tactical choice.</p>
+                </div>
+            </div>
+
+            <!-- Part 2: Undercut Calculator -->
+            <div class="strat-card" data-aos="fade-left">
+                <h3 class="font-bebas h2 mb-4">THE <span class="accent-red" style="color:#e83a3a;">UNDERCUT</span> SIMULATOR</h3>
+                <div class="simulator-controls">
+                    <label class="font-monospace small text-muted mb-2">TARGET GAP (SEC)</label>
+                    <input type="number" id="gap-input" class="undercut-input" value="1.5" step="0.1">
+                    
+                    <label class="font-monospace small text-muted mb-2">OUT-LAP PACE DELTA (SEC)</label>
+                    <input type="number" id="delta-input" class="undercut-input" value="2.2" step="0.1" placeholder="Advantage of new tyres">
+
+                    <button class="calc-btn" onclick="runSimulation()">RUN CALCULATIONS</button>
+                    
+                    <div id="result-box" class="result-hud">
+                        <span class="font-monospace small d-block mb-1" id="res-status">CALCULATING...</span>
+                        <h4 class="font-bebas h1 mb-0" id="res-title">UNDERCUT SUCCESSFUL</h4>
+                        <p class="mt-3 small text-muted font-monospace" id="res-desc">By pitting 1 lap earlier, you gained 0.7s of track position, emerging ahead of your rival.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function initTyreChart() {
+        const ctx = document.getElementById('tyreChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 25}, (_, i) => 'Lap ' + i),
+                datasets: [
+                    {
+                        label: 'Soft Compound',
+                        data: Array.from({length: 25}, (_, i) => 80 + (i * 0.25)),
+                        borderColor: '#e83a3a',
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'Medium Compound',
+                        data: Array.from({length: 25}, (_, i) => 81 + (i * 0.12)),
+                        borderColor: '#f1c40f',
+                        borderWidth: 2,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { title: { display: true, text: 'Lap Time (s)', color: '#666' }, grid: { color: '#111' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } }
+            }
+        });
+    }
+
+    function runSimulation() {
+        const gap = parseFloat(document.getElementById('gap-input').value);
+        const delta = parseFloat(document.getElementById('delta-input').value);
+        const pitLoss = 20.5; // Average pit stop loss
+        
+        const resultBox = document.getElementById('result-box');
+        const resTitle = document.getElementById('res-title');
+        const resDesc = document.getElementById('res-desc');
+        
+        resultBox.style.display = 'block';
+        
+        if (delta > gap) {
+            resTitle.innerText = "UNDERCUT SUCCESSFUL";
+            resTitle.style.color = "#00d4aa";
+            resDesc.innerText = `You emerged ${ (delta - gap).toFixed(1) }s ahead of your rival. Track dominance achieved.`;
+            gsap.from(resultBox, { scale: 0.9, opacity: 0, duration: 0.4 });
+        } else {
+            resTitle.innerText = "UNDERCUT FAILED";
+            resTitle.style.color = "#e83a3a";
+            resDesc.innerText = `You remained ${ (gap - delta).toFixed(1) }s behind. Your rival maintained track position.`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initTyreChart);
+</script>
+{% endblock %}
