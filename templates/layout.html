@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* http://*; style-src 'self' 'unsafe-inline' https://*; img-src 'self' data: https: http:; font-src 'self' https://*; connect-src 'self' https://* http://*;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* http://*; style-src 'self' 'unsafe-inline' https://* http://*; img-src 'self' data: https: http:; font-src 'self' https: http:; connect-src 'self' https: http:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}AutoVerse | Elite Automotive & F1 Intelligence{% endblock %}</title>
   <meta name="description" content="AutoVerse is the ultimate hub for automotive enthusiasts and F1 fans, featuring high-fidelity car comparisons, telemetry analysis, and an interactive racing academy.">
@@ -14,9 +14,9 @@
 
   <!-- High-Priority Favicon (Official AutoVerse Logo) -->
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAACRklEQVR4nDXSy28bVRgF8HPuvTOeiT220+altIgQVSoPwYL/oLvukEBiR/9YligQQIG0DalNExLngds69Wvu3O+wcNl+OtJ3pPNj0duEJUAQAEECQBIAARLOOdLR0TnvvA9ZXio1RIKZmQABAEGQBJ3zbpV13ocQfCja3RQXFpepiaTJkkwQ6CgBBjg6uizL8zwPWR6Kqr+YjLMsbN2/b01dFC3vSDLGWHU6ZVnOZjNBVze3MaZWuRZ8Xq7vPGA97fe6stTEOst8WRQAO+0yyzPnAPqy3W1X3dPTVyEu57uPvsZ8Mvjz53Z7rVdVSUBWXp4N7yaTVlF0e/3dna3vv/3uaDg6fvEyxPn70fBk79Hn3XubWV6U9zYf7+10ylz19Ksvv9j7ZP/g4BdIP/50ePT8JMU6pHo2uRicU51Wa33roQF/nQ5LLkaj0Q/Pnp39cz1+X7vmzdX43fXlJaCQYu3obgbH//qQtcqP9j99M5pdnp9W/Y3bd7Pf/ngeUP/9+kwy0IHk+vbHliIB0D/Y/6zXrTY2t8PyFkW1mC+vLs58lg9eHoOSACDUi9lqGSheXwynd/3F9O03T58cHP5+9Othqyjny9qsIZhkkgIIgKmJgprJ+O7t+ObCvdh/+HpwcjU6D6EVQkYCgCTJuNbdgMxkgAjnnIux3t7ZbZbT8XgcQgbQB0/QLJkl5kX1vxti5YBMqYHkSMCAD/5SipLo88K5AIIC+MElAVladQAEEJBkAgIEyVaqIRIeTjIz2eouYPUHEKD/AHvGOnLZZ4JnAAAAAElFTkSuQmCC">
-  <link rel="icon" type="image/png" href="/static/img/AutoVerse_Official_Logo.png?v={{ range(1, 999) | random }}">
-  <link rel="shortcut icon" href="/static/img/AutoVerse_Official_Logo.png?v={{ range(1, 999) | random }}">
-  <link rel="apple-touch-icon" href="/static/img/AutoVerse_Official_Logo.png">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/AutoVerse_Official_Logo.png') }}?v={{ range(1, 999) | random }}">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='img/AutoVerse_Official_Logo.png') }}?v={{ range(1, 999) | random }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/AutoVerse_Official_Logo.png') }}">
   
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -57,7 +57,7 @@
   <nav class="nav">
     <div class="nav-inner">
       <a href="/" class="nav-logo">
-        <img src="/static/img/AutoVerse_Official_Logo.png" alt="AV" class="nav-logo-img">
+        <img src="{{ url_for('static', filename='img/AutoVerse_Official_Logo.png') }}" alt="AV" class="nav-logo-img">
         AUTO<span>VERSE</span>
       </a>
       <div class="nav-links-wrapper">
