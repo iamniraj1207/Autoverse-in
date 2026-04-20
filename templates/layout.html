@@ -5,10 +5,15 @@
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* http://*; style-src 'self' 'unsafe-inline' https://*; img-src 'self' data: https: http:; font-src 'self' https://*; connect-src 'self' https://* http://*;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}AutoVerse{% endblock %}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <title>{% block title %}AutoVerse | Elite Automotive & F1 Intelligence{% endblock %}</title>
+  <meta name="description" content="AutoVerse is the ultimate hub for automotive enthusiasts and F1 fans, featuring high-fidelity car comparisons, telemetry analysis, and an interactive racing academy.">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}?v=2">
+  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}?v=2">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/favicon.png') }}?v=2">
+  <link rel="icon" href="/favicon.ico?v=2">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <meta name="csrf-token" content="{{ csrf_token() }}">
+  <script defer src="/_vercel/insights/script.js"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/cars.css') }}">

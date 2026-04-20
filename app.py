@@ -105,6 +105,14 @@ def enforce_login():
             if 'user_id' not in session:
                 return redirect(url_for('login'))
 
+@app.route("/favicon.ico")
+def favicon():
+    # Attempt to serve from root first, then static
+    if os.path.exists(os.path.join(app.root_path, 'favicon.ico')):
+        from flask import send_from_directory
+        return send_from_directory(app.root_path, 'favicon.ico')
+    return app.send_static_file("favicon.ico")
+
 @app.route("/")
 @cache.cached(timeout=300)
 def index():

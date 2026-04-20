@@ -4,6 +4,9 @@
 {% block content %}
 <div class="auth-page container">
     <div class="auth-card">
+        <div class="auth-header-branding" style="text-align: center; margin-bottom: 2rem;">
+            <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="AutoVerse Logo" style="width: 80px; height: 80px; filter: drop-shadow(0 0 15px rgba(232, 58, 58, 0.4));">
+        </div>
         <div class="badge">◆ Create Account</div>
         <h2>JOIN THE<br><span>AUTOVERSE</span></h2>
         {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
