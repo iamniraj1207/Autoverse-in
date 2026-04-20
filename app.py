@@ -24,6 +24,7 @@ from flask_seasurf import SeaSurf
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_compress import Compress
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -49,8 +50,9 @@ talisman = Talisman(app, force_https=False, content_security_policy={
 csrf = SeaSurf(app)
 limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 
-# Performance Layer (Cache)
+# Performance Layer (Cache & Compression)
 cache = Cache(app, config={'CACHE_TYPE': 'simple', 'CACHE_DEFAULT_TIMEOUT': 300})
+Compress(app)
 
 if not IS_VERCEL:
     # Only boot background threads on local/persistent servers

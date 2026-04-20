@@ -282,7 +282,7 @@
                 <button class="btn-remove-lavish" onclick="removeFromCompare({{ car.id }})">✕</button>
                 
                 <div class="vcc-media">
-                    <img src="{{ car.image_exterior or car.image_url }}" class="vcc-image" alt="{{ car.brand }}">
+                    <img src="{{ car.image_exterior or car.image_url }}" class="vcc-image" alt="{{ car.brand }}" loading="lazy">
                 </div>
 
                 <div class="vcc-identity">
