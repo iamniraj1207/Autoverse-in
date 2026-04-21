@@ -110,7 +110,7 @@ def generate_multi_overlay(gp_name, drivers, year=2024, session_type='R'):
                 found_any = True
                 
                 # Plot Speed
-                fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['Speed'], name=drv, line=dict(color=color, width=2.5)), row=1, col=1)
+                fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['Speed'], name=f"{drv} - SPEED", line=dict(color=color, width=2.5)), row=1, col=1)
                 
                 # Plot Throttle/Brake
                 fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['Throttle'], name=f"{drv} THR", line=dict(color=color, width=1.5), showlegend=False), row=2, col=1)
@@ -190,8 +190,7 @@ def _style(fig, title):
     fig.update_xaxes(
         gridcolor='rgba(255,255,255,0.05)', 
         showticklabels=True, 
-        title_text="DISTANCE (METERS)",
-        title_font=dict(size=10, letterspacing=2)
+        title=dict(text="DISTANCE (METERS)", font=dict(size=10))
     )
     fig.update_yaxes(
         gridcolor='rgba(255,255,255,0.05)', 
@@ -250,7 +249,7 @@ def _simulated(gp_name, drivers, year=2024):
             rpm.append(current_rpm + random.uniform(-100, 100))
 
         # Add Traces
-        fig.add_trace(go.Scatter(x=dist, y=speed, name=code, line=dict(color=color, width=2.5)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=dist, y=speed, name=f"{code} - SPEED", line=dict(color=color, width=2.5)), row=1, col=1)
         fig.add_trace(go.Scatter(x=dist, y=thr, name=f"{code} THR", line=dict(color=color, width=1.2), showlegend=False), row=2, col=1)
         fig.add_trace(go.Scatter(x=dist, y=brk, name=f"{code} BRK", line=dict(color=color, width=1, dash='dot'), showlegend=False), row=2, col=1)
         fig.add_trace(go.Scatter(x=dist, y=gear, name=f"{code} GEAR", line=dict(color=color, width=2, shape='hv'), showlegend=False), row=3, col=1)

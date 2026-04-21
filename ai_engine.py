@@ -4,6 +4,8 @@ Knowledge-augmented AI trained on F1 championship, SAE engineering, Adrian Newey
 """
 import re
 import json
+import difflib
+import sqlite3
 
 try:
     import g4f
