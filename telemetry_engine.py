@@ -74,6 +74,9 @@ DRIVER_COLORS.update({
     'BAR': '#00A3E0', 'BUT': '#C6C6C6', 'WEB': '#1E40A7',
     'RON': '#00D7B6', 'TSU': '#6C98FF', 'MAG': '#9C9FA2',
     'ZHO': '#52E252', 'RIC': '#6692FF', 'SAR': '#1868DB',
+    'LAT': '#00A3E0', 'MAZ': '#FFFFFF', 'GRO': '#9C9FA2',
+    'KVY': '#4781D7', 'ERI': '#006DB1', 'HAR': '#4781D7',
+    'VAN': '#FF4B00', 'WEH': '#00D2BE', 'PAL': '#FFD800'
 })
 
 def get_driver_color(drv):
@@ -90,7 +93,7 @@ def generate_multi_overlay(gp_name, drivers, year=2024, session_type='R'):
 
         fig = make_subplots(
             rows=5, cols=1, shared_xaxes=True,
-            vertical_spacing=0.02,
+            vertical_spacing=0.04,
             subplot_titles=("SPEED (KM/H)", "THROTTLE % / BRAKE %", "GEAR", "TIRE SURFACE TEMP (°C)", "RPM"),
             row_heights=[0.3, 0.2, 0.15, 0.2, 0.15]
         )
@@ -109,27 +112,36 @@ def generate_multi_overlay(gp_name, drivers, year=2024, session_type='R'):
 
                 found_any = True
                 
+                # Dynamic Hover Template for "Expensive" Feel
+                h_speed = f"<b>DRV: {drv}</b><br>SPEED: %{{y:.1f}} km/h<br>DIST: %{{x:.0f}}m<extra></extra>"
+                h_thr = f"<b>DRV: {drv}</b><br>THROTTLE: %{{y:.1f}}%<extra></extra>"
+                h_brk = f"<b>DRV: {drv}</b><br>BRAKE: %{{y:.1f}}%<extra></extra>"
+                h_gear = f"<b>DRV: {drv}</b><br>GEAR: %{{y}}<br>RPM: %{{customdata[0]}} <extra></extra>"
+                h_temp = f"<b>DRV: {drv}</b><br>TEMP: %{{y:.1f}} °C<extra></extra>"
+                h_rpm = f"<b>DRV: {drv}</b><br>RPM: %{{y:.0f}}<extra></extra>"
+
                 # Plot Speed
-                fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['Speed'], name=f"{drv} - SPEED", line=dict(color=color, width=2.5)), row=1, col=1)
+                fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['Speed'], name=f"{drv} - SPEED", hovertemplate=h_speed, line=dict(color=color, width=2.5)), row=1, col=1)
                 
                 # Plot Throttle/Brake
-                fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['Throttle'], name=f"{drv} THR", line=dict(color=color, width=1.5), showlegend=False), row=2, col=1)
+                fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['Throttle'], name=f"{drv} THR", hovertemplate=h_thr, line=dict(color=color, width=1.5), showlegend=False), row=2, col=1)
                 if 'Brake' in tel.columns:
-                    fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['Brake'].astype(float)*100, name=f"{drv} BRK", line=dict(color=color, width=1, dash='dot'), showlegend=False), row=2, col=1)
+                    fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['Brake'].astype(float)*100, name=f"{drv} BRK", hovertemplate=h_brk, line=dict(color=color, width=1, dash='dot'), showlegend=False), row=2, col=1)
                 
                 # Plot Gear
                 if 'nGear' in tel.columns:
-                    fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['nGear'], name=f"{drv} GEAR", line=dict(color=color, width=2, shape='hv'), showlegend=False), row=3, col=1)
+                    custom_rpm = [tel['RPM'].iloc[i] if 'RPM' in tel.columns else 0 for i in range(len(tel))]
+                    fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['nGear'], name=f"{drv} GEAR", hovertemplate=h_gear, customdata=np.stack([custom_rpm], axis=-1), line=dict(color=color, width=2, shape='hv'), showlegend=False), row=3, col=1)
                 
-                # Plot Tire Temp (Synthetic if missing in older years, real if avail)
+                # Plot Tire Temp
                 t_temp = tel.get('TireTemp', None)
-                if t_temp is None: # Fallback to modeled temp
+                if t_temp is None: 
                     t_temp = 90 + (tel['Speed'] / 50) + np.sin(tel['Distance']/100)*3
-                fig.add_trace(go.Scatter(x=tel['Distance'], y=t_temp, name=f"{drv} TEMP", line=dict(color=color, width=1.5), showlegend=False), row=4, col=1)
+                fig.add_trace(go.Scatter(x=tel['Distance'], y=t_temp, name=f"{drv} TEMP", hovertemplate=h_temp, line=dict(color=color, width=1.5), showlegend=False), row=4, col=1)
                 
                 # Plot RPM
                 if 'RPM' in tel.columns:
-                    fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['RPM'], name=f"{drv} RPM", line=dict(color=color, width=1), showlegend=False), row=5, col=1)
+                    fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['RPM'], name=f"{drv} RPM", hovertemplate=h_rpm, line=dict(color=color, width=1), showlegend=False), row=5, col=1)
 
                 lap_summaries.append({
                     "driver": drv,
@@ -202,8 +214,8 @@ def _simulated(gp_name, drivers, year=2024):
     """High-fidelity multi-channel physics simulation (2018-2026)."""
     fig = make_subplots(
         rows=5, cols=1, shared_xaxes=True,
-        vertical_spacing=0.02,
-        subplot_titles=("PHYSICS MODEL: VELOCITY", "THROTTLE / BRAKE", "GEARBOX MAP", "TYRE THERMODYNAMICS", "ENGINE RPM"),
+        vertical_spacing=0.04,
+        subplot_titles=("PHYSICS MODEL: VELOCITY (KM/H)", "THROTTLE % / BRAKE %", "GEARBOX MAP", "TYRE THERMODYNAMICS (°C)", "ENGINE RPM (SIM)"),
         row_heights=[0.3, 0.2, 0.15, 0.2, 0.15]
     )
     dist = list(range(0, 5200, 10))
@@ -248,13 +260,21 @@ def _simulated(gp_name, drivers, year=2024):
             temp.append(t + random.uniform(-0.5, 0.5))
             rpm.append(current_rpm + random.uniform(-100, 100))
 
+        # Dynamic Hover Template
+        h_s = f"<b>DRV: {code}</b><br>SPEED: %{{y:.1f}} km/h<br>DIST: %{{x}}m<extra></extra>"
+        h_t = f"<b>DRV: {code}</b><br>THROTTLE: %{{y}}%<extra></extra>"
+        h_b = f"<b>DRV: {code}</b><br>BRAKE: %{{y}}%<extra></extra>"
+        h_g = f"<b>DRV: {code}</b><br>GEAR: %{{y}}<extra></extra>"
+        h_tp = f"<b>DRV: {code}</b><br>TEMP: %{{y:.1f}} °C<extra></extra>"
+        h_r = f"<b>DRV: {code}</b><br>RPM: %{{y:.0f}}<extra></extra>"
+
         # Add Traces
-        fig.add_trace(go.Scatter(x=dist, y=speed, name=f"{code} - SPEED", line=dict(color=color, width=2.5)), row=1, col=1)
-        fig.add_trace(go.Scatter(x=dist, y=thr, name=f"{code} THR", line=dict(color=color, width=1.2), showlegend=False), row=2, col=1)
-        fig.add_trace(go.Scatter(x=dist, y=brk, name=f"{code} BRK", line=dict(color=color, width=1, dash='dot'), showlegend=False), row=2, col=1)
-        fig.add_trace(go.Scatter(x=dist, y=gear, name=f"{code} GEAR", line=dict(color=color, width=2, shape='hv'), showlegend=False), row=3, col=1)
-        fig.add_trace(go.Scatter(x=dist, y=temp, name=f"{code} TEMP", line=dict(color=color, width=1.5), showlegend=False), row=4, col=1)
-        fig.add_trace(go.Scatter(x=dist, y=rpm, name=f"{code} RPM", line=dict(color=color, width=1), showlegend=False), row=5, col=1)
+        fig.add_trace(go.Scatter(x=dist, y=speed, name=f"{code} - SPEED", hovertemplate=h_s, line=dict(color=color, width=2.5)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=dist, y=thr, name=f"{code} THR", hovertemplate=h_t, line=dict(color=color, width=1.2), showlegend=False), row=2, col=1)
+        fig.add_trace(go.Scatter(x=dist, y=brk, name=f"{code} BRK", hovertemplate=h_b, line=dict(color=color, width=1, dash='dot'), showlegend=False), row=2, col=1)
+        fig.add_trace(go.Scatter(x=dist, y=gear, name=f"{code} GEAR", hovertemplate=h_g, line=dict(color=color, width=2, shape='hv'), showlegend=False), row=3, col=1)
+        fig.add_trace(go.Scatter(x=dist, y=temp, name=f"{code} TEMP", hovertemplate=h_tp, line=dict(color=color, width=1.5), showlegend=False), row=4, col=1)
+        fig.add_trace(go.Scatter(x=dist, y=rpm, name=f"{code} RPM", hovertemplate=h_r, line=dict(color=color, width=1), showlegend=False), row=5, col=1)
 
         lap_summaries.append({
             "driver": drv,

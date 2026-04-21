@@ -126,7 +126,7 @@
 
             <!-- Drivers -->
             <div class="mb-4">
-                <label class="fld-label">DRIVERS — SELECT UP TO 4</label>
+                <label class="fld-label">DRIVERS — SELECT UP TO 12</label>
                 <div id="drv-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
                 <div id="drv-inputs"></div>
             </div>
@@ -209,7 +209,7 @@ function updateDriverGrid(year) {
 function toggleDrv(el, code) {
     if (selectedDrivers.has(code)) {
         selectedDrivers.delete(code); el.classList.remove('sel');
-    } else if (selectedDrivers.size < 4) {
+    } else if (selectedDrivers.size < 12) {
         selectedDrivers.add(code); el.classList.add('sel');
     }
     syncInputs();
