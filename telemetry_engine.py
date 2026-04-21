@@ -235,41 +235,50 @@ def _simulated(gp_name, drivers, year=2024):
         speed, thr, brk, gear, temp, rpm = [], [], [], [], [], []
         v = 200
         t = 95
+        # Add Physics Variability & DNF Simulation
+        # Simulate a 10% chance of a localized 'Technical DNF' for testing
+        is_dnf = (random.random() < 0.10) and len(drivers) > 1
+        dnf_point = random.randint(1000, 4000) if is_dnf else 6000
         
         for d in dist:
-            # Physics modeling
+            if d > dnf_point: break # TERMINATE TRACE FOR DNF
+
+            # High-fidelity physics simulation loop
             if d < 1000 or (2000 < d < 3000): # Straights
-                target_v = 330 if d < 1000 else 310
-                v += (target_v - v) * 0.1
+                # 2025/2026 Power Unit Modeling (Higher MGU-K Bias)
+                target_v = 335 if year >= 2025 else 325 
+                v += (target_v - v) * 0.12
                 current_thr = 100
                 current_brk = 0
-                current_gear = max(7, int(v/45))
-                current_rpm = 10000 + (v * 15)
-                t += (v/300) * 0.2
+                current_gear = max(7, int(v/42))
+                current_rpm = 10500 + (v * 12)
+                t += (v/280) * 0.22
             elif (1000 <= d < 1200) or (3000 <= d < 3200): # Braking
-                v -= (v - 80) * 0.3
+                v -= (v - 75) * 0.35
                 current_thr = 0
                 current_brk = 100
                 current_gear = 2
-                current_rpm = 12000 - (d % 1000)*2
-                t += 0.5 # Friction heat
+                current_rpm = 12000 - (d % 1000)*3
+                t += 0.6 
             else: # Corners
-                v += (160 - v) * 0.15
-                current_thr = 40
+                v += (155 - v) * 0.18
+                current_thr = 45
                 current_brk = 0
-                current_gear = 4
-                current_rpm = 11000
-                t -= 0.1 # Cooling
-
-            speed.append(v + random.uniform(-1, 1))
+                current_gear = 3
+                current_rpm = 11200
+                t -= 0.12 
+            
+            # Use current length to determine indices
+            speed.append(v + random.uniform(-0.5, 0.5))
             thr.append(current_thr)
             brk.append(current_brk)
             gear.append(current_gear)
-            temp.append(t + random.uniform(-0.5, 0.5))
+            temp.append(t + random.uniform(-0.2, 0.2))
             rpm.append(current_rpm + random.uniform(-100, 100))
 
         # Dynamic Hover Template
-        h_s = f"<b>DRV: {code}</b><br>SPEED: %{{y:.1f}} km/h<br>DIST: %{{x}}m<extra></extra>"
+        curr_dist = dist[:len(speed)]
+        h_s = f"<b>DRV: {code}</b><br>SPEED: %{{y:.1f}} km/h<br>DIST: %{{x}}m<br>{'⚠️ DNF AT THIS POINT' if is_dnf else 'STATUS: NOMINAL'}<extra></extra>"
         h_t = f"<b>DRV: {code}</b><br>THROTTLE: %{{y}}%<extra></extra>"
         h_b = f"<b>DRV: {code}</b><br>BRAKE: %{{y}}%<extra></extra>"
         h_g = f"<b>DRV: {code}</b><br>GEAR: %{{y}}<extra></extra>"
@@ -277,21 +286,21 @@ def _simulated(gp_name, drivers, year=2024):
         h_r = f"<b>DRV: {code}</b><br>RPM: %{{y:.0f}}<extra></extra>"
 
         # Add Traces
-        fig.add_trace(go.Scatter(x=dist, y=speed, name=f"{code} - SPEED", hovertemplate=h_s, line=dict(color=color, width=2.5)), row=1, col=1)
-        fig.add_trace(go.Scatter(x=dist, y=thr, name=f"{code} THR", hovertemplate=h_t, line=dict(color=color, width=1.2), showlegend=False), row=2, col=1)
-        fig.add_trace(go.Scatter(x=dist, y=brk, name=f"{code} BRK", hovertemplate=h_b, line=dict(color=color, width=1, dash='dot'), showlegend=False), row=2, col=1)
-        fig.add_trace(go.Scatter(x=dist, y=gear, name=f"{code} GEAR", hovertemplate=h_g, line=dict(color=color, width=2, shape='hv'), showlegend=False), row=3, col=1)
-        fig.add_trace(go.Scatter(x=dist, y=temp, name=f"{code} TEMP", hovertemplate=h_tp, line=dict(color=color, width=1.5), showlegend=False), row=4, col=1)
-        fig.add_trace(go.Scatter(x=dist, y=rpm, name=f"{code} RPM", hovertemplate=h_r, line=dict(color=color, width=1), showlegend=False), row=5, col=1)
+        fig.add_trace(go.Scatter(x=curr_dist, y=speed, name=f"{code} - SPEED", hovertemplate=h_s, line=dict(color=color, width=2.5)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=curr_dist, y=thr, name=f"{code} THR", hovertemplate=h_t, line=dict(color=color, width=1.2), showlegend=False), row=2, col=1)
+        fig.add_trace(go.Scatter(x=curr_dist, y=brk, name=f"{code} BRK", hovertemplate=h_b, line=dict(color=color, width=1, dash='dot'), showlegend=False), row=2, col=1)
+        fig.add_trace(go.Scatter(x=curr_dist, y=gear, name=f"{code} GEAR", hovertemplate=h_g, line=dict(color=color, width=2, shape='hv'), showlegend=False), row=3, col=1)
+        fig.add_trace(go.Scatter(x=curr_dist, y=temp, name=f"{code} TEMP", hovertemplate=h_tp, line=dict(color=color, width=1.2), showlegend=False), row=4, col=1)
+        fig.add_trace(go.Scatter(x=curr_dist, y=rpm, name=f"{code} RPM", hovertemplate=h_r, line=dict(color=color, width=1), showlegend=False), row=5, col=1)
 
         lap_summaries.append({
-            "driver": drv,
+            "driver": code,
             "code": code,
-            "lap_time": "SIM_PROCESSED",
+            "lap_time": "DNF - ENGINE" if is_dnf else "PREDICTIVE_LAP",
             "color": color,
             "max_speed": round(max(speed), 1),
-            "max_temp": round(max(temp), 1),
-            "status": "PHYSICS_ENGINE_APPROVED"
+            "avg_temp": round(sum(temp)/len(temp), 1),
+            "status": "TECHNICAL_FAILURE" if is_dnf else "NOMINAL"
         })
 
     _style(fig, f"TECHNICAL DIAGNOSTICS: {gp_name.upper()} // Comprehensive Analysis")
