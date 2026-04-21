@@ -159,17 +159,45 @@ def STABLE_AVAIL(year):
 def _style(fig, title):
     fig.update_layout(
         template="plotly_dark",
-        title=dict(text=title, font=dict(size=22, family="'Bebas Neue',sans-serif"), x=0.01),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(255,255,255,0.015)",
-        height=1200, # Increased height for more subplots
-        margin=dict(l=60, r=20, t=80, b=50),
+        title=dict(
+            text=title, 
+            font=dict(size=24, family="'Bebas Neue',sans-serif", color="#e83a3a"), 
+            x=0.02,
+            y=0.98
+        ),
+        paper_bgcolor="#080a0f",
+        plot_bgcolor="rgba(255,255,255,0.01)",
+        height=1200, 
+        margin=dict(l=70, r=30, t=100, b=60),
         hovermode='x unified',
-        legend=dict(orientation='h', y=1.02, x=1, xanchor='right'),
-        font=dict(family="'DM Mono',monospace", color="rgba(255,255,255,0.65)")
+        hoverlabel=dict(
+            bgcolor="#141820",
+            font_size=13,
+            font_family="'DM Mono',monospace"
+        ),
+        legend=dict(
+            orientation='h', 
+            y=1.03, 
+            x=1, 
+            xanchor='right',
+            font=dict(family="'DM Mono',monospace", size=11, color="#ffffff"),
+            bgcolor="rgba(0,0,0,0.5)",
+            bordercolor="rgba(255,255,255,0.1)",
+            borderwidth=1
+        ),
+        font=dict(family="'DM Mono',monospace", color="rgba(255,255,255,0.7)")
     )
-    fig.update_xaxes(gridcolor='rgba(255,255,255,0.04)', showticklabels=True)
-    fig.update_yaxes(gridcolor='rgba(255,255,255,0.04)', showticklabels=True)
+    fig.update_xaxes(
+        gridcolor='rgba(255,255,255,0.05)', 
+        showticklabels=True, 
+        title_text="DISTANCE (METERS)",
+        title_font=dict(size=10, letterspacing=2)
+    )
+    fig.update_yaxes(
+        gridcolor='rgba(255,255,255,0.05)', 
+        showticklabels=True,
+        zeroline=False
+    )
 
 def _simulated(gp_name, drivers, year=2024):
     """High-fidelity multi-channel physics simulation (2018-2026)."""
