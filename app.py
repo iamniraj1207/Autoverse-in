@@ -474,6 +474,18 @@ def api_f1_live(): return jsonify(f1_engine.get_live_session_data())
 def api_f1_standings(): return jsonify(f1_engine.get_current_standings())
 @app.route("/api/cars")
 def api_cars(): return jsonify(db.execute("SELECT * FROM cars ORDER BY brand"))
+@app.route("/api/cron/keepalive", methods=["GET"])
+def api_cron_keepalive():
+    try:
+        # Ping SQLite DB
+        db.execute("SELECT 1 FROM cars LIMIT 1")
+        # Ping Supabase to keep it warm
+        if supabase_engine.get_supabase():
+            supabase_engine.get_supabase().table("garage").select("car_id").limit(1).execute()
+        return jsonify({"status": "awake", "time": time.time()})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route("/api/compare", methods=["POST"])
 def api_compare():
     ids = request.get_json().get('ids', [])

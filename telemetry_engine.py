@@ -169,7 +169,7 @@ def _style(fig, title):
         font=dict(family="'DM Mono',monospace", color="rgba(255,255,255,0.65)")
     )
     fig.update_xaxes(gridcolor='rgba(255,255,255,0.04)', showticklabels=True)
-    fig.update_yaxes(gridcolor='rgba(255,255,255,0.04)')
+    fig.update_yaxes(gridcolor='rgba(255,255,255,0.04)', showticklabels=True)
 
 def _simulated(gp_name, drivers, year=2024):
     """High-fidelity multi-channel physics simulation (2018-2026)."""
