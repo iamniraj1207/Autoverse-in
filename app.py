@@ -1,15 +1,10 @@
 import os
 import json
 import time
-import datetime
+import warnings
 
-# Patch for flask-seasurf/Python 3.12 compatibility
-import datetime as dt
-if not hasattr(dt.datetime, 'utcnow'):
-    dt.datetime.utcnow = lambda: dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
-# Even if it exists, it's deprecated and can cause issues on some strict platforms
-_orig_utcnow = dt.datetime.utcnow
-dt.datetime.utcnow = lambda: dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
+# Silencing deprecation warnings from older libraries on Python 3.12
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # --- CLOUD-NATIVE HEADLESS OVERRIDE ---
 try:
