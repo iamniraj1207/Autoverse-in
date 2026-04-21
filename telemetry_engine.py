@@ -146,10 +146,22 @@ def generate_multi_overlay(gp_name, drivers, year=2024, session_type='R'):
                         if 'RPM' in tel.columns:
                             fig.add_trace(go.Scatter(x=tel['Distance'], y=tel['RPM'], name=f"{drv} RPM", hovertemplate=h_rpm, line=dict(color=color, width=1), showlegend=False), row=5, col=1)
 
+                        # AUTOMATIC DNF DETECTION (2018-2024)
+                        res = session.results[session.results['Abbreviation'] == drv]
+                        is_hist_dnf = False
+                        if not res.empty:
+                            status_val = res.iloc[0]['Status']
+                            # If not 'Finished' and doesn't contain '+ ' (lapped), it's a DNF/Failure
+                            if status_val != 'Finished' and '+ ' not in status_val:
+                                is_hist_dnf = True
+                        
+                        lap_time_str = "DNF - " + status_val.upper() if is_hist_dnf else "FASTEST_LAP"
+                        
                         lap_summaries.append({
-                            "driver": drv, "code": drv, "lap_time": "SESSION_DATA",
+                            "driver": drv, "code": drv, "lap_time": lap_time_str,
                             "color": color, "max_speed": round(tel['Speed'].max(), 1),
-                            "avg_temp": round(float(t_temp.mean()), 1), "status": "LIVE_VERIFIED"
+                            "avg_temp": round(float(t_temp.mean()), 1), 
+                            "status": "TECHNICAL_FAILURE" if is_hist_dnf else "LIVE_VERIFIED"
                         })
                         continue
                 except:
@@ -239,9 +251,12 @@ def _simulated(gp_name, drivers, year=2024):
         # Logic Trap: User requested Oscar Piastri DNF in Australia 2026
         is_piastri_dnf = (code == "PIA" and gp_name.lower() == "australia" and year == 2026)
         
-        # Base DNF: 15% chance for multi-driver comparisons, or forced for Piastri test
-        is_dnf = is_piastri_dnf or (random.random() < 0.15 and len(drivers) > 1)
-        dnf_point = random.randint(800, 3500) if is_dnf else 6000
+        # Track-based Risk Factor (Street circuits have higher DNF probability)
+        STREET_TRACKS = ['monaco', 'singapore', 'jeddah', 'las vegas', 'azerbaijan']
+        base_risk = 0.25 if gp_name.lower() in STREET_TRACKS else 0.12
+        
+        is_dnf = is_piastri_dnf or (random.random() < base_risk and len(drivers) > 1)
+        dnf_point = random.randint(500, 4200) if is_dnf else 6000
         
         for d in dist:
             if d > dnf_point: break # TERMINATE TRACE FOR DNF
