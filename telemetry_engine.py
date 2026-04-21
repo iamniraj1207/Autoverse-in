@@ -236,9 +236,12 @@ def _simulated(gp_name, drivers, year=2024):
         v = 200
         t = 95
         # Add Physics Variability & DNF Simulation
-        # Simulate a 10% chance of a localized 'Technical DNF' for testing
-        is_dnf = (random.random() < 0.10) and len(drivers) > 1
-        dnf_point = random.randint(1000, 4000) if is_dnf else 6000
+        # Logic Trap: User requested Oscar Piastri DNF in Australia 2026
+        is_piastri_dnf = (code == "PIA" and gp_name.lower() == "australia" and year == 2026)
+        
+        # Base DNF: 15% chance for multi-driver comparisons, or forced for Piastri test
+        is_dnf = is_piastri_dnf or (random.random() < 0.15 and len(drivers) > 1)
+        dnf_point = random.randint(800, 3500) if is_dnf else 6000
         
         for d in dist:
             if d > dnf_point: break # TERMINATE TRACE FOR DNF

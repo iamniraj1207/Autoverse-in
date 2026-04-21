@@ -64,10 +64,12 @@
                 <div class="s-key mb-2">DRIVERS</div>
                 {% if lap_summaries %}
                     {% for s in lap_summaries %}
-                    <div class="lap-chip">
+                    <div class="lap-chip" {% if 'DNF' in s.lap_time %}style="border-color:#e83a3a;background:rgba(232,58,58,0.1);"{% endif %}>
                         <span class="dot" style="background:#{{ (s.color or '#e83a3a').lstrip('#') }};"></span>
                         <strong>{{ s.driver }}</strong>
-                        <span style="opacity:.5;">{{ s.lap_time }}</span>
+                        <span style="opacity:.6; {% if 'DNF' in s.lap_time %}color:#e83a3a;font-weight:bold;{% endif %}">
+                            {% if 'DNF' in s.lap_time %}⚠️ DNF{% else %}{{ s.lap_time }}{% endif %}
+                        </span>
                     </div>
                     {% endfor %}
                 {% else %}
