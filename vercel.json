@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
   "builds": [
     {
       "src": "app.py",
@@ -55,6 +57,10 @@
       "dest": "/static/robots.txt"
     },
     {
+      "src": "/sitemap.xml",
+      "dest": "app.py"
+    },
+    {
       "handle": "filesystem"
     },
     {
@@ -65,7 +71,7 @@
   "crons": [
     {
       "path": "/api/cron/keepalive",
-      "schedule": "0 0 * * *"
+      "schedule": "*/5 * * * *"
     }
   ]
 }

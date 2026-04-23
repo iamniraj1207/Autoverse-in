@@ -7,8 +7,9 @@
 .av-hero {
     position: relative;
     width: 100%;
-    height: 100vh;
-    min-height: 700px;
+    height: 100dvh; /* Dynamic viewport height — accounts for mobile browser chrome */
+    height: 100vh; /* Fallback for older browsers */
+    min-height: 600px;
     background: #000000;
     overflow: hidden;
     display: flex;
@@ -668,8 +669,28 @@
     pointer-events: none;
 }
 
+/* ─── TABLET BREAKPOINT ─── */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .car-stage {
+        width: min(85vw, 900px);
+    }
+    
+    .htc-title {
+        font-size: clamp(60px, 10vw, 120px);
+    }
+    
+    .backlight-halo {
+        width: 600px;
+        height: 350px;
+    }
+}
+
 /* ─── MOBILE FALLBACK ─── */
 @media (max-width: 768px) {
+
+    .av-hero {
+        min-height: 500px;
+    }
 
     .fog-scene,
     .backlight-system,
@@ -681,8 +702,8 @@
         animation-duration: 2s;
         filter: none;
         opacity: 1;
-        transform: translateX(-50%) scale(0.82);
-        bottom: 0;
+        transform: translateX(-50%) scale(0.75);
+        bottom: 10px;
     }
 
     .ground-line {
@@ -694,11 +715,56 @@
     }
 
     .hero-text-content {
-        padding-bottom: 260px;
-        animation-delay: 2.2s;
+        padding-bottom: 220px;
+        animation-delay: 1.5s;
     }
 
     .htc-title {
-        font-size: 64px;
+        font-size: clamp(48px, 12vw, 72px);
+        letter-spacing: 2px;
+    }
+    
+    .htc-sub {
+        font-size: 11px;
+        letter-spacing: 2px;
+        margin-bottom: 24px;
+    }
+    
+    .htc-eyebrow {
+        font-size: 8px;
+        letter-spacing: 4px;
+    }
+    
+    .htc-ctas {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    .htc-btn-primary,
+    .htc-btn-ghost {
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
+        padding: 14px 24px;
+    }
+}
+
+/* ─── SMALL PHONES ─── */
+@media (max-width: 375px) {
+    .av-hero {
+        min-height: 450px;
+    }
+    
+    .hero-text-content {
+        padding-bottom: 180px;
+    }
+    
+    .htc-title {
+        font-size: 42px;
+    }
+    
+    .car-stage {
+        transform: translateX(-50%) scale(0.65);
     }
 }

@@ -20,8 +20,8 @@ import f1_engine
 import news_engine
 import academy_engine
 import supabase_engine
-import telemetry_engine
-import ai_engine
+# Heavy modules loaded lazily to reduce serverless cold-start time
+# telemetry_engine, ai_engine are only imported when their routes are hit
 from security_engine import SecurityManager, role_required
 from flask_talisman import Talisman
 from flask_seasurf import SeaSurf
@@ -467,6 +467,7 @@ def f1_telemetry_hub():
 @app.route("/f1/telemetry/analysis")
 @login_required
 def telemetry_analysis():
+    import telemetry_engine  # Lazy import — heavy FastF1/Plotly/NumPy
     gp = request.args.get("gp", "Bahrain")
     year = int(request.args.get("year", 2024))
     session_type = request.args.get("session_type", "R")
@@ -495,6 +496,7 @@ def telemetry_analysis():
 
     except Exception as e:
         print(f"Telemetry route error: {e}")
+        import telemetry_engine  # Ensure import for fallback
         sim_result = telemetry_engine._simulated(gp, drivers)
         chart_json, lap_summaries = sim_result if isinstance(sim_result, tuple) else (sim_result, [])
         return render_template("f1/telemetry_results.html",
@@ -554,9 +556,45 @@ def api_chat():
     
     if not user_msg:
         return jsonify({"error": "No message provided"}), 400
-        
+    
+    import ai_engine  # Lazy import — only needed for chat
     ai_response = ai_engine.generate_ai_response(user_msg, history)
     return jsonify({"reply": ai_response})
+
+# ── SEO & RELIABILITY ─────────────────────────────────────────────────────────
+@app.route("/sitemap.xml")
+def sitemap():
+    """Dynamic sitemap generation for Google Search Console."""
+    from flask import Response
+    base = "https://autoverse-seven.vercel.app"
+    pages = [
+        "/", "/about", "/contact", "/privacy", "/terms", "/cars", "/academy",
+        "/f1", "/f1/drivers", "/f1/teams", "/f1/history", "/f1/news",
+        "/f1/hall-of-fame", "/f1/records", "/f1/telemetry", "/f1/live-hub",
+    ]
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    for page in pages:
+        priority = "1.0" if page == "/" else "0.8"
+        xml += f'  <url><loc>{base}{page}</loc><priority>{priority}</priority><changefreq>weekly</changefreq></url>\n'
+    
+    # Add dynamic car pages
+    try:
+        cars = db.execute("SELECT id FROM cars")
+        for car in cars:
+            xml += f'  <url><loc>{base}/cars/{car["id"]}</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>\n'
+    except: pass
+    
+    xml += '</urlset>'
+    return Response(xml, mimetype='application/xml')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(e):
+    return render_template('404.html'), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -2259,3 +2259,301 @@ a {
 .bebas {
   font-family: 'Bebas Neue', sans-serif;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   COMPREHENSIVE MOBILE & DEVICE RESPONSIVE OVERRIDES
+   Covers: 320px → 375px → 480px → 768px → 1024px → 1440px+
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Tablet (769px - 1024px) ──────────────────────────────── */
+@media (max-width: 1024px) {
+  .feature-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .compare-selectors {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .hero h1 {
+    font-size: 60px;
+  }
+  
+  .hero::after {
+    font-size: 120px;
+  }
+  
+  .f1-team-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  
+  .container {
+    padding: 0 24px;
+  }
+}
+
+/* ── Mobile Landscape / Large Phones (481px - 768px) ─────── */
+@media (max-width: 768px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  .compare-selectors {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 60px 0 50px;
+  }
+
+  .hero h1 {
+    font-size: 48px;
+  }
+
+  .hero::after {
+    display: none;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-header h2 {
+    font-size: 36px;
+  }
+  
+  .section-lavish {
+    padding: 60px 0;
+  }
+  
+  .intel-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  /* F1 Hub Mobile */
+  .f1-team-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .f1-driver-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  /* F1 Teaser Cards */
+  .f1-grid-preview {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  
+  .f1-card.team-preview,
+  .f1-card.driver-preview {
+    padding: 24px !important;
+  }
+  
+  /* Footer Mobile */
+  .footer .row {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .footer-nav-grid {
+    justify-content: center !important;
+    flex-wrap: wrap;
+    gap: 24px !important;
+  }
+  
+  /* Specs Grid */
+  .specs-grid-v2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .spec-card-v2 {
+    padding: 20px 16px;
+  }
+  
+  .spec-card-v2 .spec-val {
+    font-size: 24px;
+  }
+  
+  /* Car Detail */
+  .car-detail-hero {
+    height: 40vh;
+    min-height: 280px;
+  }
+  
+  .car-header-main h1 {
+    font-size: clamp(40px, 8vw, 80px);
+  }
+  
+  .car-detail-actions {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  /* Driver Stats */
+  .driver-stats-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .stat-card {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 120px;
+  }
+  
+  .stat-big {
+    font-size: 36px;
+  }
+  
+  /* Compare Table */
+  .compare-table {
+    font-size: 11px;
+  }
+  
+  .compare-table th,
+  .compare-table td {
+    padding: 8px 10px;
+  }
+  
+  /* Auth */
+  .auth-page {
+    padding: 40px 16px;
+  }
+  
+  .auth-card {
+    padding: 28px 24px;
+  }
+  
+  /* Academy */
+  .academy-module-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* AI Chat */
+  #ai-chat-window {
+    width: calc(100vw - 24px) !important;
+    right: 12px !important;
+    bottom: 70px !important;
+    max-height: 60vh !important;
+  }
+  
+  /* Compare Bar */
+  .compare-bar-inner {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  
+  .compare-slots {
+    width: 100%;
+    overflow-x: auto;
+  }
+}
+
+/* ── Small Phones (320px - 480px) ────────────────────────── */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 16px;
+  }
+  
+  .page-section {
+    padding: 32px 0;
+  }
+  
+  .page-header h2 {
+    font-size: 28px;
+  }
+  
+  .nav-inner {
+    padding: 0 16px;
+  }
+  
+  .f1-driver-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .specs-grid-v2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-lavish {
+    padding: 40px 0;
+  }
+  
+  /* Car cards full width */
+  .car-grid {
+    gap: 16px;
+  }
+  
+  .car-card h3 {
+    font-size: 22px;
+  }
+  
+  .car-card-body {
+    padding: 16px;
+  }
+  
+  .car-img-wrap {
+    height: 180px;
+  }
+  
+  /* Footer compact */
+  .footer {
+    padding: 32px 16px !important;
+  }
+  
+  .footer-nav-grid {
+    flex-direction: column;
+    gap: 16px !important;
+  }
+  
+  /* Technical Data */
+  .technical-data {
+    padding: 24px 16px;
+  }
+  
+  .data-table {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  /* Filter Bar */
+  .filter-bar {
+    flex-direction: column;
+  }
+  
+  .filter-bar select {
+    width: 100%;
+  }
+}
+
+/* ── Landscape Mode Fix ──────────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .av-hero {
+    min-height: 400px;
+  }
+  
+  .hero-text-content {
+    padding-bottom: 100px;
+  }
+}
+
+/* ── High-DPI / Retina Sharpening ────────────────────────── */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .nav-logo-img,
+  .team-logo-overlay img {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
