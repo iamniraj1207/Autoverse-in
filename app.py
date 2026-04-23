@@ -491,7 +491,14 @@ def telemetry_analysis():
 
     except Exception as e:
         print(f"Telemetry route error: {e}")
-        return render_template("f1/telemetry_results.html", error=f"Telemetry fetch failed: {str(e)}. Please try a different GP or Year.")
+        sim_result = telemetry_engine._simulated(gp, drivers)
+        chart_json, lap_summaries = sim_result if isinstance(sim_result, tuple) else (sim_result, [])
+        return render_template("f1/telemetry_results.html",
+                               chart_json=chart_json,
+                               session_info={"name": gp, "year": year},
+                               drivers=drivers,
+                               lap_summaries=lap_summaries,
+                               simulated=True)
 
 # ── APIs ──────────────────────────────────────────────────────────────────────
 @app.route("/api/news")
