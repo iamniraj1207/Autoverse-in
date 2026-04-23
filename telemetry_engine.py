@@ -87,10 +87,23 @@ def generate_multi_overlay(gp_name, drivers, year=2024, session_type='R'):
     if not STABLE_AVAIL(year) or not drivers:
         return _simulated(gp_name, drivers or ['VER', 'NOR'], year)
     
-    try:
-        session = fastf1.get_session(year, gp_name, session_type)
-        session.load(telemetry=True, laps=True, weather=True)
+    session = fastf1.get_session(year, gp_name, session_type)
+    
+    # Performance Shield: Use a hard timeout for session loading to prevent serverless hang
+    # If FastF1 doesn't load in 4s, we fall back to simulation immediately.
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future = executor.submit(session.load, telemetry=True, laps=True, weather=False, messages=False)
+        try:
+            future.result(timeout=4.0) 
+        except concurrent.futures.TimeoutError:
+            print("FastF1 load timed out. Falling back to simulation.")
+            return _simulated(gp_name, drivers, year)
+        except Exception as e:
+            print(f"FastF1 error: {e}")
+            return _simulated(gp_name, drivers, year)
 
+    try:
         fig = make_subplots(
             rows=5, cols=1, shared_xaxes=True,
             vertical_spacing=0.04,
@@ -101,10 +114,10 @@ def generate_multi_overlay(gp_name, drivers, year=2024, session_type='R'):
         lap_summaries = []
         found_any = False
         
-        # Performance Guard for Cloud Environments
-        # FastF1 is extremely heavy; we limit real-data extraction to 3 drivers on Vercel
-        # to ensure the load remains under 5-10s and stays within 1GB RAM.
-        MAX_REAL = 3 if IS_VERCEL else 12
+        # Performance Guard for Cloud Environments (Vercel)
+        # FastF1 is extremely heavy; we limit real-data extraction to 2 drivers on Vercel
+        # and skip unnecessary data categories to stay under 5s.
+        MAX_REAL = 2 if IS_VERCEL else 12
         real_count = 0
 
         for driver in drivers:

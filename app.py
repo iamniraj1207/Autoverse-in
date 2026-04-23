@@ -142,12 +142,12 @@ def favicon():
     return app.send_static_file("favicon.ico")
 
 @app.route("/")
-@cache.cached(timeout=300)
+@cache.cached(timeout=600) # Increased cache for home page shell
 def index():
     featured_cars = db.execute("SELECT * FROM cars ORDER BY horsepower DESC LIMIT 3")
     daily_fact = academy_engine.get_daily_intel_fact()
-    live_news = news_engine.get_daily_briefings()
-    return render_template("index.html", featured_cars=featured_cars, daily_fact=daily_fact, news=live_news[:4] if live_news else [])
+    # News is now fetched asynchronously via /api/news to speed up initial load
+    return render_template("index.html", featured_cars=featured_cars, daily_fact=daily_fact)
 
 @app.route("/about")
 def about(): return render_template("about.html")
