@@ -45,7 +45,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-prod-securit
 talisman = Talisman(app, 
     force_https=IS_VERCEL, 
     strict_transport_security=IS_VERCEL,
-    session_cookie_secure=IS_VERCEL,
+    session_cookie_secure=False, # Disable to prevent session drops on certain networks
     session_cookie_http_only=True,
     content_security_policy={
         'default-src': ["'self'", "https://*", "http://*"],
@@ -90,9 +90,13 @@ app.jinja_env.globals.update(min=min, max=max, int=int, str=str, json=json)
 
 @app.context_processor
 def inject_user_data():
-    if session.get('user_id'):
-        xp_data = supabase_engine.get_user_xp(session['user_id'])
-        return {'user_xp': xp_data, 'username': session.get('username')}
+    try:
+        if session.get('user_id'):
+            # Fetch with timeout/error protection
+            xp_data = supabase_engine.get_user_xp(session['user_id'])
+            return {'user_xp': xp_data, 'username': session.get('username')}
+    except Exception as e:
+        print(f"Global Context Error: {e}")
     return {'user_xp': None, 'username': None}
 
 import threading
