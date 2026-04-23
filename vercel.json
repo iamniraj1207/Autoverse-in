@@ -47,16 +47,15 @@
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
+      "src": "/favicon.ico",
+      "dest": "/static/favicon.ico"
     },
     {
       "src": "/robots.txt",
       "dest": "/static/robots.txt"
     },
     {
-      "src": "/favicon.ico",
-      "dest": "/static/favicon.ico"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
