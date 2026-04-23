@@ -43,9 +43,9 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-prod-securit
 
 # Security Layer
 talisman = Talisman(app, 
-    force_https=True, 
-    strict_transport_security=True,
-    session_cookie_secure=True,
+    force_https=IS_VERCEL, 
+    strict_transport_security=IS_VERCEL,
+    session_cookie_secure=IS_VERCEL,
     session_cookie_http_only=True,
     content_security_policy={
         'default-src': ["'self'", "https://*", "http://*"],
