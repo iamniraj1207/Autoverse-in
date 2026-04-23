@@ -42,15 +42,37 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-prod-security-ultra-long-key")
 
 # Security Layer
-talisman = Talisman(app, force_https=False, content_security_policy={
-    'default-src': ["'self'", "https://*", "http://*"],
-    'script-src': ["'self'", "https://unpkg.com", "https://cdn.plot.ly", "https://cdn.jsdelivr.net", "https://accounts.google.com", "https://cdnjs.cloudflare.com", "'unsafe-inline'", "'unsafe-eval'"],
-    'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://use.fontawesome.com", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
-    'font-src': ["'self'", "https://fonts.gstatic.com", "https://use.fontawesome.com", "https://cdnjs.cloudflare.com"],
-    'img-src': ["'self'", "data:", "https://*", "http://*"],
-    'connect-src': ["'self'", "https://*", "ws://*", "wss://*"],
-    'frame-src': ["'self'", "https://*", "http://*"]
-})
+talisman = Talisman(app, 
+    force_https=True, 
+    strict_transport_security=True,
+    session_cookie_secure=True,
+    session_cookie_http_only=True,
+    content_security_policy={
+        'default-src': ["'self'", "https://*", "http://*"],
+        'script-src': [
+            "'self'", 
+            "https://unpkg.com", 
+            "https://cdn.plot.ly", 
+            "https://cdn.jsdelivr.net", 
+            "https://accounts.google.com", 
+            "https://cdnjs.cloudflare.com", 
+            "'unsafe-inline'", 
+            "'unsafe-eval'" # Required for Plotly.js charts
+        ],
+        'style-src': [
+            "'self'", 
+            "'unsafe-inline'", 
+            "https://fonts.googleapis.com", 
+            "https://use.fontawesome.com", 
+            "https://cdnjs.cloudflare.com", 
+            "https://unpkg.com"
+        ],
+        'font-src': ["'self'", "https://fonts.gstatic.com", "https://use.fontawesome.com", "https://cdnjs.cloudflare.com"],
+        'img-src': ["'self'", "data:", "https://*", "http://*"],
+        'connect-src': ["'self'", "https://*", "ws://*", "wss://*"],
+        'frame-src': ["'self'", "https://*", "http://*"]
+    }
+)
 csrf = SeaSurf(app)
 limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 

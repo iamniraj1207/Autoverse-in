@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /static/video/
+Disallow: /api/
+Sitemap: https://autoverse.vercel.app/sitemap.xml
