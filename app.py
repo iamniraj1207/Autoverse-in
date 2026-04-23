@@ -475,21 +475,23 @@ def telemetry_analysis():
     try:
         result = telemetry_engine.generate_multi_overlay(gp, drivers, year, session_type)
         chart_json, lap_summaries = result if isinstance(result, tuple) else (result, [])
-        return render_template("f1/telemetry_results.html",
-                               chart_json=chart_json,
-                               session_info={"name": gp, "year": year, "session": session_type},
-                               drivers=drivers,
-                               lap_summaries=lap_summaries)
+        
+        if not chart_json:
+            return render_template("f1/telemetry_results.html", error="No real telemetry data available for this selection.")
+
+        # Vercel Edge Caching: Cache the real data globally for 1 hour to ensure sub-5s speed for other users
+        from flask import make_response
+        resp = make_response(render_template("f1/telemetry_results.html",
+                                chart_json=chart_json,
+                                session_info={"name": gp, "year": year, "session": session_type},
+                                drivers=drivers,
+                                lap_summaries=lap_summaries))
+        resp.headers['Cache-Control'] = 'public, s-maxage=3600, stale-while-revalidate=86400'
+        return resp
+
     except Exception as e:
         print(f"Telemetry route error: {e}")
-        sim_result = telemetry_engine._simulated(gp, drivers)
-        chart_json, lap_summaries = sim_result if isinstance(sim_result, tuple) else (sim_result, [])
-        return render_template("f1/telemetry_results.html",
-                               chart_json=chart_json,
-                               session_info={"name": gp, "year": year},
-                               drivers=drivers,
-                               lap_summaries=lap_summaries,
-                               simulated=True)
+        return render_template("f1/telemetry_results.html", error=f"Telemetry fetch failed: {str(e)}. Please try a different GP or Year.")
 
 # ── APIs ──────────────────────────────────────────────────────────────────────
 @app.route("/api/news")

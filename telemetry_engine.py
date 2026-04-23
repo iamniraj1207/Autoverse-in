@@ -87,23 +87,11 @@ def generate_multi_overlay(gp_name, drivers, year=2024, session_type='R'):
     if not STABLE_AVAIL(year) or not drivers:
         return _simulated(gp_name, drivers or ['VER', 'NOR'], year)
     
-    session = fastf1.get_session(year, gp_name, session_type)
-    
-    # Performance Shield: Use a hard timeout for session loading to prevent serverless hang
-    # If FastF1 doesn't load in 4s, we fall back to simulation immediately.
-    import concurrent.futures
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future = executor.submit(session.load, telemetry=True, laps=True, weather=False, messages=False)
-        try:
-            future.result(timeout=4.0) 
-        except concurrent.futures.TimeoutError:
-            print("FastF1 load timed out. Falling back to simulation.")
-            return _simulated(gp_name, drivers, year)
-        except Exception as e:
-            print(f"FastF1 error: {e}")
-            return _simulated(gp_name, drivers, year)
-
     try:
+        session = fastf1.get_session(year, gp_name, session_type)
+        # Performance Note: Real data loading from FastF1 servers can take 10-20s.
+        # Once cached on Vercel Edge, subsequent requests will be near-instant.
+        session.load(telemetry=True, laps=True, weather=False, messages=False)
         fig = make_subplots(
             rows=5, cols=1, shared_xaxes=True,
             vertical_spacing=0.04,
@@ -115,9 +103,8 @@ def generate_multi_overlay(gp_name, drivers, year=2024, session_type='R'):
         found_any = False
         
         # Performance Guard for Cloud Environments (Vercel)
-        # FastF1 is extremely heavy; we limit real-data extraction to 2 drivers on Vercel
-        # and skip unnecessary data categories to stay under 5s.
-        MAX_REAL = 2 if IS_VERCEL else 12
+        # We prioritize real data. We limit to 4 drivers to stay within memory limits.
+        MAX_REAL = 4 if IS_VERCEL else 12
         real_count = 0
 
         for driver in drivers:
@@ -178,19 +165,12 @@ def generate_multi_overlay(gp_name, drivers, year=2024, session_type='R'):
                         })
                         continue
                 except:
-                    pass # Fallback to simulation for this driver
+                    continue # Skip if driver data not available
+                    
+            # Skip simulation fallback as per user request
+            continue 
 
-            # FALLBACK: High-Fidelity Simulation for remaining grid slots
-            dist_sim = list(range(0, 5200, 10))
-            speed_sim = [200 + random.uniform(80, 120) for _ in dist_sim]
-            fig.add_trace(go.Scatter(x=dist_sim, y=speed_sim, name=f"{drv} - SPEED (SIM)", hovertemplate=f"<b>DRV: {drv}</b><br>SPEED: %{{y:.1f}} km/h<extra></extra>", line=dict(color=color, width=2.5, dash='dash')), row=1, col=1)
-            lap_summaries.append({
-                "driver": drv, "code": drv, "lap_time": "PREDICTIVE",
-                "color": color, "max_speed": 320, "avg_temp": 102, "status": "SIM_PREDICTIVE"
-            })
-            found_any = True
-
-        if not found_any: return _simulated(gp_name, drivers, year)
+        if not found_any: return None, [] # Return empty if no real data found
         _style(fig, f"{gp_name.upper()} {year} — MULTI-CHANNEL ANALYSIS")
         return fig.to_json(), lap_summaries
 
