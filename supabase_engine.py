@@ -107,3 +107,16 @@ def remove_from_garage(user_id, car_id):
         return True, "Removed from garage"
     except Exception as e:
         return False, str(e)
+
+def save_quiz_response(user_id, question_id, answer, is_correct):
+    """Architectural persistence for Academy learning metrics."""
+    if not supabase: return
+    try:
+        supabase.table("quiz_responses").insert({
+            "user_id": user_id,
+            "question_id": question_id,
+            "answer_provided": str(answer),
+            "is_correct": is_correct
+        }).execute()
+    except Exception as e:
+        print(f"Supabase Quiz Tracking Error: {e}")

@@ -130,7 +130,8 @@ else:
 @app.before_request
 def enforce_login():
     """Global Security Gate: Enforce login for all high-value content."""
-    exempt = ['index', 'login', 'register', 'auth_oauth', 'auth_callback', 'static']
+    # Architectural decision: Privacy, Terms, and About are public documents
+    exempt = ['index', 'login', 'register', 'auth_oauth', 'auth_callback', 'static', 'about', 'contact', 'privacy', 'terms']
     if request.endpoint not in exempt:
         # Prevent loop/error on internal requests or missing endpoints
         if request.endpoint and not request.endpoint.startswith('static'):
@@ -179,7 +180,13 @@ def register():
         res, err = supabase_engine.signup_user(e, p, u)
         if err: return render_template("register.html", error=err)
         
-        return redirect(url_for("login", message="Check email for verification."))
+        # Architect's Choice: Auto-login if session provided (Immediate Gratification)
+        if hasattr(res, 'session') and res.session:
+            session["user_id"] = res.user.id
+            session["username"] = u
+            return redirect(url_for("index"))
+            
+        return redirect(url_for("login", message="Account created. Please login."))
     return render_template("register.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -539,9 +546,15 @@ def api_academy_answer():
     q_id, ans = data.get('question_id'), data.get('answer')
     q = db.execute("SELECT * FROM academy_questions WHERE id=?", q_id)
     if not q: return error_response("Not found")
+    
     correct = str(ans).lower() == str(q[0]['correct_answer']).lower()
+    
+    # Architect's Persistence Layer
+    supabase_engine.save_quiz_response(session['user_id'], q_id, ans, correct)
+    
     if correct:
         supabase_engine.update_xp(session['user_id'], q[0]['xp_reward'])
+        
     return jsonify({"correct": correct, "explanation": q[0]['explanation']})
 
 @app.route("/api/chat", methods=["POST"])
@@ -591,6 +604,16 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_error(e):
     return render_template('404.html'), 500
+
+@app.after_request
+def add_header(response):
+    """Performance Engineering: Vercel Edge Caching & Browser Headers."""
+    if 'Cache-Control' not in response.headers:
+        if request.path.startswith('/static'):
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        else:
+            response.headers['Cache-Control'] = 'public, s-maxage=600, stale-while-revalidate=3600'
+    return response
 
 if __name__ == "__main__":
     app.run(debug=True)

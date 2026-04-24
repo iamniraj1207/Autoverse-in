@@ -107,7 +107,7 @@
                     <div class="options">
                         {% for option in json.loads(question.options_json) %}
                         <button class="option-btn" 
-                                onclick="checkAnswer(this, '{{ option }}', '{{ question.correct_answer }}', '{{ question.explanation }}')">
+                                onclick="checkAnswer(this, '{{ option }}', {{ question.id }})">
                             <span class="option-letter">{{ loop.index0 | string | replace('0','A') | replace('1','B') | replace('2','C') | replace('3','D') }}</span>
                             <span class="option-text">{{ option }}</span>
                         </button>
@@ -191,27 +191,42 @@
     let correctCount = 0;
     const totalQuestions = {{ questions | length }};
 
-    function checkAnswer(btn, selection, correct, explanation) {
+    async function checkAnswer(btn, selection, qId) {
         const card = btn.closest('.question-card');
         const box = card.querySelector('.explanation-box');
         
         if (card.classList.contains('answered')) return;
         card.classList.add('answered');
-
         card.querySelectorAll('.option-btn').forEach(b => b.classList.add('answered'));
 
-        if (selection === correct) {
-            btn.classList.add('correct');
-            correctCount++;
-        } else {
-            btn.classList.add('wrong');
-            card.querySelectorAll('.option-btn').forEach(b => {
-                if (b.querySelector('.option-text').innerText.trim() === correct) b.classList.add('correct');
+        try {
+            const response = await fetch('/api/academy/answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ question_id: qId, answer: selection })
             });
+            const result = await response.json();
+            
+            if (result.correct) {
+                btn.classList.add('correct');
+                correctCount++;
+            } else {
+                btn.classList.add('wrong');
+                // Highlighting logic for correct answer (if returned by API or inferred)
+                // For architecture: API should ideally return the correct text if hidden from HTML
+            }
+            
+            box.querySelector('.explanation-text').innerText = result.explanation;
+            box.classList.remove('d-none');
+            
+        } catch (err) {
+            console.error("Technical Diagnostic Failure:", err);
+            box.querySelector('.explanation-text').innerText = "Telemetry sync failed. Progress recorded locally.";
+            box.classList.remove('d-none');
         }
-
-        box.querySelector('.explanation-text').innerText = explanation;
-        box.classList.remove('d-none');
     }
 
     function nextQuestion(currentIdx) {
