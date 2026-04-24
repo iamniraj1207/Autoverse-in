@@ -1929,6 +1929,8 @@ a {
   padding: 20px;
   border-radius: 12px;
   border: 1px solid #1e2535;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  z-index: 100;
 }
 
 .search-box {
@@ -1944,6 +1946,13 @@ a {
   padding: 12px 20px 12px 45px;
   border-radius: 8px;
   font-family: inherit;
+  transition: all 0.3s;
+}
+
+.search-box input:focus {
+  border-color: var(--accent);
+  background: #1c2128;
+  box-shadow: 0 0 15px rgba(232, 58, 58, 0.1);
 }
 
 .search-icon {
@@ -1966,6 +1975,25 @@ a {
   padding: 12px 15px;
   border-radius: 8px;
   cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s;
+}
+
+.filters-wrap select:hover {
+  border-color: var(--accent);
+}
+
+.diag-item {
+    padding: 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.3s;
+}
+
+.diag-item:hover {
+    background: rgba(232, 58, 58, 0.05);
+    border-color: rgba(232, 58, 58, 0.2);
 }
 
 /* ── Moving Car Animation (Hero) ─────────────────────────── */
@@ -2529,13 +2557,41 @@ a {
     gap: 0;
   }
   
-  /* Filter Bar */
-  .filter-bar {
+  /* Filter Bar Mobile Overrides */
+  .premium-filter-bar {
     flex-direction: column;
+    padding: 16px;
+    background: #080a0f !important; /* Non-transparent dark */
+    gap: 12px;
   }
   
-  .filter-bar select {
+  .filters-wrap {
     width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .filters-wrap select {
+    width: 100%;
+    background: #161b22 !important; /* Opaque */
+    padding: 14px;
+    font-size: 14px;
+  }
+  
+  .search-box {
+    width: 100%;
+  }
+
+  .compare-selectors {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .compare-select {
+    width: 100%;
+    background: #0e1117 !important;
   }
 }
 

@@ -94,7 +94,7 @@ def generate_multi_overlay(gp_name, drivers, year=2024, session_type='R'):
         session.load(telemetry=True, laps=True, weather=False, messages=False)
         fig = make_subplots(
             rows=5, cols=1, shared_xaxes=True,
-            vertical_spacing=0.04,
+            vertical_spacing=0.08,
             subplot_titles=("SPEED (KM/H)", "THROTTLE % / BRAKE %", "GEAR", "TIRE SURFACE TEMP (°C)", "RPM"),
             row_heights=[0.3, 0.2, 0.15, 0.2, 0.15]
         )
@@ -195,46 +195,70 @@ def _style(fig, title):
             text=title, 
             font=dict(size=24, family="'Bebas Neue',sans-serif", color="#e83a3a"), 
             x=0.02,
-            y=0.98
+            y=0.98,
+            xanchor='left',
+            yanchor='top'
         ),
         paper_bgcolor="#080a0f",
         plot_bgcolor="rgba(255,255,255,0.01)",
-        height=1200, 
-        margin=dict(l=70, r=30, t=100, b=60),
+        height=1000, 
+        margin=dict(l=80, r=40, t=120, b=80),
         hovermode='x unified',
         hoverlabel=dict(
             bgcolor="#141820",
             font_size=13,
-            font_family="'DM Mono',monospace"
+            font_family="'DM Mono',monospace",
+            bordercolor="rgba(232,58,58,0.5)"
         ),
         legend=dict(
             orientation='h', 
-            y=1.03, 
+            y=1.02, 
             x=1, 
             xanchor='right',
-            font=dict(family="'DM Mono',monospace", size=11, color="#ffffff"),
-            bgcolor="rgba(0,0,0,0.5)",
+            font=dict(family="'DM Mono',monospace", size=10, color="rgba(255,255,255,0.8)"),
+            bgcolor="rgba(0,0,0,0.7)",
             bordercolor="rgba(255,255,255,0.1)",
             borderwidth=1
         ),
-        font=dict(family="'DM Mono',monospace", color="rgba(255,255,255,0.7)")
+        font=dict(family="'DM Mono',monospace", color="rgba(255,255,255,0.6)")
     )
+    
+    # Global Axis Configuration to prevent overlap
     fig.update_xaxes(
-        gridcolor='rgba(255,255,255,0.05)', 
-        showticklabels=True, 
-        title=dict(text="DISTANCE (METERS)", font=dict(size=10))
+        gridcolor='rgba(255,255,255,0.03)', 
+        showticklabels=False, # Hide for all by default
+        zeroline=False,
+        title=None
     )
-    fig.update_yaxes(
-        gridcolor='rgba(255,255,255,0.05)', 
+    
+    # Show X-axis labels ONLY on the bottom-most plot
+    fig.update_xaxes(
         showticklabels=True,
-        zeroline=False
+        title=dict(text="DISTANCE (METERS) →", font=dict(size=11, color="rgba(255,255,255,0.4)")),
+        row=5, col=1
     )
+
+    fig.update_yaxes(
+        gridcolor='rgba(255,255,255,0.03)', 
+        showticklabels=True,
+        zeroline=False,
+        tickfont=dict(size=10)
+    )
+
+    # Adjust subplot titles to not overlap with data
+    for i in range(len(fig.layout.annotations)):
+        fig.layout.annotations[i].update(
+            font=dict(size=12, color="#e83a3a", family="'DM Mono',monospace"),
+            x=0, # Left align titles
+            xanchor='left',
+            y=fig.layout.annotations[i].y + 0.02 # Push title up slightly
+        )
 
 def _simulated(gp_name, drivers, year=2024):
     """High-fidelity multi-channel physics simulation (2018-2026)."""
     fig = make_subplots(
         rows=5, cols=1, shared_xaxes=True,
-        vertical_spacing=0.04,
+        vertical_spacing=0.08,
         subplot_titles=("PHYSICS MODEL: VELOCITY (KM/H)", "THROTTLE % / BRAKE %", "GEARBOX MAP", "TYRE THERMODYNAMICS (°C)", "ENGINE RPM (SIM)"),
         row_heights=[0.3, 0.2, 0.15, 0.2, 0.15]
     )
