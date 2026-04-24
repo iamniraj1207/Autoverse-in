@@ -1,0 +1,38 @@
+# Vercel Deployment Ignore File
+# Prevents large non-essential files from exceeding the 500MB Lambda limit.
+
+# --- Large Documents ---
+howacarworks.pdf
+*.pdf
+
+# --- Legacy & Scratch ---
+_legacy_scripts/
+scratch/
+.tmp/
+temp/
+tests/
+*.log
+
+# --- Development Environment ---
+.venv/
+venv/
+node_modules/
+.git/
+.gitignore
+.vercelignore
+README.md
+ROADMAP.md
+AGENTS.md
+GEMINI.md
+CLAUDE.md
+
+# --- Database & Backups ---
+*.db-journal
+backups/
+*.zip
+*.tar.gz
+
+# --- Media Source Files ---
+# (Uncomment if you have large RAW videos in root)
+# *.mp4
+# *.mov
