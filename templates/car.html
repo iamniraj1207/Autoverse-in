@@ -1,7 +1,9 @@
 {% extends 'layout.html' %}
-{% block title %}{{ car.brand }} {{ car.model }} | AutoVerse Details{% endblock %}
+{% block title %}{{ car.brand }} {{ car.model }} ({{ car.year }}) | Specs, History & Performance | AutoVerse{% endblock %}
 
 {% block head %}
+<meta name="description" content="Explore full technical specifications, 0-100 acceleration, top speed, and engineering history of the {{ car.year }} {{ car.brand }} {{ car.model }}. Verified elite data for automotive enthusiasts.">
+<meta name="keywords" content="{{ car.brand }} {{ car.model }}, {{ car.brand }} specs, {{ car.model }} history, {{ car.year }} luxury cars, car performance data">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/car_detail.css') }}">
 <style>
     :root {
@@ -185,8 +187,22 @@
                     <div class="spec-block-lavish">
                         <h4 class="font-bebas mb-4">ASSET ACTION</h4>
                         <a href="https://www.google.com/search?q=buy+{{ car.brand }}+{{ car.model }}+for+sale+directly" target="_blank" class="btn btn-danger w-100 py-4 font-bebas tracking-widest mb-3 shadow-lg">INITIALIZE PURCHASE</a>
-                        <button class="btn btn-outline-light w-100 py-3 font-bebas tracking-widest" onclick="addToGarage({{ car.id }})">ACQUIRE TO GARAGE</button>
-                        <p class="small text-muted mt-3 mb-0" style="font-size: 9px; opacity: 0.5;">TECHNICAL DATA SYNCED VIA NHTSA · 2026 EDITION</p>
+                        <button class="btn btn-outline-light w-100 py-3 font-bebas tracking-widest mb-4" onclick="addToGarage({{ car.id }})">ACQUIRE TO GARAGE</button>
+                        
+                        <!-- REVENUE CHANNELS (AFFILIATE) -->
+                        <div class="revenue-stack d-flex flex-column gap-2 border-top border-secondary pt-4 mt-2">
+                            <a href="https://www.carfax.com/search?q={{ car.brand }}+{{ car.model }}" target="_blank" class="btn btn-sm btn-ghost w-100 py-3" style="color: #00d4aa !important; border-color: #00d4aa44;">
+                                <i class="fas fa-history me-2"></i> CHECK VEHICLE HISTORY (VIN)
+                            </a>
+                            <a href="https://www.amazon.com/s?k={{ car.brand }}+{{ car.model }}+parts+and+accessories" target="_blank" class="btn btn-sm btn-ghost w-100 py-3" style="color: #f0a500 !important; border-color: #f0a50044;">
+                                <i class="fab fa-amazon me-2"></i> SHOP PARTS & ACCESSORIES
+                            </a>
+                            <a href="https://www.progressive.com/auto/quote-start/" target="_blank" class="btn btn-sm btn-ghost w-100 py-3" style="color: #3a7bd5 !important; border-color: #3a7bd544;">
+                                <i class="fas fa-file-invoice-dollar me-2"></i> GET INSURANCE QUOTE
+                            </a>
+                        </div>
+                        
+                        <p class="small text-muted mt-4 mb-0" style="font-size: 9px; opacity: 0.5;">TECHNICAL DATA SYNCED VIA NHTSA · 2026 EDITION</p>
                     </div>
                 </div>
             </div>
@@ -232,6 +248,18 @@
                 });
             }
         });
+    }
+
+    async function addToGarage(carId) {
+        try {
+            const res = await fetch('/api/garage/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}' },
+                body: JSON.stringify({ car_id: carId })
+            });
+            const data = await res.json();
+            alert(data.message);
+        } catch(e) { alert("Failed to add to garage"); }
     }
 </script>
 {% endblock %}

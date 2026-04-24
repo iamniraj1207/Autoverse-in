@@ -1,7 +1,7 @@
-{% extends 'layout.html' %}
-{% block title %}{{ team.name }} | F1 2026 Grid{% endblock %}
-
+{% block title %}{{ team.name }} | F1 2026 Team Profile, Drivers & Performance Data | AutoVerse{% endblock %}
 {% block head %}
+<meta name="description" content="Deep-technical profile of {{ team.full_name }}. Explore 2026 driver lineup, power unit specs, and interactive performance telemetry. Shop official gear and get race tickets.">
+<meta name="keywords" content="{{ team.name }} F1, {{ team.full_name }}, F1 2026 teams, {{ team.power_unit }} engine, f1 telemetry">
 <style>
     .team-hero-v3 {
         height: 70vh;
@@ -116,6 +116,16 @@
                         <div class="bebas">{{ team.full_name }}</div>
                         <div class="muted small text-uppercase">{{ team.base }} · {{ team.nationality }}</div>
                     </div>
+                </div>
+                
+                <!-- REVENUE CHANNELS (F1 AFFILIATE) -->
+                <div class="f1-revenue-actions d-flex gap-2 mb-4">
+                    <a href="https://f1store.formula1.com/en/?query={{ team.name }}" target="_blank" class="btn btn-sm px-4 py-2" style="background: {{ team.primary_color }}; color: white; border: none; font-family: 'Bebas Neue'; letter-spacing: 1px;">
+                        <i class="fas fa-shopping-bag me-2"></i> SHOP OFFICIAL GEAR
+                    </a>
+                    <a href="https://www.gpticketshop.com/" target="_blank" class="btn btn-sm btn-outline-light px-4 py-2" style="font-family: 'Bebas Neue'; letter-spacing: 1px;">
+                        <i class="fas fa-ticket-alt me-2"></i> GET RACE TICKETS
+                    </a>
                 </div>
             </div>
             <div class="col-lg-7 d-none d-lg-block" style="position: relative;">

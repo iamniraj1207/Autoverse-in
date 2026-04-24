@@ -38,14 +38,14 @@
         </div>
         {% endfor %}
     </div>
-    {% else %}
-    <div class="empty-state py-5 text-center" data-aos="zoom-in">
-        <div class="empty-icon mb-4">🏎️</div>
-        <h3>YOUR GARAGE IS EMPTY</h3>
-        <p class="muted">Start adding cars from the showroom to build your collection.</p>
-        <a href="/cars" class="btn btn-accent mt-3">EXPLORE CARS</a>
-    </div>
     {% endif %}
+    
+    <!-- COMMUNITY HOOK (USER-SUBMITTED GARAGE) -->
+    <div class="community-pitch mt-5 p-5 text-center rounded-4 border border-secondary" style="background: rgba(255,255,255,0.02);" data-aos="fade-up">
+        <h4 class="bebas mb-3">SUBMIT YOUR REAL CAR TO THE AUTOVERSE</h4>
+        <p class="muted mb-4 small mx-auto" style="max-width: 600px;">Want your own vehicle featured in our elite intelligence library? Submit your specs and photos to be reviewed by our technical leads.</p>
+        <a href="/contact?subject=Garage%20Submission" class="btn btn-outline-danger px-5 py-2 bebas tracking-widest">START SUBMISSION</a>
+    </div>
 </div>
 {% endblock %}
 

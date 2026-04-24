@@ -163,6 +163,7 @@
             <li><a href="/compare" {% if request.path=='/compare' %}class="active" {% endif %}>Compare</a></li>
             <li><a href="/garage" {% if request.path=='/garage' %}class="active" {% endif %}>Garage</a></li>
             <li><a href="/academy" {% if request.path.startswith('/academy') %}class="active" {% endif %}>Academy</a></li>
+            <li><a href="/elite" style="color: #e83a3a; font-weight: bold; text-shadow: 0 0 10px rgba(232, 58, 58, 0.4);" {% if request.path=='/elite' %}class="active" {% endif %}>Elite <i class="fas fa-crown ms-1"></i></a></li>
           </ul>
         </div>
         
@@ -181,6 +182,9 @@
         <div class="nav-column nav-auth">
           {% if session.user_id %}
             <div class="nav-user-stats">
+              {% if user_xp and user_xp.role == 'elite' %}
+                <span class="badge bg-danger text-white border-0 px-2 me-2" style="font-size: 8px; letter-spacing: 1px;">ELITE MEMBER</span>
+              {% endif %}
               <span title="Current Streak">🔥 {{ user_xp.current_streak if user_xp else 0 }}</span>
               <span title="Total XP">⚡ {{ user_xp.total_xp if user_xp else 0 }} XP</span>
             </div>
@@ -272,7 +276,7 @@
         </div>
       </div>
       <div class="text-center mt-5">
-        <p class="" style="font-size: 9px; opacity: 0.3; letter-spacing: 2px;">© 2026 AUTOVERSE INTEL • ALL DATA CALIBRATED FOR ELITES • V3.4.0-STABLE</p>
+        <p class="" style="font-size: 9px; opacity: 0.3; letter-spacing: 2px;">© 2026 AUTOVERSE INTEL • CO-DEVELOPED BY AUTOVERSE FOUNDER & ANTIGRAVITY AI • V3.5.0-ELITE</p>
       </div>
     </div>
   </footer>

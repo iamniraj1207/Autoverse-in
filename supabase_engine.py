@@ -58,18 +58,23 @@ def exchange_code_for_session(code):
         return None, str(e)
 
 def get_user_xp(user_id):
-    if not supabase: return {"user_id": user_id, "level": 1, "total_xp": 0}
+    if not supabase: return {"user_id": user_id, "level": 1, "total_xp": 0, "role": "user"}
     try:
         res = supabase.table("user_xp").select("*").eq("user_id", user_id).execute()
         if res.data:
             return res.data[0]
         # Initialize if not found
-        new_xp = {"user_id": user_id, "level": 1, "total_xp": 0}
+        new_xp = {"user_id": user_id, "level": 1, "total_xp": 0, "role": "user"}
         supabase.table("user_xp").insert(new_xp).execute()
         return new_xp
     except Exception as e:
         print(f"Supabase XP Error: {e}")
-        return {"user_id": user_id, "level": 1, "total_xp": 0}
+        return {"user_id": user_id, "level": 1, "total_xp": 0, "role": "user"}
+
+def is_elite_member(user_id):
+    """Lead Architect check for premium membership status."""
+    data = get_user_xp(user_id)
+    return data.get('role') == 'elite'
 
 def update_xp(user_id, xp_amount):
     if not supabase: return

@@ -131,7 +131,7 @@ else:
 def enforce_login():
     """Global Security Gate: Enforce login for all high-value content."""
     # Architectural decision: Privacy, Terms, and About are public documents
-    exempt = ['index', 'login', 'register', 'auth_oauth', 'auth_callback', 'static', 'about', 'contact', 'privacy', 'terms']
+    exempt = ['index', 'login', 'register', 'auth_oauth', 'auth_callback', 'static', 'about', 'contact', 'privacy', 'terms', 'elite']
     if request.endpoint not in exempt:
         # Prevent loop/error on internal requests or missing endpoints
         if request.endpoint and not request.endpoint.startswith('static'):
@@ -169,6 +169,11 @@ def privacy(): return render_template("privacy.html")
 
 @app.route("/terms")
 def terms(): return render_template("terms.html")
+
+@app.route("/elite")
+def elite_portal():
+    """Elite Membership Portal: High-value revenue channel."""
+    return render_template("elite.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -472,6 +477,7 @@ def f1_telemetry_hub():
 
 @app.route("/f1/telemetry/analysis")
 @login_required
+@role_required(required_role="elite")
 def telemetry_analysis():
     gp = request.args.get("gp", "Bahrain")
     year = int(request.args.get("year", 2024))
