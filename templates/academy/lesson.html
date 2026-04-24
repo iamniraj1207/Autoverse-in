@@ -2,8 +2,13 @@
 {% block title %}{{ lesson.title }} | AutoVerse Academy{% endblock %}
 
 {% block head %}
+<!-- SEO Optimization: Technical Keywords & Discovery -->
+<meta name="description" content="Technical deep-dive into {{ lesson.title }}. Part of the AutoVerse {{ course.title }} curriculum. Learn about {{ lesson.title.split('(')[0] }} engineering, aerodynamics, and high-performance diagnostics.">
+<meta name="keywords" content="{{ lesson.title }}, automotive engineering, f1 technical, {{ course.title }}, sae standards, vehicle dynamics">
+<link rel="canonical" href="{{ url_for('academy_lesson', identifier=lesson.slug, _external=True) }}">
+
 <style>
-    .lesson-page { padding: 80px 0; min-height: 100vh; background: #080a0f; }
+    .lesson-page { padding: 80px 0; min-height: 100vh; background: #05070a; }
     .lesson-container { max-width: 900px; margin: 0 auto; }
     
     .lesson-header { margin-bottom: 60px; }
