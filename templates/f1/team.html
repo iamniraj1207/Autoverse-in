@@ -1,343 +1,312 @@
-{% block title %}{{ team.name }} | F1 2026 Team Profile, Drivers & Performance Data | AutoVerse{% endblock %}
+{% extends 'layout.html' %}
+{% block title %}{{ team.name }} | F1 2026 Technical Profile | AutoVerse{% endblock %}
+
 {% block head %}
-<meta name="description" content="Deep-technical profile of {{ team.full_name }}. Explore 2026 driver lineup, power unit specs, and interactive performance telemetry. Shop official gear and get race tickets.">
-<meta name="keywords" content="{{ team.name }} F1, {{ team.full_name }}, F1 2026 teams, {{ team.power_unit }} engine, f1 telemetry">
 <style>
-    .team-hero-v3 {
-        height: 70vh;
+    :root {
+        --team-color: {{ team.primary_color }};
+        --team-color-50: {{ team.primary_color }}80;
+        --team-color-10: {{ team.primary_color }}1a;
+    }
+
+    .team-detail-page {
         background: #05070a;
+        color: #fff;
+        overflow-x: hidden;
+    }
+
+    /* ── Cinematic Hero ── */
+    .hero-cinematic {
+        min-height: 80vh;
         position: relative;
-        overflow: hidden;
         display: flex;
         align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background: radial-gradient(circle at 70% 30%, var(--team-color-10) 0%, #05070a 70%);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding: 100px 0;
     }
 
-    .team-color-glow {
+    .team-huge-text {
         position: absolute;
-        width: 150%;
-        height: 150%;
-
-        background: radial-gradient(circle at 70% 50%, {{ team.primary_color }}33, transparent 60%);
-    z-index: 1;
-    animation: pulsate 10s infinite alternate;
-    }
-
-    @keyframes pulsate {
-        from {
-            transform: scale(1);
-            opacity: 0.5;
-        }
-
-        to {
-            transform: scale(1.1);
-            opacity: 0.8;
-        }
-    }
-
-    .team-hero-content {
-        position: relative;
-        z-index: 10;
-        width: 100%;
-    }
-
-    .team-chassis-3d {
-        position: absolute;
-        top: 20%;
-        right: -5%;
-        width: 60%;
-
-        filter: drop-shadow(0 0 50px {
-                    {
-                    team.primary_color
-                }
-            }
-
-            66);
-        z-index: 5;
-    }
-
-    .spec-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 20px;
-        border-radius: 8px;
-        text-align: center;
-    }
-
-    .spec-card h4 {
+        bottom: -50px;
+        left: -20px;
         font-family: 'Bebas Neue', sans-serif;
-        font-size: 32px;
-        color: var(--text);
-        margin-bottom: 5px;
+        font-size: 25vw;
+        line-height: 1;
+        opacity: 0.03;
+        z-index: 0;
+        pointer-events: none;
+        white-space: nowrap;
     }
 
-    .spec-card p {
+    .hero-content { position: relative; z-index: 10; width: 100%; }
+
+    .hero-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        background: var(--team-color);
+        color: #fff;
         font-family: 'DM Mono', monospace;
         font-size: 10px;
-        letter-spacing: 1px;
-        color: var(--muted2);
-        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-radius: 4px;
+        margin-bottom: 20px;
     }
 
-    .team-logo-main {
-        height: 80px;
+    .team-main-title {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: clamp(60px, 10vw, 120px);
+        line-height: 0.85;
         margin-bottom: 30px;
+        text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .team-main-title span { color: var(--team-color); display: block; }
+
+    /* ── Diagnostic Center ── */
+    .diag-container { margin-top: -80px; position: relative; z-index: 20; }
+
+    .diag-card {
+        background: rgba(13, 16, 23, 0.9);
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-top: 4px solid var(--team-color);
+        padding: 50px;
+        border-radius: 20px;
+        box-shadow: 0 50px 100px rgba(0,0,0,0.7);
+    }
+
+    .diag-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 1px; margin-bottom: 40px; }
+    .diag-title span { color: var(--team-color); }
+
+    .status-pulse {
+        width: 8px; height: 8px; background: #00ff88; border-radius: 50%;
+        animation: pulse 1.5s infinite;
+        display: inline-block; margin-right: 10px;
+    }
+
+    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(3); opacity: 0; } }
+
+    /* ── Timeline ── */
+    .timeline-section { padding: 120px 0; background: #05070a; }
+    .timeline-node {
+        position: relative;
+        padding-left: 60px;
+        margin-bottom: 80px;
+        border-left: 2px solid rgba(255,255,255,0.05);
+    }
+
+    .timeline-node::before {
+        content: '';
+        position: absolute;
+        left: -9px; top: 0;
+        width: 16px; height: 16px;
+        background: var(--team-color);
+        border-radius: 50%;
+        box-shadow: 0 0 20px var(--team-color);
+    }
+
+    .node-year { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--team-color); line-height: 1; margin-bottom: 10px; }
+    .node-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; margin-bottom: 15px; letter-spacing: 1px; }
+    .node-content { color: rgba(255,255,255,0.6); font-size: 15px; line-height: 1.7; max-width: 550px; }
+    .node-image {
+        width: 100%; max-width: 500px; height: 280px;
+        object-fit: cover; border-radius: 16px; margin-top: 30px;
+        border: 1px solid rgba(255,255,255,0.1);
+        transition: transform 0.5s ease;
+    }
+    .node-image:hover { transform: scale(1.02); }
+
+    /* ── Driver Cards ── */
+    .driver-card-v3 {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .driver-card-v3:hover {
+        background: rgba(255,255,255,0.05);
+        border-color: var(--team-color-50);
+        transform: translateX(10px);
+    }
+
+    .driver-img-v3 {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        border: 3px solid var(--team-color);
+        object-fit: cover;
+    }
+
+    @media (max-width: 992px) {
+        .hero-cinematic { padding: 120px 0 80px; text-align: center; }
+        .team-main-title { font-size: 80px; }
+        .diag-container { margin-top: 20px; }
+        .diag-card { padding: 30px; }
+        .timeline-node { padding-left: 30px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="team-hero-v3">
-    <div class="team-color-glow"></div>
-    <div class="container team-hero-content">
-        <div class="row align-items-center">
-            <div class="col-lg-5" data-aos="fade-right">
-                <!-- Removed broken team logo for clean typographic aesthetic -->
-                <h1 class="bebas" style="font-size: 100px; line-height: 0.85; margin-bottom: 20px;">
-                    {{ team.name.split(' ')[0] }}<br>
-                    <span style="color: {{ team.primary_color }}">{{ team.name.split(' ')[1] if ' ' in team.name else ''
-                        }}</span>
-                </h1>
-                <div class="d-flex gap-4 mb-4">
-                    <div class="lineup-avatars d-flex" style="margin-left: 10px;">
-                        {% for driver in drivers %}
-                        <img src="{{ driver.image_url }}" alt="{{ driver.name }}" class="av-team-driver-photo"
-                            style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid {{ team.primary_color }}; margin-left: -15px; position:relative; z-index: {{ 10 - loop.index0 }}">
-                        {% endfor %}
-                    </div>
-                    <div>
-                        <div class="bebas">{{ team.full_name }}</div>
-                        <div class="muted small text-uppercase">{{ team.base }} · {{ team.nationality }}</div>
-                    </div>
-                </div>
-                
-                <!-- REVENUE CHANNELS (F1 AFFILIATE) -->
-                <div class="f1-revenue-actions d-flex gap-2 mb-4">
-                    <a href="https://f1store.formula1.com/en/?query={{ team.name }}" target="_blank" class="btn btn-sm px-4 py-2" style="background: {{ team.primary_color }}; color: white; border: none; font-family: 'Bebas Neue'; letter-spacing: 1px;">
-                        <i class="fas fa-shopping-bag me-2"></i> SHOP OFFICIAL GEAR
-                    </a>
-                    <a href="https://www.gpticketshop.com/" target="_blank" class="btn btn-sm btn-outline-light px-4 py-2" style="font-family: 'Bebas Neue'; letter-spacing: 1px;">
-                        <i class="fas fa-ticket-alt me-2"></i> GET RACE TICKETS
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-7 d-none d-lg-block" style="position: relative;">
-                <div id="team-telemetry-teaser" style="width:100%;height:550px;border-radius:12px;
-                            background: rgba(0,0,0,0.3);
-                            border: 1px solid rgba(255,255,255,0.08);
-                            overflow:hidden; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                    <div style="position:absolute; top:12px; left:16px; z-index:10; font-family:'DM Mono'; font-size:10px; color:rgba(255,255,255,0.6); letter-spacing: 2px;">
-                        <i class="fas fa-microchip me-2" style="color:#e83a3a;"></i> INTERACTIVE_ENGINEERING_CONSOLE // 5_CHANNEL_STREAM
-                    </div>
-                    
-                    <!-- Sidebar Explanation Wrapper -->
-                    <div style="position:absolute; right:0; top:0; bottom:0; width:240px; 
-                                background: linear-gradient(to left, rgba(0,0,0,0.95), rgba(0,0,0,0.6) 80%, transparent);
-                                z-index: 5; padding: 60px 24px 24px 24px; display:flex; flex-direction:column; justify-content: space-between;
-                                border-left: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(8px);">
-                        
-                        <div>
-                            <div class="muted text-uppercase" style="font-size:10px; font-family:'DM Mono'; border-bottom: 1px solid rgba(232, 58, 58, 0.3); padding-bottom:8px; margin-bottom: 20px; letter-spacing:2px; color:#e83a3a; font-weight: bold;">
-                                Technical Diagnostics
-                            </div>
-                            
-                            <div style="display: flex; flex-direction: column; gap: 24px;">
-                                <div class="diag-item">
-                                    <strong style="color:#fff; font-size: 11px; font-family: 'DM Mono'; text-transform: uppercase; letter-spacing: 1px;">01. V-Graph (SPD)</strong> 
-                                    <p class="small opacity-70 m-0 mt-1" style="font-size: 11px; line-height: 1.5;">Analyzing Apex and Minimum Corner Speed delta vs 2026 Reference lap.</p>
-                                </div>
-                                
-                                <div class="diag-item">
-                                    <strong style="color:#fff; font-size: 11px; font-family: 'DM Mono'; text-transform: uppercase; letter-spacing: 1px;">02. Input Delta</strong> 
-                                    <p class="small opacity-70 m-0 mt-1" style="font-size: 11px; line-height: 1.5;">Real-time sync between Throttle application and MGU-K energy harvesting.</p>
-                                </div>
-                                
-                                <div class="diag-item">
-                                    <strong style="color:#fff; font-size: 11px; font-family: 'DM Mono'; text-transform: uppercase; letter-spacing: 1px;">03. Thermal Window</strong> 
-                                    <p class="small opacity-70 m-0 mt-1" style="font-size: 11px; line-height: 1.5;">Tyre core thermodynamics vs surface cooling rates (Active Aero Sync).</p>
-                                </div>
-                            </div>
-                        </div>
+<main class="team-detail-page">
+    <div class="team-huge-text">{{ team.name | upper }}</div>
 
-                        <div style="font-size:9px; line-height:1.4; color:rgba(255,255,255,0.3); font-style:italic; background: rgba(255, 255, 255, 0.03); padding: 10px; border-radius: 4px; border-left: 2px solid #e83a3a;">
-                            * Analysis utilizes 2026 Grid Physics Engine // Verified by AutoVerse Core Intelligence.
+    <!-- 1. Hero Section -->
+    <section class="hero-cinematic">
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-7" data-aos="fade-right">
+                    {% if live_stat %}
+                    <div class="glass-card d-inline-flex align-items-center gap-3 p-3 mb-4" style="border: 1px solid var(--team-color-50); background: linear-gradient(90deg, var(--team-color-10), transparent);">
+                        <div class="status-pulse"></div>
+                        <div class="bebas" style="font-size: 18px; letter-spacing: 1px;">
+                            2024 STANDINGS: <span style="color: var(--team-color);">P{{ live_stat.position }} // {{ live_stat.points }} PTS</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="hero-badge">CONSTRUCTOR PROFILE // 2026 HUB</div>
+                    <h1 class="team-main-title">
+                        {{ team.full_name.split(' ')[0] }}
+                        <span>{{ ' '.join(team.full_name.split(' ')[1:]) | upper }}</span>
+                    </h1>
+                    
+                    <div class="d-flex gap-5 mt-5">
+                        <div class="stat-group">
+                            <div class="node-year" style="font-size: 60px;">{{ team.championships }}</div>
+                            <div class="small muted bebas" style="letter-spacing: 2px;">WORLD TITLES</div>
+                        </div>
+                        <div class="stat-group">
+                            <div class="node-year" style="font-size: 60px;">{{ team.wins }}</div>
+                            <div class="small muted bebas" style="letter-spacing: 2px;">GRAND PRIX WINS</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5" data-aos="fade-left">
+                    <div class="glass-card p-5">
+                        <h3 class="bebas mb-4">ACTIVE <span>LINEUP</span></h3>
+                        <div class="d-flex flex-column gap-4">
+                            {% for driver in drivers %}
+                            <div class="driver-card-v3" onclick="window.location='/f1/driver/{{ driver.id }}'">
+                                <img src="{{ driver.image_url }}" alt="{{ driver.name }}" class="driver-img-v3" onerror="this.src='https://ui-avatars.com/api/?name={{ driver.name|replace(' ','+') }}&background=1a1a2e&color=fff'">
+                                <div>
+                                    <div class="bebas h4 m-0">{{ driver.name | upper }}</div>
+                                    <div class="small muted font-monospace">DRIVER #{{ driver.number }} // {{ driver.abbreviation }}</div>
+                                </div>
+                                <i class="fas fa-chevron-right ms-auto opacity-30"></i>
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+
+    <!-- 2. Diagnostic Center -->
+    <section class="diag-container container">
+        <div class="diag-card" data-aos="zoom-in">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="diag-title">TECHNICAL <span>DIAGNOSTICS</span></div>
+                    <div id="team-telemetry-teaser" style="width: 100%; height: 450px;"></div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="ps-lg-5 mt-5 mt-lg-0">
+                        <div class="small font-monospace mb-4" style="color: #00ff88;">
+                            <div class="status-pulse"></div> TELEMETRY FEED: ONLINE
+                        </div>
+                        <h4 class="bebas mb-4" style="color: var(--team-color);">ENGINEERING SPECS</h4>
+                        
+                        <div class="d-flex flex-column gap-3">
+                            <div class="p-3 rounded" style="background: rgba(255,255,255,0.03); border-left: 3px solid var(--team-color);">
+                                <div class="small muted mb-1 bebas" style="letter-spacing: 1px;">POWER UNIT</div>
+                                <div class="h5 m-0 font-monospace">{{ team.power_unit | upper }} V6 HYBRID</div>
+                            </div>
+                            <div class="p-3 rounded" style="background: rgba(255,255,255,0.03);">
+                                <div class="small muted mb-1 bebas" style="letter-spacing: 1px;">CHASSIS BASE</div>
+                                <div class="h5 m-0 font-monospace">{{ team.base | upper }}</div>
+                            </div>
+                            <div class="p-3 rounded" style="background: rgba(255,255,255,0.03);">
+                                <div class="small muted mb-1 bebas" style="letter-spacing: 1px;">ESTIMATED HP</div>
+                                <div class="h5 m-0 font-monospace">1,000+ BHP</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-5 p-3 rounded" style="background: var(--team-color-10); border: 1px solid var(--team-color-50);">
+                            <p class="small m-0 opacity-80" style="line-height: 1.5;">* 2026 data-feed utilizing AutoVerse Core Physics Engine. Real-time delta sync enabled.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Timeline Section -->
+    <section class="timeline-section">
+        <div class="container">
+            <h2 class="bebas mb-5" style="font-size: 50px;" data-aos="fade-right">CONSTRUCTOR <span>LEGACY</span></h2>
+            <div id="dynamic-timeline-target" class="row">
+                <!-- Data-driven nodes -->
+            </div>
+        </div>
+    </section>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.35.2/plotly.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
+    // ── Plotly Initialization ──
     try {
         const teaserData = {{ teaser_json | safe if teaser_json else '{}' }};
-        if (!teaserData || !teaserData.data) return; 
-        
-        // RECALIBRATED FOR NO OVERLAP
-        teaserData.layout.margin = {l:40, r:40, t:40, b:40}; 
-        teaserData.layout.height = 400;
-        teaserData.layout.paper_bgcolor = 'rgba(0,0,0,0)';
-        teaserData.layout.plot_bgcolor = 'rgba(255,255,255,0.01)';
-        teaserData.layout.showlegend = false;
-        
-        // Hide axis details for a clean "teaser" look
-        Object.keys(teaserData.layout).forEach(key => {
-            if (key.startsWith('xaxis') || key.startsWith('yaxis')) {
-                teaserData.layout[key].gridcolor = 'rgba(255,255,255,0.05)';
-                teaserData.layout[key].zeroline = false;
-                teaserData.layout[key].tickfont = {color: 'rgba(255,255,255,0.2)', size: 9};
-                if (!key.includes('2')) teaserData.layout[key].visible = true; 
+        if (teaserData && teaserData.data) {
+            teaserData.layout.margin = {l:40, r:40, t:20, b:40}; 
+            teaserData.layout.height = 450;
+            teaserData.layout.paper_bgcolor = 'rgba(0,0,0,0)';
+            teaserData.layout.plot_bgcolor = 'rgba(255,255,255,0.01)';
+            teaserData.layout.showlegend = false;
+            teaserData.layout.xaxis.gridcolor = 'rgba(255,255,255,0.05)';
+            teaserData.layout.yaxis.gridcolor = 'rgba(255,255,255,0.05)';
+            teaserData.layout.xaxis.tickfont = {color: 'rgba(255,255,255,0.3)', size: 9};
+            teaserData.layout.yaxis.tickfont = {color: 'rgba(255,255,255,0.3)', size: 9};
+            
+            Plotly.newPlot('team-telemetry-teaser', teaserData.data, teaserData.layout, {
+                responsive: true, displayModeBar: false, staticPlot: true
+            });
+        }
+    } catch(err) { console.error("Plotly Error:", err); }
+
+    // ── Timeline Initialization ──
+    fetch(`/api/timeline/team/{{ team.id }}`)
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('dynamic-timeline-target');
+            if (data && data.length > 0) {
+                data.forEach((event, idx) => {
+                    const col = document.createElement('div');
+                    col.className = 'col-lg-6';
+                    col.setAttribute('data-aos', 'fade-up');
+                    col.setAttribute('data-aos-delay', idx * 100);
+                    col.innerHTML = `
+                        <div class="timeline-node">
+                            <div class="node-year">${event.year}</div>
+                            <div class="node-title">${event.title.toUpperCase()}</div>
+                            <div class="node-content">${event.description}</div>
+                            ${event.image_url ? `<img src="${event.image_url}" class="node-image" alt="${event.title}">` : ''}
+                        </div>
+                    `;
+                    container.appendChild(col);
+                });
+            } else {
+                container.innerHTML = '<div class="col-12 opacity-30 font-monospace">No legacy data found for this entity. Calibration required.</div>';
             }
         });
-        
-        Plotly.newPlot('team-telemetry-teaser', teaserData.data, teaserData.layout, {
-            responsive: true,
-            displayModeBar: false,
-            staticPlot: true
-        });
-    } catch(err) {
-        console.error("Teaser Plotly Error:", err);
-    }
 });
-</script>
-
-<div class="container py-5">
-    <!-- 2026 Car Specs Row -->
-    <div class="row g-4 mb-5" data-aos="fade-up">
-        <div class="col-md-3">
-            <div class="spec-card">
-                <p>Engine Unit</p>
-                <h4>{{ team.power_unit }} V6</h4>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="spec-card">
-                <p>Estimated HP</p>
-                <h4>1000+ HP</h4>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="spec-card">
-                <p>Championships</p>
-                <h4>{{ team.championships }} WCC</h4>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="spec-card">
-                <p>Top Speed</p>
-                <h4>360 km/h</h4>
-            </div>
-        </div>
-    </div>
-
-    <!-- Timeline & Lineup Section -->
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="glass-card p-5 mb-5">
-                <h2 class="bebas mb-5" style="font-size: 40px;">LEGACY <span>TIMELINE</span></h2>
-                <div id="team-timeline" class="timeline-v2"></div>
-                {% if live_stat %}
-                <div id="live-standings-card" class="mt-4" data-aos="fade-up">
-                    <div class="glass-card p-4 d-flex align-items-center justify-content-between" style="border: 1px solid {{ team.primary_color }}44; background: linear-gradient(90deg, transparent, {{ team.primary_color }}11);">
-                        <div>
-                            <div class="badge mb-1" style="background: {{ team.primary_color }}; color: white;">LIVE DATA</div>
-                            <h3 class="bebas m-0" style="font-size: 32px;">CONSTRUCTOR <span style="color: {{ team.primary_color }}">P{{ live_stat.position }}</span></h3>
-                            <p class="muted2 small m-0">{{ live_stat.points }} CHAMPIONSHIP POINTS · {{ live_stat.wins }} WINS</p>
-                        </div>
-                        <div class="bebas text-end" style="font-size: 40px; opacity: 0.5;">2026</div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="glass-card p-4">
-                <h3 class="bebas mb-4">2026 DRIVERS</h3>
-                <div class="lineup-list">
-                    {% for driver in drivers %}
-                    <a href="/f1/driver/{{ driver.id }}" class="d-flex align-items-center gap-3 mb-3 p-3 rounded"
-                        style="background: rgba(255,255,255,0.03); transition: 0.3s;">
-                        <img src="{{ driver.image_url }}" alt="{{ driver.name }}" class="av-team-driver-photo"
-                            style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
-                        <div>
-                            <div class="bebas" style="font-size: 20px;">{{ driver.name }}</div>
-                            <div class="muted small">WINNER OF {{ driver.wins }} GP</div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-
-                <hr class="opacity-10 my-4">
-                <h4 class="bebas opacity-30 mt-4">TEAM STRENGTH</h4>
-                <div class="strength-meter mb-3">
-                    <div class="d-flex justify-content-between small mb-1"><span>AERO</span><span>92%</span></div>
-                    <div class="xp-bar-bg" style="height: 4px;">
-                        <div class="xp-bar-fill" style="width: 92%; background: {{ team.primary_color }}"></div>
-                    </div>
-                </div>
-                <div class="strength-meter">
-                    <div class="d-flex justify-content-between small mb-1"><span>POWER</span><span>88%</span></div>
-                    <div class="xp-bar-bg" style="height: 4px;">
-                        <div class="xp-bar-fill" style="width: 88%; background: {{ team.primary_color }}"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="{{ url_for('static', filename='js/f1_timeline.js') }}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof F1Timeline !== 'undefined') {
-            new F1Timeline(
-                'team-timeline',
-                '/api/timeline/team/{{ team.id }}',
-                '{{ team.primary_color }}'
-            );
-        }
-    });
-
-    // OpenF1 Live Headshot Sync
-    document.addEventListener("DOMContentLoaded", async () => {
-        const fallbackImages = {
-            'lindblad': "https://ui-avatars.com/api/?name=Arvid+Lindblad&size=400&background=1a1a2e&color=e83a3a",
-            'perez': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/2col/image.png",
-            'hulkenberg': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/2col/image.png"
-        };
-        try {
-            const res = await fetch("https://api.openf1.org/v1/drivers?session_key=latest");
-            if (!res.ok) return;
-            const data = await res.json();
-            
-            const openF1Cache = { ...fallbackImages };
-            data.forEach(d => {
-                let hUrl = d.headshot_url;
-                if(hUrl) hUrl = hUrl.replace('1col/image.png', '2col/image.png');
-                
-                if (d.last_name) openF1Cache[d.last_name.toLowerCase()] = hUrl;
-                if (d.full_name) openF1Cache[d.full_name.toLowerCase()] = hUrl;
-            });
-
-            document.querySelectorAll('.av-team-driver-photo').forEach(img => {
-                const name = (img.alt || '').toLowerCase();
-                const lastName = name.split(" ").pop();
-                
-                if (openF1Cache[name] && openF1Cache[name].includes('http')) {
-                    img.src = openF1Cache[name];
-                    img.onerror = null;
-                } else if (openF1Cache[lastName] && openF1Cache[lastName].includes('http')) {
-                    img.src = openF1Cache[lastName];
-                    img.onerror = null;
-                }
-            });
-        } catch(e) {
-            console.error("OpenF1 image fetch failed:", e);
-        }
-    });
 </script>
 {% endblock %}
