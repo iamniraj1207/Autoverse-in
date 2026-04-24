@@ -33,6 +33,20 @@ def get_f1_headlines():
                 'summary': "Porsche explores the limits of electric hypercars with a focus on power-to-weight ratios and high-speed cornering stability...",
                 'date': datetime.now().strftime("%Y-%m-%d"),
                 'source': 'Stuttgart Feed'
+            },
+            {
+                'title': "Adrian Newey joins Aston Martin for 2026 technical development",
+                'url': "https://www.astonmartinf1.com",
+                'summary': "The legendary designer shifts focus to the 2026 regulations, aiming to master the active-aero paradigm shift...",
+                'date': datetime.now().strftime("%Y-%m-%d"),
+                'source': 'F1 Insider'
+            },
+            {
+                'title': "Lamborghini Temerario: The 10,000 RPM V8 Hybrid Debut",
+                'url': "https://www.lamborghini.com",
+                'summary': "Lamborghini replaces the Huracán with a high-revving twin-turbo V8 hybrid, marking a new era of emotional electrification...",
+                'date': datetime.now().strftime("%Y-%m-%d"),
+                'source': 'Maranello Feed'
             }
         ]
 
@@ -44,7 +58,7 @@ def get_f1_headlines():
         response.raise_for_status()
         data = response.json()
         
-        articles = data.get('articles', [])[:6]
+        articles = data.get('articles', [])[:9]
         news = []
         for art in articles:
             news.append({

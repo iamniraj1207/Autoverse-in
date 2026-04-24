@@ -408,6 +408,10 @@ def academy_lesson(identifier):
         
     if not lesson: return render_template("404.html"), 404
     
+    # --- Elite Access Gate ---
+    if lesson[0]['is_premium'] == 1 and session.get('user_role') != 'elite':
+        return render_template("academy/elite_preview.html", lesson=lesson[0])
+
     course = db.execute("SELECT * FROM academy_courses WHERE id = ?", lesson[0]['course_id'])[0]
     content = json.loads(lesson[0]['content_json'])
     questions = db.execute("SELECT * FROM academy_questions WHERE lesson_id = ?", lesson[0]['id'])
@@ -478,6 +482,19 @@ def f1_team_profile(team_id):
     if not team: return render_template("404.html"), 404
     drivers = db.execute("SELECT * FROM drivers WHERE team_id = ? ORDER BY id", team_id)
     
+    # ── Live Career Stats (Research Mode) ───────────────────────────────────
+    career_stats = None
+    if team[0].get('ergast_id'):
+        career_stats = f1_engine.get_constructor_career_stats(team[0]['ergast_id'])
+    
+    # Use live data if available, fallback to DB
+    stats = {
+        'championships': career_stats['championships'] if career_stats else team[0]['championships'],
+        'wins': career_stats['wins'] if career_stats else team[0]['wins'],
+        'podiums': career_stats['podiums'] if career_stats else team[0]['podiums'],
+        'points': career_stats['points'] if career_stats else 0
+    }
+
     # Live Standing Data
     standings = f1_engine.get_constructor_standings()
     live_stat = next((s for s in standings if s['team'].lower() in team[0]['name'].lower()), None)
@@ -487,7 +504,7 @@ def f1_team_profile(team_id):
     teaser_data = telemetry_engine._simulated("Active Teaser", drv_codes[:2])
     teaser_json = teaser_data[0] if isinstance(teaser_data, tuple) else teaser_data
     
-    return render_template("f1/team.html", team=team[0], drivers=drivers, live_stat=live_stat, teaser_json=teaser_json)
+    return render_template("f1/team.html", team=team[0], drivers=drivers, live_stat=live_stat, teaser_json=teaser_json, stats=stats)
 
 @app.route("/api/timeline/<type>/<int:id>")
 def api_timeline(type, id):

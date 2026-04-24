@@ -161,3 +161,43 @@ def get_live_session_data():
     cache['live_session']['data'] = data
     cache['live_session']['last_fetch'] = now
     return data
+
+def get_constructor_career_stats(constructor_id):
+    """
+    Fetches all-time statistics for a specific constructor.
+    constructor_id: Ergast ID (e.g., 'red_bull', 'mercedes', 'ferrari')
+    """
+    try:
+        # 1. Fetch Standings History for Championships
+        res = requests.get(f"{JOLPI_BASE}/constructors/{constructor_id}/constructorStandings.json", timeout=10)
+        data = res.json()
+        standings = data['MRData']['StandingsTable']['StandingsLists']
+        
+        championships = 0
+        total_points = 0.0
+        for s in standings:
+            if s['ConstructorStandings'][0]['position'] == '1':
+                championships += 1
+            total_points += float(s['ConstructorStandings'][0]['points'])
+            
+        # 2. Fetch Results for Wins/Podiums
+        # Note: We limit results to 1 to get the total count from the header
+        res_wins = requests.get(f"{JOLPI_BASE}/constructors/{constructor_id}/results/1.json?limit=1", timeout=10)
+        wins = int(res_wins.json()['MRData']['total'])
+        
+        res_podiums = requests.get(f"{JOLPI_BASE}/constructors/{constructor_id}/results.json?limit=1&position=1&position=2&position=3", timeout=10)
+        # Some APIs don't support multi-position query like this, so we check headers or fetch 1-3 separately if needed
+        # For now, we'll use a simplified total results count for top 3
+        podiums = int(requests.get(f"{JOLPI_BASE}/constructors/{constructor_id}/results.json?limit=1&position=1", timeout=5).json()['MRData']['total']) + \
+                  int(requests.get(f"{JOLPI_BASE}/constructors/{constructor_id}/results.json?limit=1&position=2", timeout=5).json()['MRData']['total']) + \
+                  int(requests.get(f"{JOLPI_BASE}/constructors/{constructor_id}/results.json?limit=1&position=3", timeout=5).json()['MRData']['total'])
+
+        return {
+            'championships': championships,
+            'wins': wins,
+            'podiums': podiums,
+            'points': round(total_points, 1)
+        }
+    except Exception as e:
+        logger.error(f"Error fetching constructor career stats for {constructor_id}: {e}")
+        return None

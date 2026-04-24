@@ -97,7 +97,20 @@ def generate_ai_response(message: str, user_id: str = None) -> str:
             except: pass
 
         # 🔵 2. FUZZY KEYWORD CORRELATION
-        # Instead of exact match, we check for 'relatable' keys using word intersection
+        # 🔵 2. TECHNICAL RAG (Retrieval-Augmented Generation)
+        # Search extracted manual intelligence
+        tech_context = ""
+        try:
+            with open("intelligence_corpus.json", "r") as f:
+                intelligence = json.load(f)
+            # Find best page match
+            for entry in intelligence:
+                if any(word in entry['content'].lower() for word in msg_lower.split() if len(word) > 4):
+                    tech_context = f" [Referencing Technical Manual Page {entry['page']}]: {entry['content'][:300]}..."
+                    break
+        except: pass
+
+        # 🟡 3. FUZZY KEYWORD CORRELATION
         words = set(re.findall(r'\w+', msg_lower))
         found_fact = None
         best_score = 0
@@ -105,46 +118,21 @@ def generate_ai_response(message: str, user_id: str = None) -> str:
         for key, fact in KNOWLEDGE_BASE.items():
             key_words = set(key.replace('_', ' ').split())
             intersection = words.intersection(key_words)
-            # Scoring: handle multi-word keys better
             score = len(intersection) / len(key_words) if key_words else 0
-            if score > 0.4 and score > best_score:
+            if score > 0.35 and score > best_score:
                 best_score = score
                 found_fact = fact
-            
-            # Difflib fallback for single long words (e.g. 'Aerodynamics')
-            if not found_fact:
-                matches = difflib.get_close_matches(msg_lower, [key.replace('_',' ')], n=1, cutoff=0.6)
-                if matches:
-                    found_fact = fact
-                    break
 
-        # 🟡 3. GENERATE THE ELITE RESPONSE
+        # 🟢 4. GENERATE THE ELITE RESPONSE
         final_reply = ""
-        if found_fact:
+        if tech_context and ("how" in msg_lower or "work" in msg_lower or "engine" in msg_lower):
+            final_reply = f"{persona_prefix}Analyzing Engineering Manual...{tech_context}\n\nThis principle is the foundation of our Academy curriculum. How else can I assist your technical research?"
+        elif found_fact:
             final_reply = f"{persona_prefix}{history_context}{found_fact}"
         elif len(msg_lower) < 6:
             final_reply = f"{persona_prefix}I'm tracking your telemetry! Ask me about 'Ground Effect', '2026 Regulations', or 'Adrian Newey' to dive deep into the data."
         else:
-            # External ELITE Provider with memory awareness
-            if G4F_OK:
-                full_prompt = (
-                    f"You are the AutoVerse Elite Engineer. Past context: {history_context}. "
-                    "Explain the following in an accessible but technically rich way for a 'Car Guy'. "
-                    "Use FIA data and Newey-level insights. Be clear and engaging. "
-                    f"Message: {message}"
-                )
-                try:
-                    resp = _client.chat.completions.create(
-                        model="gpt-4o", provider=g4f.Provider.BlackboxPro,
-                        messages=[{"role": "user", "content": full_prompt}], timeout=15
-                    )
-                    text = resp.choices[0].message.content
-                    if text and len(text.strip()) > 10:
-                        final_reply = f"{persona_prefix}{text}"
-                except: pass
-        
-        if not final_reply:
-            final_reply = f"{persona_prefix}I'm recalibrating my satellite link. Try asking about the '350kW 2026 MGU-K' while I reconnect to the master brain!"
+            final_reply = f"{persona_prefix}I am currently scanning our elite automotive database. While I don't have an immediate answer for that specific query, I recommend checking our F1 Hub or Car Library for technical data. How else can I help your research?"
 
         # 🔴 4. COMMIT TO MEMORY
         if user_id:
