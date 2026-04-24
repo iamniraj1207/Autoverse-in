@@ -685,72 +685,90 @@
     }
 }
 
-/* ─── MOBILE FALLBACK ─── */
+/* ─── MOBILE REFINEMENT — APPLE-STYLE SCALING ─── */
 @media (max-width: 768px) {
-
     .av-hero {
-        min-height: 500px;
+        min-height: 550px;
+        height: 100dvh;
     }
 
-    .fog-scene,
-    .backlight-system,
-    .headlight-beams {
-        display: none;
+    /* Restore atmospheric depth instead of hiding */
+    .fog-scene {
+        display: block;
+        opacity: 0.6;
+    }
+    
+    .backlight-system {
+        display: block;
+        transform: scale(0.6);
+        transform-origin: bottom center;
+        opacity: 0.5;
     }
 
     .car-stage {
-        animation-duration: 2s;
-        filter: none;
+        animation-duration: 2.5s;
+        filter: brightness(1);
         opacity: 1;
-        transform: translateX(-50%) scale(0.75);
-        bottom: 10px;
+        transform: translateX(-50%) scale(0.8);
+        bottom: 15%;
     }
 
     .ground-line {
-        display: none;
+        display: block;
+        bottom: 25%;
+        opacity: 0.4;
+        transform: scaleX(0.8);
     }
 
     .ground-pool {
-        display: none;
+        display: block;
+        bottom: 22%;
+        width: 300px;
+        opacity: 0.5;
     }
 
     .hero-text-content {
-        padding-bottom: 220px;
-        animation-delay: 1.5s;
+        padding-bottom: 25vh;
+        animation-delay: 1s;
     }
 
     .htc-title {
-        font-size: clamp(48px, 12vw, 72px);
-        letter-spacing: 2px;
+        font-size: clamp(44px, 15vw, 84px);
+        letter-spacing: 1px;
+        text-shadow: 0 0 40px rgba(232, 58, 58, 0.15);
     }
     
     .htc-sub {
-        font-size: 11px;
-        letter-spacing: 2px;
-        margin-bottom: 24px;
+        font-size: 10px;
+        letter-spacing: 3px;
+        margin-bottom: 30px;
+        padding: 0 20px;
     }
     
     .htc-eyebrow {
         font-size: 8px;
-        letter-spacing: 4px;
+        letter-spacing: 5px;
+        margin-bottom: 8px;
     }
     
     .htc-ctas {
         flex-direction: column;
         gap: 12px;
         align-items: center;
+        padding: 0 40px;
     }
     
     .htc-btn-primary,
     .htc-btn-ghost {
         width: 100%;
-        max-width: 280px;
+        max-width: 300px;
         justify-content: center;
-        padding: 14px 24px;
+        padding: 16px 24px;
+        border-radius: 4px;
     }
 }
 
-/* ─── SMALL PHONES ─── */
+/* ─── ULTRA-SMALL DEVICES (iPhone SE / etc) ─── */
 @media (max-width: 375px) {
     .av-hero {
         min-height: 450px;
