@@ -20,8 +20,8 @@ import f1_engine
 import news_engine
 import academy_engine
 import supabase_engine
-# Heavy modules loaded lazily to reduce serverless cold-start time
-# telemetry_engine, ai_engine are only imported when their routes are hit
+import telemetry_engine
+import ai_engine
 from security_engine import SecurityManager, role_required
 from flask_talisman import Talisman
 from flask_seasurf import SeaSurf
@@ -399,9 +399,8 @@ def f1_team_profile(team_id):
     live_stat = next((s for s in standings if s['team'].lower() in team[0]['name'].lower()), None)
     
     # Live Telemetry Teaser
-    from telemetry_engine import _simulated
     drv_codes = [d['name'].split(' ')[-1].upper()[:3] for d in drivers]
-    teaser_data = _simulated("Active Teaser", drv_codes[:2])
+    teaser_data = telemetry_engine._simulated("Active Teaser", drv_codes[:2])
     teaser_json = teaser_data[0] if isinstance(teaser_data, tuple) else teaser_data
     
     return render_template("f1/team.html", team=team[0], drivers=drivers, live_stat=live_stat, teaser_json=teaser_json)
@@ -467,7 +466,6 @@ def f1_telemetry_hub():
 @app.route("/f1/telemetry/analysis")
 @login_required
 def telemetry_analysis():
-    import telemetry_engine  # Lazy import — heavy FastF1/Plotly/NumPy
     gp = request.args.get("gp", "Bahrain")
     year = int(request.args.get("year", 2024))
     session_type = request.args.get("session_type", "R")
@@ -496,7 +494,6 @@ def telemetry_analysis():
 
     except Exception as e:
         print(f"Telemetry route error: {e}")
-        import telemetry_engine  # Ensure import for fallback
         sim_result = telemetry_engine._simulated(gp, drivers)
         chart_json, lap_summaries = sim_result if isinstance(sim_result, tuple) else (sim_result, [])
         return render_template("f1/telemetry_results.html",
@@ -557,7 +554,6 @@ def api_chat():
     if not user_msg:
         return jsonify({"error": "No message provided"}), 400
     
-    import ai_engine  # Lazy import — only needed for chat
     ai_response = ai_engine.generate_ai_response(user_msg, history)
     return jsonify({"reply": ai_response})
 
