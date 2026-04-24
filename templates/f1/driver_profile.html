@@ -78,6 +78,15 @@
                     <p class="profile-bio">{{ driver.bio or 'A legendary figure in the world of Formula One, known for
                         exceptional skill and competitive spirit.' }}</p>
 
+                    <!-- Monetization Row -->
+                    <div class="mt-4" data-aos="fade-up">
+                        <a href="https://www.amazon.in/s?k={{ driver.name|replace(' ','+') }}+f1+merchandise&tag=autoverse7-21&ref=as_li_ss_tl" 
+                           target="_blank" rel="sponsored nofollow" class="btn btn-lg px-5 font-bebas" 
+                           style="background: {{ driver.primary_color }}; color: white; letter-spacing: 1px;">
+                            SHOP OFFICIAL {{ driver.name | upper }} GEAR
+                        </a>
+                    </div>
+
                 </div>
             </div>
 
