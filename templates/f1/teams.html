@@ -37,7 +37,7 @@
                         </div>
 
                         <!-- Stats row -->
-                        <div class="tc-stats">
+                        <div class="tc-stats mb-3">
                             <div class="tc-stat">
                                 <span class="bebas" style="color:var(--tc); font-size:20px;">{{ team.championships }}</span>
                                 <span class="tc-stat-label">TITLES</span>
@@ -50,6 +50,13 @@
                                 <span class="bebas" style="color:var(--tc); font-size:20px;">{{ team.podiums }}</span>
                                 <span class="tc-stat-label">PODIUMS</span>
                             </div>
+                        </div>
+
+                        <!-- Affiliate Link -->
+                        <div class="tc-action mt-auto" onclick="event.stopPropagation();">
+                            <a href="{{ get_amazon_link(team.name + ' f1 merchandise') }}" target="_blank" rel="sponsored nofollow" class="btn btn-sm w-100 font-bebas py-2" style="background: var(--tc); color: #fff; border: none; letter-spacing: 1px;">
+                                SHOP OFFICIAL GEAR →
+                            </a>
                         </div>
                     </div>
                     <div class="tc-hover-glow"></div>

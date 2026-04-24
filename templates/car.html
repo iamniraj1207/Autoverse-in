@@ -117,7 +117,27 @@
             <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
                 <div class="spec-node text-center p-4">
                     <span class="s-key">TOP SPEED</span>
-                    <span class="font-bebas h2 mb-0">{{ car.top_speed or 'N/A' }} KMH</span>
+                    <span class="s-val">{{ car.top_speed }} KM/H</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ownership Accessories [Automated Monetization] -->
+        <div class="row g-4 mb-5" data-aos="fade-up">
+            <div class="col-lg-6">
+                <div class="acquisition-channel-card p-4">
+                    <div class="small font-monospace mb-2" style="color: var(--accent);">COLLECTOR_DOSSIER_01</div>
+                    <h4 class="font-bebas text-white h2">PRECISION SCALE MODEL</h4>
+                    <p class="muted small mb-4">Own a high-fidelity 1:18 or 1:24 scale replica of the {{ car.brand }} {{ car.model }} for your collection.</p>
+                    <a href="{{ get_amazon_link(car.brand + ' ' + car.model + ' diecast scale model') }}" target="_blank" rel="sponsored nofollow" class="btn btn-outline-danger w-100 font-bebas py-3">GET SCALE MODEL →</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="acquisition-channel-card p-4">
+                    <div class="small font-monospace mb-2" style="color: var(--accent);">MAINTENANCE_DOSSIER_02</div>
+                    <h4 class="font-bebas text-white h2">PROFESSIONAL CLEANING KIT</h4>
+                    <p class="muted small mb-4">Maintain the pristine finish of your {{ car.brand }} with authorized ceramic and detailing kits.</p>
+                    <a href="{{ get_amazon_link('car cleaning kit high gloss') }}" target="_blank" rel="sponsored nofollow" class="btn btn-outline-danger w-100 font-bebas py-3">GET CLEANING KIT →</a>
                 </div>
             </div>
         </div>
