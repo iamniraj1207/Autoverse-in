@@ -161,6 +161,7 @@
           <ul class="nav-links">
             <li><a href="/cars" {% if request.path.startswith('/cars') %}class="active" {% endif %}>Cars</a></li>
             <li><a href="/compare" {% if request.path=='/compare' %}class="active" {% endif %}>Compare</a></li>
+            <li><a href="/guides" {% if request.path.startswith('/guides') %}class="active" {% endif %}>Guides</a></li>
             <li><a href="/garage" {% if request.path=='/garage' %}class="active" {% endif %}>Garage</a></li>
             <li><a href="/academy" {% if request.path.startswith('/academy') %}class="active" {% endif %}>Academy</a></li>
             <li><a href="/elite" style="color: #e83a3a; font-weight: bold; text-shadow: 0 0 10px rgba(232, 58, 58, 0.4);" {% if request.path=='/elite' %}class="active" {% endif %}>Elite <i class="fas fa-crown ms-1"></i></a></li>
@@ -344,7 +345,18 @@
       }
 
       document.addEventListener('DOMContentLoaded', () => {
-        AOS.init({ duration: 800, once: true });
+        // Robust AOS Initialization
+        AOS.init({ 
+            duration: 800, 
+            once: true,
+            offset: 50,
+            disable: 'mobile' // Disable on very small devices for performance if needed, or keep for premium feel
+        });
+        
+        // Force refresh for dynamic content
+        window.addEventListener('load', () => {
+            AOS.refresh();
+        });
 
         document.querySelectorAll('img[data-type]').forEach(img => {
           img.onerror = () => handleImageError(img);

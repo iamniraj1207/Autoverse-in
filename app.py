@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import sqlite3
 import warnings
 
 # Silencing deprecation warnings from older libraries on Python 3.12
@@ -131,7 +132,7 @@ else:
 def enforce_login():
     """Global Security Gate: Enforce login for all high-value content."""
     # Architectural decision: Privacy, Terms, and About are public documents
-    exempt = ['index', 'login', 'register', 'auth_oauth', 'auth_callback', 'static', 'about', 'contact', 'privacy', 'terms', 'elite']
+    exempt = ['index', 'login', 'register', 'auth_oauth', 'auth_callback', 'static', 'about', 'contact', 'privacy', 'terms', 'elite', 'guides', 'guide_diecast', 'guide_cleaning', 'guide_books', 'guide_merch']
     if request.endpoint not in exempt:
         # Prevent loop/error on internal requests or missing endpoints
         if request.endpoint and not request.endpoint.startswith('static'):
@@ -174,6 +175,75 @@ def terms(): return render_template("terms.html")
 def elite_portal():
     """Elite Membership Portal: High-value revenue channel."""
     return render_template("elite.html")
+
+@app.route("/guides")
+def guides_hub():
+    """Content hub for affiliate-driven Buyer's Guides."""
+    return render_template("guides/index.html")
+
+@app.route("/guides/f1-diecast")
+def guide_diecast(): return render_template("guides/f1_diecast.html", tag="autoverse7-21")
+
+@app.route("/guides/cleaning-kit")
+def guide_cleaning(): return render_template("guides/cleaning_kit.html", tag="autoverse7-21")
+
+@app.route("/guides/f1-books")
+def guide_books(): return render_template("guides/f1_books.html", tag="autoverse7-21")
+
+@app.route("/guides/f1-merch")
+def guide_merch(): return render_template("guides/f1_merch.html", tag="autoverse7-21")
+
+@app.route("/maintenance/expand-academy")
+def maintenance_expand():
+    """Hidden Co-Founder utility to generate 360+ technical lessons."""
+    try:
+        COURSES = [
+            (101, "The Engine Masterclass", "beginner", "engine-masterclass", "Complete internal combustion theory.", "⚙️", 101),
+            (102, "Drivetrain Dynamics", "intermediate", "drivetrain-mastery", "Transmission, Differentials, and Torque.", "🔗", 102),
+            (103, "Electrical Architecture", "expert", "electrical-architecture", "Modern sensors, ECU, and CAN-bus.", "⚡", 103),
+            (104, "Chassis & Suspension", "expert", "chassis-suspension", "Geometry, Dampers, and Handling.", "🏎️", 104),
+            (105, "Fuel & Induction", "intermediate", "fuel-induction", "Turbocharging and Fuel Delivery.", "⛽", 105),
+            (106, "Braking & Safety", "beginner", "braking-mastery", "Hydraulics and ABS Logic.", "🛑", 106)
+        ]
+        
+        conn = sqlite3.connect("autoverse.db")
+        cursor = conn.cursor()
+        cursor.executemany("INSERT OR REPLACE INTO academy_courses VALUES (?,?,?,?,?,?,?)", COURSES)
+        
+        lessons = []
+        questions = []
+        TOPICS = {
+            101: ["Cylinder Blocks", "Pistons", "Crankshafts", "Camshafts", "Valvetrain", "Gaskets", "Timing Belts", "Oil Pumps", "Cooling Jackets", "Flywheels"],
+            102: ["Manual Gearboxes", "Automatic Transmissions", "Torque Converters", "Clutches", "Differentials", "Driveshafts", "CV Joints", "Transfer Cases", "Syncromesh", "Flywheel Interfacing"],
+            103: ["Battery Chemistry", "Alternators", "ECU Mapping", "Spark Plugs", "Sensors", "Wiring Looms", "CAN-bus", "Fuses & Relays", "Ignition Timing", "Diagnostic Port (OBD)"],
+            104: ["Coil Springs", "Dampers", "Anti-roll Bars", "Control Arms", "Steering Rack", "Power Steering", "Alignment Geometry", "Camber & Toe", "Strut Braces", "Bushings"],
+            105: ["Fuel Pumps", "Injectors", "Intake Manifolds", "Air Filters", "Turbochargers", "Intercoolers", "Superchargers", "Wastegates", "Blow-off Valves", "Fuel Pressure Regulators"],
+            106: ["Brake Pads", "Rotors/Discs", "Calipers", "Master Cylinders", "Brake Lines", "ABS Modules", "Brake Fluid", "Handbrakes", "Drum Brakes", "Regenerative Braking"]
+        }
+
+        for c_id, topic_list in TOPICS.items():
+            for i in range(1, 61):
+                lesson_id = (c_id * 1000) + i
+                topic = topic_list[(i-1) % len(topic_list)]
+                title = f"{topic}: Advanced Lesson {i}"
+                content = json.dumps({
+                    "sections": [
+                        {"title": "Introduction", "content": f"The {topic} is a critical component of the {c_id} ecosystem. Understanding its thermal and mechanical limits is key to performance."},
+                        {"title": "Engineering Physics", "content": f"Analyzing the frictional coefficients and load bearing capacity of {topic} during high-stress operations."},
+                        {"title": "Industrial Standards", "content": "Referencing SAE J-Series technical standards for tolerance and material specification."},
+                        {"title": "Summary", "content": "Modern engineering requires zero-defect manufacturing for this unit."}
+                    ]
+                })
+                lessons.append((lesson_id, c_id, title, f"{topic.lower().replace(' ', '-')}-{i}", content, i))
+                questions.append((lesson_id * 10, lesson_id, "multiple_choice", f"What is the primary technical function of the {topic}?", json.dumps(["Structural Support", "Thermal Management", "Torque Transfer", "Energy Storage"]), "Structural Support", "Correct based on standard automotive theory.", None, 300))
+
+        cursor.executemany("INSERT OR REPLACE INTO academy_lessons (id, course_id, title, slug, content_json, order_num) VALUES (?,?,?,?,?,?)", lessons)
+        cursor.executemany("INSERT OR REPLACE INTO academy_questions (id, lesson_id, question_type, question, options_json, correct_answer, explanation, image_url, xp_reward) VALUES (?,?,?,?,?,?,?,?,?)", questions)
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "Success", "lessons_generated": len(lessons)})
+    except Exception as e:
+        return jsonify({"status": "Error", "message": str(e)})
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
