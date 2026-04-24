@@ -7,13 +7,8 @@ import json
 import difflib
 import sqlite3
 
-try:
-    import g4f
-    from g4f.client import Client
-    _client = Client()
-    G4F_OK = True
-except Exception:
-    G4F_OK = False
+# G4F removed for Vercel build stability
+G4F_OK = False
 
 SYSTEM_PROMPT = """You are 'AutoVerse Virtual Guide' — a supreme agentically-trained automotive AI and the official digital concierge for the AutoVerse platform.
 Your purpose is to assist users in navigating the elite automotive data available here.
