@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "cleanUrls": true,
-  "trailingSlash": false,
   "builds": [
     {
       "src": "app.py",
@@ -71,7 +69,7 @@
   "crons": [
     {
       "path": "/api/cron/keepalive",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 * * * *"
     }
   ]
 }
