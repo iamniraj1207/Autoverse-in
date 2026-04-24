@@ -34,7 +34,7 @@ from flask_compress import Compress
 from dotenv import load_dotenv
 
 load_dotenv()
-from monetization_engine import get_amazon_link, get_featured_products
+from monetization_engine import get_amazon_link, get_featured_products, get_fanatics_link, get_ticket_link
 
 # --- Vercel Cloud Compatibility ---
 IS_VERCEL = os.environ.get('VERCEL') == '1'
@@ -97,10 +97,26 @@ def inject_user_data():
         if session.get('user_id'):
             # Fetch with timeout/error protection
             xp_data = supabase_engine.get_user_xp(session['user_id'])
-            return {'user_xp': xp_data, 'username': session.get('username'), 'get_amazon_link': get_amazon_link, 'featured_products': get_featured_products(), 'tag': 'autoverse7-21'}
+            return {
+                'user_xp': xp_data, 
+                'username': session.get('username'), 
+                'get_amazon_link': get_amazon_link,
+                'get_fanatics_link': get_fanatics_link,
+                'get_ticket_link': get_ticket_link,
+                'featured_products': get_featured_products(), 
+                'tag': 'autoverse7-21'
+            }
     except Exception as e:
         print(f"Global Context Error: {e}")
-    return {'user_xp': None, 'username': None, 'get_amazon_link': get_amazon_link, 'featured_products': get_featured_products(), 'tag': 'autoverse7-21'}
+    return {
+        'user_xp': None, 
+        'username': None, 
+        'get_amazon_link': get_amazon_link,
+        'get_fanatics_link': get_fanatics_link,
+        'get_ticket_link': get_ticket_link,
+        'featured_products': get_featured_products(), 
+        'tag': 'autoverse7-21'
+    }
 
 import threading
 import car_auto_update
