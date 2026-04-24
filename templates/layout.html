@@ -66,6 +66,13 @@
         z-index: 1001;
     }
 
+    /* Base Desktop Nav Layout */
+    .nav-links-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+    }
+
     @media (max-width: 991px) {
         .mobile-nav-toggle { display: block; }
         .nav-inner { height: 70px; }
@@ -99,6 +106,19 @@
         .nav-links-wrapper { padding: 24px; gap: 24px; }
     }
   </style>
+  <script>
+    function toggleMobileNav() {
+      const nav = document.getElementById('nav-wrapper');
+      const btnIcon = document.querySelector('#mobile-nav-btn i');
+      if (nav) {
+        nav.classList.toggle('active');
+        if (btnIcon) {
+          btnIcon.classList.toggle('fa-bars');
+          btnIcon.classList.toggle('fa-times');
+        }
+      }
+    }
+  </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
