@@ -56,10 +56,6 @@
       "dest": "/static/robots.txt"
     },
     {
-      "src": "/sitemap.xml",
-      "dest": "app.py"
-    },
-    {
       "handle": "filesystem"
     },
     {
@@ -70,7 +66,7 @@
   "crons": [
     {
       "path": "/api/cron/keepalive",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
