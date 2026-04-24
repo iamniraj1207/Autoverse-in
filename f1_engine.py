@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime, timezone
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -24,27 +25,35 @@ def get_current_standings():
         return cache['standings']['data']
         
     try:
-        res = requests.get(f"{JOLPI_BASE}/current/driverStandings.json", timeout=10)
-        res.raise_for_status()
-        data = res.json()
+        def fetch_jolpi():
+            return requests.get(f"{JOLPI_BASE}/current/driverStandings.json", timeout=10).json()
+        
+        def fetch_openf1():
+            try:
+                o_res = requests.get(f"{OPENF1_BASE}/drivers?session_key=latest", timeout=5)
+                return o_res.json() if o_res.status_code == 200 else []
+            except: return []
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future_jolpi = executor.submit(fetch_jolpi)
+            future_openf1 = executor.submit(fetch_openf1)
+            
+            data = future_jolpi.result()
+            openf1_raw = future_openf1.result()
+
         standings = data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
         
-        # Try to cross-reference OpenF1 for headshots
+        # Cross-reference headshots
         openf1_images = {
             'lindblad': "https://ui-avatars.com/api/?name=Arvid+Lindblad&size=400&background=1a1a2e&color=e83a3a",
             'perez': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/2col/image.png",
             'hulkenberg': "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/2col/image.png"
         }
-        try:
-            o_res = requests.get(f"{OPENF1_BASE}/drivers?session_key=latest", timeout=5)
-            if o_res.status_code == 200:
-                for d in o_res.json():
-                    h_url = d['headshot_url']
-                    if h_url:
-                        h_url = h_url.replace('1col/image.png', '2col/image.png')
-                    openf1_images[d['last_name'].lower()] = h_url
-        except:
-            pass
+        for d in openf1_raw:
+            h_url = d.get('headshot_url')
+            if h_url:
+                h_url = h_url.replace('1col/image.png', '2col/image.png')
+            openf1_images[d.get('last_name', '').lower()] = h_url
 
         parsed = []
         for s in standings:

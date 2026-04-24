@@ -304,11 +304,11 @@
 
 
   <!-- Global Scripts -->
-  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="{{ url_for('static', filename='js/garage.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/three_scenes.js') }}"></script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/garage.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/animations.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/three_scenes.js') }}" defer></script>
 
   {% block scripts %}{% endblock %}
 

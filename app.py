@@ -15,6 +15,7 @@ except: pass
 
 from cs50 import SQL
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+from flask_compress import Compress
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import error_response, login_required, success_response
 import f1_engine
@@ -471,6 +472,7 @@ def f1_teams():
     return render_template("f1/teams.html", active_teams=active, legacy_teams=legacy)
 
 @app.route("/f1/team/<int:team_id>")
+@cache.cached(timeout=600)
 def f1_team_profile(team_id):
     team = db.execute("SELECT * FROM teams WHERE id = ?", team_id)
     if not team: return render_template("404.html"), 404
